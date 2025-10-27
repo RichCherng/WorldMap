@@ -1,13 +1,13 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.0'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'com.github.node-gradle.node' version '7.0.1'
 }
 
 group = 'com.worldmap'
 version = '0.0.1-SNAPSHOT'
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 configurations {
     compileOnly {
@@ -37,19 +37,12 @@ node {
     nodeProjectDir = file("${project.projectDir}/frontend")
 }
 
-// Task to install npm dependencies
-task npmInstall(type: com.github.gradle.node.npm.task.NpmTask) {
-    description = "Install npm dependencies"
-    workingDir = file("${project.projectDir}/frontend")
-    args = ['install']
-}
-
 // Task to build React app
 task buildReact(type: com.github.gradle.node.npm.task.NpmTask) {
     description = "Build React application"
     workingDir = file("${project.projectDir}/frontend")
     args = ['run', 'build']
-    dependsOn npmInstall
+    dependsOn 'npmInstall'
     inputs.files(fileTree("frontend/src"))
     inputs.files(fileTree("frontend/public"))
     inputs.file("frontend/package.json")
