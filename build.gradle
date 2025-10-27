@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.github.node-gradle.node' version '7.0.1'
+}
+
+group = 'com.worldmap'
+version = '0.0.1-SNAPSHOT'
+java.sourceCompatibility = JavaVersion.VERSION_17
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// Node.js configuration for React build
+node {
+    version = '18.18.0'
+    npmVersion = '9.8.1'
+    download = true
+    workDir = file("${project.projectDir}/frontend/.gradle/nodejs")
+    npmWorkDir = file("${project.projectDir}/frontend/.gradle/npm")
+    nodeProjectDir = file("${project.projectDir}/frontend")
+}
+
+// Task to install npm dependencies
+task npmInstall(type: com.github.gradle.node.npm.task.NpmTask) {
+    description = "Install npm dependencies"
+    workingDir = file("${project.projectDir}/frontend")
+    args = ['install']
+}
+
+// Task to build React app
+task buildReact(type: com.github.gradle.node.npm.task.NpmTask) {
+    description = "Build React application"
+    workingDir = file("${project.projectDir}/frontend")
+    args = ['run', 'build']
+    dependsOn npmInstall
+    inputs.files(fileTree("frontend/src"))
+    inputs.files(fileTree("frontend/public"))
+    inputs.file("frontend/package.json")
+    outputs.dir("frontend/build")
+}
+
+// Copy React build to Spring Boot static resources
+task copyReactBuild(type: Copy) {
+    description = "Copy React build to Spring Boot static resources"
+    from "frontend/build"
+    into "src/main/resources/static"
+    dependsOn buildReact
+}
+
+// Make sure React is built before processing resources
+processResources {
+    dependsOn copyReactBuild
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
