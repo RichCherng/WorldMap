@@ -5,7 +5,7 @@ import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
 
-function App() {
+const App: React.FC = () => {
   return (
     <div className="container">
       <div className="header">
@@ -23,6 +23,6 @@ function App() {
       </Routes>
     </div>
   );
-}
+};
 
 export default App;
