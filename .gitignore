@@ -19,6 +19,7 @@ build/
 *.rar
 hs_err_pid*
 replay_pid*
+bin/
 
 ### Spring Boot ###
 target/
