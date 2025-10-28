@@ -9,10 +9,10 @@ import WorldMap from './components/WorldMap';
 const App: React.FC = () => {
   return (
     <div className="container">
-      <div className="header">
+      {/* <div className="header">
         <h1>🗺️ WorldMap Application</h1>
         <p>A full-stack application with Spring Boot and React</p>
-      </div>
+      </div> */}
       
       <Navigation />
       

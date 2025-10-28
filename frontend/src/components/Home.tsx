@@ -79,6 +79,8 @@ const Home: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState('');
 
+  const API_KEY_MAP = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "";
+  
   const addTodo = () => {
     if (inputValue.trim() === '') return;
     
@@ -110,7 +112,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <div className="card">
+      {/* <div className="card">
         <h2>Welcome to WorldMap (New Home)</h2>
         <p>
           This is the new home page. Use the navigation to explore the application —
@@ -120,7 +122,7 @@ const Home: React.FC = () => {
           The previous landing page has been renamed to <strong>OldLandingPage</strong> and
           preserved in <code>frontend/src/components/OldLandingPage.tsx</code>.
         </p>
-      </div>
+      </div> */}
 
       <div className="card" style={styles.todoCard}>
         <h2>My Todo List</h2>
@@ -175,6 +177,21 @@ const Home: React.FC = () => {
           Total: {todos.length} task{todos.length !== 1 ? 's' : ''} | 
           Completed: {todos.filter(t => t.completed).length}
         </p>
+      </div>
+
+      <div className="card" style={styles.todoCard}>
+        <h2>Map View</h2>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <iframe
+            width="600"
+            height="450"
+            style={{ border: 0 }}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="no-referrer-when-downgrade"
+            src={`https://www.google.com/maps/embed/v1/place?key=${API_KEY_MAP}&q=Space+Needle,Seattle+WA`}
+          />
+        </div>
       </div>
     </div>
   );
