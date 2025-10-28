@@ -6,6 +6,15 @@ interface Todo {
   completed: boolean;
 }
 
+interface Announcement {
+  id: number;
+  date: string;
+  title: string;
+  message: string;
+  icon: string;
+  type: 'success' | 'warning' | 'update' | 'info';
+}
+
 const styles = {
   todoCard: {
     marginTop: '20px'
@@ -89,6 +98,70 @@ const styles = {
     fontWeight: 'bold' as const,
     marginBottom: '10px',
     color: '#333'
+  },
+  announcementsContainer: {
+    marginBottom: '20px'
+  },
+  announcementsScroll: {
+    maxHeight: '150px',
+    overflowY: 'auto' as const,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px',
+    padding: '5px'
+  },
+  announcement: (type: string) => ({
+    backgroundColor: type === 'success' ? '#4CAF50' : 
+                     type === 'warning' ? '#ff9800' : 
+                     type === 'update' ? '#2196F3' : '#4CAF50',
+    color: 'white',
+    padding: '15px 20px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '15px',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    cursor: 'pointer'
+  }),
+  announcementHover: {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
+  },
+  announcementIcon: {
+    fontSize: '24px',
+    minWidth: '24px'
+  },
+  announcementContent: {
+    flex: 1
+  },
+  announcementHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '8px'
+  },
+  announcementTitle: {
+    fontSize: '18px',
+    fontWeight: 'bold' as const,
+    margin: 0
+  },
+  announcementDate: {
+    fontSize: '12px',
+    opacity: 0.8,
+    fontStyle: 'italic' as const
+  },
+  announcementText: {
+    fontSize: '14px',
+    opacity: 0.95,
+    lineHeight: '1.5'
+  },
+  scrollHint: {
+    textAlign: 'center' as const,
+    fontSize: '12px',
+    color: '#666',
+    marginTop: '10px',
+    fontStyle: 'italic' as const
   }
 };
 
@@ -96,7 +169,69 @@ const Home: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState('');
 
+  // Sample announcements data
+  const [announcements] = useState<Announcement[]>([
+    {
+      id: 1,
+      date: new Date().toISOString(),
+      title: 'Welcome to WorldMap!',
+      message: 'Your interactive travel planning companion is now live. Start adding your travel destinations!',
+      icon: '🎉',
+      type: 'success'
+    },
+    {
+      id: 2,
+      date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+      title: 'New Feature: Todo List',
+      message: 'Keep track of your travel tasks with our new integrated todo list feature.',
+      icon: '✨',
+      type: 'update'
+    },
+    {
+      id: 3,
+      date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+      title: 'Google Maps Integration',
+      message: 'Explore locations and plan routes directly from the home page using embedded maps.',
+      icon: '🗺️',
+      type: 'info'
+    },
+    {
+      id: 4,
+      date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+      title: 'System Maintenance Scheduled',
+      message: 'We will perform routine maintenance next weekend. Expect brief interruptions.',
+      icon: '⚠️',
+      type: 'warning'
+    },
+    {
+      id: 5,
+      date: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
+      title: 'Developer Update',
+      message: 'Backend API performance improvements have been deployed. Enjoy faster load times!',
+      icon: '🚀',
+      type: 'update'
+    }
+  ]);
+
   const API_KEY_MAP = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "";
+  
+  // Format date helper
+  const formatDate = (isoDate: string): string => {
+    const date = new Date(isoDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
   
   const addTodo = () => {
     if (inputValue.trim() === '') return;
@@ -129,17 +264,41 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* <div className="card">
-        <h2>Welcome to WorldMap (New Home)</h2>
-        <p>
-          This is the new home page. Use the navigation to explore the application —
-          the interactive world map, API demos, and contact page.
-        </p>
-        <p>
-          The previous landing page has been renamed to <strong>OldLandingPage</strong> and
-          preserved in <code>frontend/src/components/OldLandingPage.tsx</code>.
-        </p>
-      </div> */}
+      {/* Announcements Section */}
+      <div className="card" style={styles.announcementsContainer}>
+        <h2>📢 Announcements</h2>
+        <div style={styles.announcementsScroll}>
+          {announcements.map((announcement) => (
+            <div
+              key={announcement.id}
+              style={styles.announcement(announcement.type)}
+              onMouseEnter={(e) => {
+                Object.assign(e.currentTarget.style, styles.announcementHover);
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              }}
+            >
+              <span style={styles.announcementIcon}>{announcement.icon}</span>
+              <div style={styles.announcementContent}>
+                <div style={styles.announcementHeader}>
+                  <h3 style={styles.announcementTitle}>{announcement.title}</h3>
+                  <span style={styles.announcementDate}>
+                    {formatDate(announcement.date)}
+                  </span>
+                </div>
+                <p style={styles.announcementText}>{announcement.message}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        {announcements.length > 1 && (
+          <div style={styles.scrollHint}>
+            ↓ Scroll to see more announcements ↓
+          </div>
+        )}
+      </div>
 
       <div className="card" style={styles.todoCard}>
         <h2>My Todo List</h2>
