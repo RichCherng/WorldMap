@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import './TodoTransitions.css';
 
 interface Todo {
   id: number;
@@ -46,7 +48,10 @@ const styles = {
   },
   todoList: {
     listStyle: 'none',
-    padding: 0
+    padding: 0,
+    maxHeight: '300px',
+    overflowY: 'auto' as const,
+    position: 'relative' as const
   },
   todoItem: {
     display: 'flex',
@@ -66,7 +71,8 @@ const styles = {
   todoText: (completed: boolean) => ({
     flex: 1,
     textDecoration: completed ? 'line-through' : 'none',
-    color: completed ? '#999' : '#333'
+    color: completed ? '#999' : '#333',
+    transition: 'all 0.3s ease-in-out'
   }),
   deleteButton: {
     padding: '5px 10px',
@@ -168,6 +174,7 @@ const styles = {
 const Home: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [animatingIds, setAnimatingIds] = useState<Set<number>>(new Set());
 
   // Sample announcements data
   const [announcements] = useState<Announcement[]>([
@@ -247,9 +254,21 @@ const Home: React.FC = () => {
   };
 
   const toggleTodo = (id: number) => {
+    // Add animation trigger
+    setAnimatingIds(prev => new Set(prev).add(id));
+    
     setTodos(todos.map(todo => 
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
+    
+    // Remove animation class after animation completes
+    setTimeout(() => {
+      setAnimatingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+    }, 400);
   };
 
   const deleteTodo = (id: number) => {
@@ -323,30 +342,46 @@ const Home: React.FC = () => {
         {todos.length === 0 ? (
           <p style={styles.emptyMessage}>No tasks yet. Add one above!</p>
         ) : (
-          <ul style={styles.todoList}>
-            {todos.map(todo => (
-              <li
-                key={todo.id}
-                style={styles.todoItem}
-              >
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => toggleTodo(todo.id)}
-                  style={styles.checkbox}
-                />
-                <span style={styles.todoText(todo.completed)}>
-                  {todo.text}
-                </span>
-                <button
-                  onClick={() => deleteTodo(todo.id)}
-                  style={styles.deleteButton}
+          <TransitionGroup component="ul" style={styles.todoList}>
+            {[...todos]
+              .sort((a, b) => {
+                // Sort: incomplete tasks first, completed tasks last
+                if (a.completed === b.completed) return 0;
+                return a.completed ? 1 : -1;
+              })
+              .map(todo => (
+                <CSSTransition
+                  key={todo.id}
+                  timeout={500}
+                  classNames="todo-item"
                 >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
+                  <li 
+                    style={styles.todoItem}
+                    className={`todo-item-transition ${
+                      animatingIds.has(todo.id) 
+                        ? (todo.completed ? 'todo-checked' : 'todo-unchecked')
+                        : ''
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={todo.completed}
+                      onChange={() => toggleTodo(todo.id)}
+                      style={styles.checkbox}
+                    />
+                    <span style={styles.todoText(todo.completed)}>
+                      {todo.text}
+                    </span>
+                    <button
+                      onClick={() => deleteTodo(todo.id)}
+                      style={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </li>
+                </CSSTransition>
+              ))}
+          </TransitionGroup>
         )}
 
         <p style={styles.stats}>
