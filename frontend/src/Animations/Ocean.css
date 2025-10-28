@@ -1,0 +1,65 @@
+/* Ocean Animation Styles */
+.ocean-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ocean-row {
+  display: flex;
+  height: 4vh;
+  width: 100%;
+}
+
+.ocean-pixel {
+  flex: 1;
+  min-width: 2.5vw;
+  height: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.ocean-deep {
+  background-color: #1e3a8a;
+}
+
+.ocean-medium {
+  background-color: #2563eb;
+}
+
+.ocean-shallow {
+  background-color: #3b82f6;
+}
+
+.ocean-darker {
+  background-color: #1e40af;
+}
+
+.ocean-foam {
+  background-color: #f0f9ff;
+  animation: foam-sparkle 0.5s ease-in-out;
+}
+
+@keyframes foam-sparkle {
+  0%, 100% { 
+    background-color: #f0f9ff; 
+  }
+  50% { 
+    background-color: #bae6fd; 
+  }
+}
+
+/* Responsive adjustments for ocean */
+@media (max-width: 768px) {
+  .ocean-pixel {
+    min-width: 4vw;
+  }
+  
+  .ocean-row {
+    height: 3vh;
+  }
+}

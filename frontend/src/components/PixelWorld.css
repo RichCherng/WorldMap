@@ -1,0 +1,76 @@
+/* Pixel World Container Styles */
+.pixel-world-map {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  margin: -20px;
+  overflow: hidden;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Map Controls */
+.map-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.control-button {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  border: 2px solid #60a5fa;
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 1px 1px 0px #1e40af;
+  box-shadow: 0 3px 0 #1e40af;
+  min-width: 160px;
+  text-align: left;
+}
+
+.control-button:hover {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 #1e40af;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.control-button:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.control-button.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: #34d399;
+  box-shadow: 0 3px 0 #047857;
+  text-shadow: 1px 1px 0px #047857;
+}
+
+.control-button.active:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 2px 0 #047857;
+}
+
+/* Responsive adjustments for controls */
+@media (max-width: 768px) {
+  .map-controls {
+    top: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+  
+  .control-button {
+    font-size: 10px;
+    padding: 6px 10px;
+    min-width: 140px;
+  }
+}
