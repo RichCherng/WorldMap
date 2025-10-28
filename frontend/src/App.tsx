@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
+import WorldMap from './components/WorldMap';
 
 const App: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ const App: React.FC = () => {
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/worldmap" element={<WorldMap />} />
       </Routes>
     </div>
   );
