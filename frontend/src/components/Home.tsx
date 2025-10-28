@@ -72,6 +72,23 @@ const styles = {
     marginTop: '15px',
     fontSize: '14px',
     color: '#666'
+  },
+  mapContainer: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '20px',
+    marginTop: '20px'
+  },
+  mapWidget: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center'
+  },
+  mapTitle: {
+    fontSize: '16px',
+    fontWeight: 'bold' as const,
+    marginBottom: '10px',
+    color: '#333'
   }
 };
 
@@ -181,16 +198,31 @@ const Home: React.FC = () => {
 
       <div className="card" style={styles.todoCard}>
         <h2>Map View</h2>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <iframe
-            width="600"
-            height="450"
-            style={{ border: 0 }}
-            loading="lazy"
-            allowFullScreen
-            referrerPolicy="no-referrer-when-downgrade"
-            src={`https://www.google.com/maps/embed/v1/place?key=${API_KEY_MAP}&q=Space+Needle,Seattle+WA`}
-          />
+        <div style={styles.mapContainer}>
+          <div style={styles.mapWidget}>
+            <h3 style={styles.mapTitle}>📍 Location</h3>
+            <iframe
+              width="100%"
+              height="300"
+              style={{ border: 0, borderRadius: '8px' }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps/embed/v1/place?key=${API_KEY_MAP}&q=Space+Needle,Seattle+WA`}
+            />
+          </div>
+          <div style={styles.mapWidget}>
+            <h3 style={styles.mapTitle}>🗺️ Directions</h3>
+            <iframe
+              width="100%"
+              height="300"
+              style={{ border: 0, borderRadius: '8px' }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps/embed/v1/directions?key=${API_KEY_MAP}&origin=Oslo+Norway&destination=Telemark+Norway&avoid=tolls|highways`}
+            />
+          </div>
         </div>
       </div>
     </div>
