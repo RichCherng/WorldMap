@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Home from './components/Home';
 import About from './components/About';
@@ -7,6 +7,9 @@ import Contact from './components/Contact';
 import WorldMap from './components/WorldMap';
 
 const App: React.FC = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/' || location.pathname === '/home';
+
   return (
     <div className="container">
       {/* <div className="header">
@@ -14,7 +17,7 @@ const App: React.FC = () => {
         <p>A full-stack application with Spring Boot and React</p>
       </div> */}
       
-      <Navigation />
+      {!isHomePage && <Navigation />}
       
       <Routes>
         <Route path="/" element={<Home />} />
