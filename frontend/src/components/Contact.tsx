@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
 
-function Contact() {
-  const [formData, setFormData] = useState({
+interface FormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+const Contact: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     message: ''
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     alert('Form submitted! (This is just a demo - no actual submission occurs)');
     console.log('Form data:', formData);
@@ -81,7 +87,7 @@ function Contact() {
             value={formData.message}
             onChange={handleChange}
             required
-            rows="5"
+            rows={5}
             style={{
               width: '100%',
               padding: '10px',
@@ -106,6 +112,6 @@ function Contact() {
       </div>
     </div>
   );
-}
+};
 
 export default Contact;

@@ -4,9 +4,10 @@ A full-stack web application that demonstrates the integration of Spring Boot (J
 
 ## 🏗️ Architecture
 
-- **Backend**: Spring Boot 3.2 with Java 17
+- **Backend**: Spring Boot 3.3.5 with Java 21
 - **Frontend**: React 18 with React Router
-- **Build System**: Gradle with Node.js plugin
+- **Build System**: Gradle 9.1.0 with Node.js plugin
+- **Development**: Dual terminal setup with hot reloading
 - **Packaging**: Single executable JAR with embedded React build
 
 ## 📁 Project Structure
@@ -46,24 +47,47 @@ WorldMap/
 
 ### Prerequisites
 
-- Java 17 or higher
-- Gradle 7.0 or higher (or use the Gradle wrapper)
+- Java 21 or higher
+- Gradle 9.0 or higher (or use the Gradle wrapper)
 
-### Development Mode
+### Development Mode (Recommended: Dual Terminal Approach)
 
-1. **Start the Spring Boot backend**:
-   ```bash
-   ./gradlew bootRun
-   ```
-   The backend will run on http://localhost:8080
+For the best development experience with hot reloading:
 
-2. **Start the React development server** (in a separate terminal):
-   ```bash
-   cd frontend
-   npm install
-   npm start
-   ```
-   The React dev server will run on http://localhost:3000 with proxy to backend
+#### Terminal 1 - Backend Server
+```bash
+gradle bootRun
+```
+- Spring Boot backend runs on **http://localhost:8080**
+- Serves API endpoints and production static files
+- You'll see a startup banner with local addresses
+
+#### Terminal 2 - Frontend Development Server
+```bash
+gradle npm_start
+```
+- React dev server runs on **http://localhost:3000**
+- Hot reloading for instant React changes
+- Automatically proxies API calls to backend at :8080
+
+### Development Workflow
+
+1. **For active development**: Use **http://localhost:3000**
+   - ✅ Instant hot reloading for React changes
+   - ✅ Full React development tools support
+   - ✅ API calls automatically forwarded to Spring Boot
+
+2. **For production testing**: Use **http://localhost:8080**
+   - ✅ Tests the actual production build
+   - ✅ Verifies static resource serving
+
+### Alternative: Single Terminal Development
+
+If you prefer rebuilding for each change:
+```bash
+gradle build && gradle bootRun
+```
+Visit http://localhost:8080 (rebuild required for React changes)
 
 ### Production Build
 
@@ -107,8 +131,23 @@ Visit http://localhost:8080 to see the application.
 
 ```properties
 server.port=8080
+server.servlet.context-path=/
+
+# Static resources configuration
 spring.web.resources.static-locations=classpath:/static/
 spring.web.resources.cache.period=3600
+
+# Logging configuration
+logging.level.com.worldmap=INFO
+logging.level.root=WARN
+logging.level.org.springframework.boot.web.embedded.tomcat=INFO
+
+# Application name
+spring.application.name=WorldMap
+
+# Show startup info
+spring.main.banner-mode=console
+spring.output.ansi.enabled=always
 ```
 
 ### React Configuration (`package.json`)
@@ -135,12 +174,20 @@ npm test
 
 ## 📦 Available Gradle Tasks
 
-- `./gradlew bootRun` - Run Spring Boot application
-- `./gradlew build` - Build entire application
-- `./gradlew npmInstall` - Install React dependencies
-- `./gradlew buildReact` - Build React application
-- `./gradlew copyReactBuild` - Copy React build to Spring resources
-- `./gradlew clean` - Clean build directories
+### Development Tasks
+- `gradle bootRun` - Run Spring Boot application (backend server)
+- `gradle npm_start` - Run React development server with hot reloading
+- `gradle clean` - Clean build directories
+
+### Build Tasks
+- `gradle build` - Build entire application (React + Spring Boot)
+- `gradle npmInstall` - Install React dependencies only
+- `gradle buildReact` - Build React application only
+- `gradle copyReactBuild` - Copy React build to Spring resources
+
+### Testing Tasks
+- `gradle test` - Run Java tests
+- `gradle npm_test` - Run React tests
 
 ## 🎯 Features Demonstrated
 
@@ -181,14 +228,29 @@ npm test
 
 ### Build Issues
 
-- Ensure Java 17+ is installed and `JAVA_HOME` is set
+- Ensure Java 21+ is installed and `JAVA_HOME` is set
 - Check that Node.js tasks complete successfully during build
 - Verify React build output exists in `frontend/build/`
+- If Gradle daemon issues occur, try `gradle build --no-daemon`
+
+### Development Issues
+
+- **React changes not appearing**: Use http://localhost:3000 (dev server) not :8080
+- **API calls failing**: Ensure Spring Boot backend is running on :8080
+- **npm command not found**: Use `gradle npm_start` instead of `npm start`
+- **Hot reload not working**: Restart the React dev server (`gradle npm_start`)
 
 ### Runtime Issues
 
 - Check that API endpoints return expected JSON
 - Verify React routing configuration matches server-side fallbacks
 - Ensure proxy configuration is correct for development mode
+
+## 💡 Development Tips
+
+- **Hot Reloading**: Always use the dual terminal approach for active development
+- **API Testing**: Backend runs independently on :8080 for API testing
+- **Production Testing**: Build and test at :8080 before deployment
+- **Port Conflicts**: Change ports in `application.properties` if needed
 
 This setup provides a solid foundation for building full-stack applications with Spring Boot and React! 🎉

@@ -1,29 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function Home() {
-  const [apiResponse, setApiResponse] = useState(null);
-  const [statusResponse, setStatusResponse] = useState(null);
-  const [loading, setLoading] = useState(false);
+interface ApiResponse {
+  message?: string;
+  timestamp?: string;
+  error?: string;
+}
 
-  const fetchHello = async () => {
+interface StatusResponse {
+  status?: string;
+  uptime?: string;
+  version?: string;
+  error?: string;
+}
+
+const Home: React.FC = () => {
+  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+  const [statusResponse, setStatusResponse] = useState<StatusResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchHello = async (): Promise<void> => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/hello');
+      const response = await axios.get<ApiResponse>('/api/hello');
       setApiResponse(response.data);
     } catch (error) {
-      setApiResponse({ error: 'Failed to fetch from API: ' + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setApiResponse({ error: 'Failed to fetch from API: ' + errorMessage });
     }
     setLoading(false);
   };
 
-  const fetchStatus = async () => {
+  const fetchStatus = async (): Promise<void> => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/status');
+      const response = await axios.get<StatusResponse>('/api/status');
       setStatusResponse(response.data);
     } catch (error) {
-      setStatusResponse({ error: 'Failed to fetch status: ' + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setStatusResponse({ error: 'Failed to fetch status: ' + errorMessage });
     }
     setLoading(false);
   };
@@ -41,7 +56,7 @@ function Home() {
         </p>
         <ul>
           <li><strong>Backend:</strong> Spring Boot (Java) with REST API</li>
-          <li><strong>Frontend:</strong> React with React Router</li>
+          <li><strong>Frontend:</strong> React with TypeScript</li>
           <li><strong>Build System:</strong> Gradle with Node.js plugin</li>
         </ul>
       </div>
@@ -78,6 +93,6 @@ function Home() {
       </div>
     </div>
   );
-}
+};
 
 export default Home;
