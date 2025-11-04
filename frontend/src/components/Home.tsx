@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import ScrollStack, { ScrollStackItem } from './ScrollStack';
 import './TodoTransitions.css';
 
 interface Todo {
@@ -282,44 +283,48 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div>
+    <ScrollStack>
       {/* Announcements Section */}
-      <div className="card" style={styles.announcementsContainer}>
-        <h2>📢 Announcements</h2>
-        <div style={styles.announcementsScroll}>
-          {announcements.map((announcement) => (
-            <div
-              key={announcement.id}
-              style={styles.announcement(announcement.type)}
-              onMouseEnter={(e) => {
-                Object.assign(e.currentTarget.style, styles.announcementHover);
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-              }}
-            >
-              <span style={styles.announcementIcon}>{announcement.icon}</span>
-              <div style={styles.announcementContent}>
-                <div style={styles.announcementHeader}>
-                  <h3 style={styles.announcementTitle}>{announcement.title}</h3>
-                  <span style={styles.announcementDate}>
-                    {formatDate(announcement.date)}
-                  </span>
+      <ScrollStackItem>
+        <div className="card" style={styles.announcementsContainer}>
+          <h2>📢 Announcements</h2>
+          <div style={styles.announcementsScroll}>
+            {announcements.map((announcement) => (
+              <div
+                key={announcement.id}
+                style={styles.announcement(announcement.type)}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, styles.announcementHover);
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                }}
+              >
+                <span style={styles.announcementIcon}>{announcement.icon}</span>
+                <div style={styles.announcementContent}>
+                  <div style={styles.announcementHeader}>
+                    <h3 style={styles.announcementTitle}>{announcement.title}</h3>
+                    <span style={styles.announcementDate}>
+                      {formatDate(announcement.date)}
+                    </span>
+                  </div>
+                  <p style={styles.announcementText}>{announcement.message}</p>
                 </div>
-                <p style={styles.announcementText}>{announcement.message}</p>
               </div>
-            </div>
-          ))}
-        </div>
-        {announcements.length > 1 && (
-          <div style={styles.scrollHint}>
-            ↓ Scroll to see more announcements ↓
+            ))}
           </div>
-        )}
-      </div>
+          {announcements.length > 1 && (
+            <div style={styles.scrollHint}>
+              ↓ Scroll to see more announcements ↓
+            </div>
+          )}
+        </div>
+      </ScrollStackItem>
 
-      <div className="card" style={styles.todoCard}>
+      {/* Todo List Section */}
+      <ScrollStackItem>
+        <div className="card" style={styles.todoCard}>
         <h2>My Todo List</h2>
         
         <div style={styles.inputContainer}>
@@ -389,7 +394,10 @@ const Home: React.FC = () => {
           Completed: {todos.filter(t => t.completed).length}
         </p>
       </div>
+      </ScrollStackItem>
 
+      {/* Map View Section */}
+      <ScrollStackItem>
       <div className="card" style={styles.todoCard}>
         <h2>Map View</h2>
         <div style={styles.mapContainer}>
@@ -419,7 +427,8 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </ScrollStackItem>
+    </ScrollStack>
   );
 };
 
