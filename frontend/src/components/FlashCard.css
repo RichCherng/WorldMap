@@ -1,0 +1,120 @@
+/* FlashCard Component Styles */
+
+#flashcard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+  padding: 2rem;
+}
+
+#flashcard-content-wrapper {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+#flashcard-main-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+#flashcard-intro-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  text-align: center;
+}
+
+#flashcard-intro-icon {
+  font-size: 3.75rem;
+  margin-bottom: 1rem;
+}
+
+#flashcard-intro-text {
+  font-size: 1.125rem;
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+#flashcard-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#flashcard-status-badge:hover {
+  background-color: #2563eb;
+}
+
+#flashcard-preview-wrapper {
+  margin-top: 3rem;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#flashcard-sample-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  border-left: 4px solid #3b82f6;
+}
+
+#flashcard-sample-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+#flashcard-sample-question {
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+#flashcard-reveal-button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  transform: scale(1);
+}
+
+#flashcard-reveal-button:hover {
+  background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #flashcard-container {
+    padding: 1rem;
+  }
+  
+  #flashcard-main-title {
+    font-size: 1.875rem;
+  }
+  
+  #flashcard-intro-section {
+    padding: 1.5rem;
+  }
+  
+  #flashcard-intro-icon {
+    font-size: 3rem;
+  }
+  
+  #flashcard-preview-wrapper {
+    margin-top: 2rem;
+  }
+}

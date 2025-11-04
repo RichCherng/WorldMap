@@ -8,6 +8,8 @@ const Navigation: React.FC = () => {
       <Link to="/worldmap">World Map</Link>
       <Link to="/about">About</Link>
       <Link to="/contact">Contact</Link>
+      <Link to="/flash-card">Flash Card</Link>
+      <Link to="/stack">Stack</Link>
     </nav>
   );
 };
