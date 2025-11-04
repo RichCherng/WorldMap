@@ -1,55 +1,76 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './FlashCard.css';
 import Stack from './Stack';
 import CircularGallery from './CircularGallery';
 
 const FlashCard: React.FC = () => {
-  // return (
-  //   <div id="flashcard-container">
-  //     <div id="flashcard-content-wrapper">
-  //       <h1 id="flashcard-main-title">
-  //         Flash Cards
-  //       </h1>
+  useEffect(() => {
+    // Add class to body to enable scrolling when FlashCard is mounted
+    document.body.classList.add('flashcard-page-active');
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.classList.add('flashcard-page-active');
+    }
+    const containerElement = document.querySelector('.container');
+    if (containerElement) {
+      containerElement.classList.add('flashcard-page-active');
+    }
+
+    // Cleanup function to remove class when component unmounts
+    return () => {
+      document.body.classList.remove('flashcard-page-active');
+      if (rootElement) {
+        rootElement.classList.remove('flashcard-page-active');
+      }
+      if (containerElement) {
+        containerElement.classList.remove('flashcard-page-active');
+      }
+    };
+  }, []);
+
+  return (
+    <div id="flashcard-scrollable-container">
+      <div id="flashcard-content">
+        <h1 id="flashcard-page-title">Interactive Flash Cards</h1>
+        <div id="flashcard-stack-section">
+          <h2 id="flashcard-section-title">Card Stack</h2>
+          <p id="flashcard-section-description">Drag the cards around to interact with them</p>
+          <CardStack />
+        </div>
+        <div id="flashcard-gallery-section">
+          <h2 id="flashcard-section-title">Card Gallery</h2>
+          <p id="flashcard-section-description">Scroll through the circular gallery</p>
+          <CardGallery />
+        </div>
         
-  //       <div id="flashcard-intro-section">
-  //         <div id="flashcard-intro-icon">🃏</div>
-  //         <p id="flashcard-intro-text">
-  //           Flash card functionality will be implemented here
-  //         </p>
-  //         <div id="flashcard-status-badge">
-  //           <span>Ready for development</span>
-  //         </div>
-  //       </div>
-
-  //       {/* Sample Flash Card Preview */}
-  //       <div id="flashcard-preview-wrapper">
-  //         <div id="flashcard-sample-card">
-  //           <h3 id="flashcard-sample-title">Sample Flash Card</h3>
-  //           <p id="flashcard-sample-question">Question: What is React?</p>
-  //           <button id="flashcard-reveal-button">
-  //             Reveal Answer
-  //           </button>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
-
-  
-
-
-  return (<div>
-    <CardStack />
-    <CardGallery />
-  </div>);
+        {/* Add extra content to ensure scrolling is needed */}
+        <div id="flashcard-extra-content">
+          <h2 id="flashcard-section-title">More Content</h2>
+          <p id="flashcard-section-description">This section demonstrates scrolling functionality</p>
+          <div style={{ height: '400px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '1rem', padding: '2rem', margin: '2rem 0' }}>
+            <h3>Scrollable Content Area</h3>
+            <p>This area is here to ensure the page has enough content to require scrolling.</p>
+            <p>You should be able to scroll up and down to see all the content on this page.</p>
+            <p>The page includes:</p>
+            <ul>
+              <li>Interactive Card Stack</li>
+              <li>Circular Gallery</li>
+              <li>This additional content section</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 
 const CardGallery = () => {
   return (
-  <div style={{ height: '600px', position: 'relative' }}>
-    <CircularGallery bend={3} textColor="#ffffff" borderRadius={0.05} scrollEase={0.02}/>
-  </div>);
+    <div id="flashcard-gallery-wrapper">
+      <CircularGallery bend={3} textColor="#ffffff" borderRadius={0.05} scrollEase={0.02}/>
+    </div>
+  );
 };
 
 const CardStack = () => {
@@ -60,13 +81,17 @@ const CardStack = () => {
     { id: 4, img: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format" }
   ];
 
-  return (<Stack
-      randomRotation={true}
-      sensitivity={180}
-      sendToBackOnClick={false}
-      cardDimensions={{ width: 200, height: 200 }}
-      cardsData={images}
-    />);
+  return (
+    <div id="flashcard-stack-wrapper">
+      <Stack
+        randomRotation={true}
+        sensitivity={180}
+        sendToBackOnClick={false}
+        cardDimensions={{ width: 200, height: 200 }}
+        cardsData={images}
+      />
+    </div>
+  );
 };
 
 export default FlashCard;

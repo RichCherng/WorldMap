@@ -550,6 +550,15 @@ class App {
   }
 
   onTouchDown(e: MouseEvent | TouchEvent) {
+    // Check if the event target is within our canvas
+    const canvas = this.renderer.gl.canvas as HTMLCanvasElement;
+    const target = e.target as HTMLElement;
+    
+    // Only respond to events that started on our canvas
+    if (target !== canvas && !canvas.contains(target)) {
+      return;
+    }
+    
     this.isDown = true;
     this.scroll.position = this.scroll.current;
     this.start = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -568,6 +577,9 @@ class App {
   }
 
   onWheel(e: Event) {
+    // Prevent default to avoid page scrolling when interacting with gallery
+    e.preventDefault();
+    
     const wheelEvent = e as WheelEvent;
     const delta = wheelEvent.deltaY || (wheelEvent as any).wheelDelta || (wheelEvent as any).detail;
     this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.2;
@@ -617,13 +629,21 @@ class App {
     this.boundOnTouchDown = this.onTouchDown.bind(this);
     this.boundOnTouchMove = this.onTouchMove.bind(this);
     this.boundOnTouchUp = this.onTouchUp.bind(this);
+    
+    // Only resize should be on window
     window.addEventListener('resize', this.boundOnResize);
-    window.addEventListener('mousewheel', this.boundOnWheel);
-    window.addEventListener('wheel', this.boundOnWheel);
-    window.addEventListener('mousedown', this.boundOnTouchDown);
+    
+    // All interaction events should be on the container only
+    const canvas = this.renderer.gl.canvas as HTMLCanvasElement;
+    canvas.addEventListener('mousewheel', this.boundOnWheel);
+    canvas.addEventListener('wheel', this.boundOnWheel);
+    canvas.addEventListener('mousedown', this.boundOnTouchDown);
+    canvas.addEventListener('touchstart', this.boundOnTouchDown);
+    
+    // Mouse/touch move and up can be on window for better UX (drag outside)
+    // but only if interaction started inside
     window.addEventListener('mousemove', this.boundOnTouchMove);
     window.addEventListener('mouseup', this.boundOnTouchUp);
-    window.addEventListener('touchstart', this.boundOnTouchDown);
     window.addEventListener('touchmove', this.boundOnTouchMove);
     window.addEventListener('touchend', this.boundOnTouchUp);
   }
@@ -631,14 +651,18 @@ class App {
   destroy() {
     window.cancelAnimationFrame(this.raf);
     window.removeEventListener('resize', this.boundOnResize);
-    window.removeEventListener('mousewheel', this.boundOnWheel);
-    window.removeEventListener('wheel', this.boundOnWheel);
-    window.removeEventListener('mousedown', this.boundOnTouchDown);
+    
+    const canvas = this.renderer.gl.canvas as HTMLCanvasElement;
+    canvas.removeEventListener('mousewheel', this.boundOnWheel);
+    canvas.removeEventListener('wheel', this.boundOnWheel);
+    canvas.removeEventListener('mousedown', this.boundOnTouchDown);
+    canvas.removeEventListener('touchstart', this.boundOnTouchDown);
+    
     window.removeEventListener('mousemove', this.boundOnTouchMove);
     window.removeEventListener('mouseup', this.boundOnTouchUp);
-    window.removeEventListener('touchstart', this.boundOnTouchDown);
     window.removeEventListener('touchmove', this.boundOnTouchMove);
     window.removeEventListener('touchend', this.boundOnTouchUp);
+    
     if (this.renderer && this.renderer.gl && this.renderer.gl.canvas.parentNode) {
       this.renderer.gl.canvas.parentNode.removeChild(this.renderer.gl.canvas as HTMLCanvasElement);
     }

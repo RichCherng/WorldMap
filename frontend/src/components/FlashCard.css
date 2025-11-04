@@ -1,5 +1,82 @@
 /* FlashCard Component Styles */
 
+#flashcard-scrollable-container {
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#flashcard-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#flashcard-page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+#flashcard-stack-section,
+#flashcard-gallery-section {
+  margin-bottom: 4rem;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+#flashcard-section-title {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+#flashcard-section-description {
+  font-size: 1.125rem;
+  color: #4b5563;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+#flashcard-stack-wrapper {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  margin: 0 auto;
+  overflow: visible; /* Allow drag interactions outside bounds */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#flashcard-gallery-wrapper {
+  height: 600px;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#flashcard-stack-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  position: relative;
+  padding: 3rem 2rem;
+}
+
 #flashcard-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
@@ -98,6 +175,28 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  #flashcard-content {
+    padding: 1rem;
+  }
+  
+  #flashcard-page-title {
+    font-size: 2rem;
+  }
+  
+  #flashcard-section-title {
+    font-size: 1.5rem;
+  }
+  
+  #flashcard-stack-section,
+  #flashcard-gallery-section {
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  #flashcard-gallery-wrapper {
+    height: 400px;
+  }
+  
   #flashcard-container {
     padding: 1rem;
   }
@@ -117,4 +216,23 @@
   #flashcard-preview-wrapper {
     margin-top: 2rem;
   }
+}
+
+/* Ensure smooth scrolling */
+#flashcard-scrollable-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+}
+
+/* Override parent container overflow when FlashCard is active */
+body.flashcard-page-active,
+#root.flashcard-page-active {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.container.flashcard-page-active {
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
 }

@@ -1,6 +1,10 @@
 .stack-container {
   position: relative;
   perspective: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-rotate {
