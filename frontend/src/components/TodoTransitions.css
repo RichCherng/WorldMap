@@ -1,0 +1,76 @@
+/* Todo item enter/exit animations */
+.todo-item-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.todo-item-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+
+.todo-item-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.todo-item-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+
+/* Smooth repositioning when items change order */
+.todo-item-move {
+  transition: transform 500ms ease-in-out;
+}
+
+/* Animation when item is checked/unchecked */
+.todo-checked {
+  animation: checkBounce 0.4s ease-in-out;
+  background-color: #e8f5e9 !important;
+}
+
+.todo-unchecked {
+  animation: uncheckBounce 0.4s ease-in-out;
+  background-color: #f9f9f9 !important;
+}
+
+@keyframes checkBounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(0.95);
+    background-color: #c8e6c9;
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    background-color: #e8f5e9;
+  }
+}
+
+@keyframes uncheckBounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Smooth transition for all todo items */
+.todo-item-transition {
+  transition: all 0.3s ease-in-out;
+}
+
