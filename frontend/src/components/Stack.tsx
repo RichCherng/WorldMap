@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform } from 'motion/react';
+import { motion, useMotionValue, useTransform, useAnimation } from 'motion/react';
 import { useState, useRef } from 'react';
 import './Stack.css';
 
@@ -16,13 +16,28 @@ function CardRotate({ children, onSendToBack, onSingleClick, onDoubleClick, sens
   const rotateX = useTransform(y, [-100, 100], [60, -60]);
   const rotateY = useTransform(x, [-100, 100], [-60, 60]);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controls = useAnimation();
+  const [isFlipped, setIsFlipped] = useState(false);
 
-  function handleClick() {
+  async function handleClick() {
+
     if (clickTimeoutRef.current) {
       // Double click detected
       clearTimeout(clickTimeoutRef.current);
       clickTimeoutRef.current = null;
       onDoubleClick?.();
+      console.log('Double click detected');
+      // Flip animation
+      const newFlippedState = !isFlipped;
+      setIsFlipped(newFlippedState);
+      
+      await controls.start({
+        rotateY: newFlippedState ? 180 : 0,
+        transition: {
+          duration: 0.6,
+          ease: "easeInOut"
+        }
+      });
     } else {
       // Single click - wait to see if double click follows
       clickTimeoutRef.current = setTimeout(() => {
@@ -44,12 +59,14 @@ function CardRotate({ children, onSendToBack, onSingleClick, onDoubleClick, sens
   return (
     <motion.div
       className="card-rotate"
-      style={{ x, y, rotateX, rotateY }}
+      style={{ x, y, rotateX }}
+      animate={controls}
       drag
       dragConstraints={{ top: 0, right: 0, bottom: 0, left: 0 }}
       dragElastic={0.6}
       whileTap={{ cursor: 'grabbing' }}
       onDragEnd={handleDragEnd}
+      onClick={handleClick}
     >
       {children}
     </motion.div>
