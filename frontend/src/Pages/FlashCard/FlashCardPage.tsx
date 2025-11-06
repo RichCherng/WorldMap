@@ -35,9 +35,14 @@ const FlashCardPage: React.FC = () => {
       <div id="flashcard-content">
         <h1 id="flashcard-page-title">Interactive Flash Cards</h1>
         <div id="flashcard-stack-section">
-          <h2 id="flashcard-section-title">Card Stack</h2>
+          <h2 id="flashcard-section-title">Study Dev</h2>
           <p id="flashcard-section-description">Drag the cards around to interact with them</p>
-          <CardStack />
+          <LanguageCardStack />
+        </div>
+        <div id="flashcard-stack-section">
+          <h2 id="flashcard-section-title">Card Stack 2</h2>
+          <p id="flashcard-section-description">Drag the cards around to interact with them</p>
+          <SampleCardStack />
         </div>
         <div id="flashcard-gallery-section">
           <h2 id="flashcard-section-title">Card Gallery</h2>
@@ -75,13 +80,16 @@ const CardGallery = () => {
   );
 };
 
-const CardStack = () => {
+
+const LanguageCardStack: React.FC = () => {
   const images = [
           { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format'},
           { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format'},
           { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format'},
           { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format'}
         ]
+
+  const cards = images.map(c => ({ id: c.id, front: <img src={c.img} alt={`card-${c.id}`} className="card-image" />, back: <img src={c.img2} alt={`card-${c.id}-flipped`} className="card-image" />}))
 
   return (
     <div id="flashcard-stack-wrapper">
@@ -91,10 +99,35 @@ const CardStack = () => {
           sensitivity={180}
           sendToBackOnClick={false}
           cardDimensions={{ width: 200, height: 200 }}
-          cardsData={images}/>
+          cardsData={cards}/>
       }
     </div>
   );
-};
+}
+
+
+const SampleCardStack: React.FC = () => {
+  const images = [
+          { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format'},
+          { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format'},
+          { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format'},
+          { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format'}
+        ]
+
+  const cards = images.map(c => ({ id: c.id, front: <img src={c.img} alt={`card-${c.id}`} className="card-image" />, back: <img src={c.img2} alt={`card-${c.id}-flipped`} className="card-image" />}))
+
+  return (
+    <div id="flashcard-stack-wrapper">
+      {
+        <FlashCard 
+          randomRotation={true}
+          sensitivity={180}
+          sendToBackOnClick={false}
+          cardDimensions={{ width: 200, height: 200 }}
+          cardsData={cards}/>
+      }
+    </div>
+  );
+}
 
 export default FlashCardPage;
