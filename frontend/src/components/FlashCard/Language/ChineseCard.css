@@ -1,0 +1,86 @@
+/* Chinese Card Styles */
+
+.chinese-card-front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.chinese-card-back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Front side - Chinese word styling */
+.chinese-word {
+  font-size: 3rem;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  color: #333;
+  font-family: 'Google Sans', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'Roboto', 'Arial', sans-serif;
+}
+
+/* When there's an image, make Chinese word smaller and position as subtitle */
+.chinese-card-front .card-image + .chinese-word {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-top: 15px;
+}
+
+/* Image styling - square and centered */
+.chinese-card-front .card-image {
+  width: 175px;
+  height: 175px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Back side - English word styling */
+.english-word {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 0 0 10px 0;
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Pinyin styling as subtitle */
+.pinyin {
+  font-size: 1.2rem;
+  text-align: center;
+  margin: 0;
+  color: #666;
+  font-style: italic;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 300px) {
+  .chinese-word {
+    font-size: 2.5rem;
+  }
+  
+  .chinese-card-front .card-image + .chinese-word {
+    font-size: 1.5rem;
+  }
+  
+  .english-word {
+    font-size: 2rem;
+  }
+  
+  .pinyin {
+    font-size: 1rem;
+  }
+}
