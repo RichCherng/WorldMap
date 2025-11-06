@@ -5,6 +5,8 @@ import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
 import WorldMap from './components/WorldMap';
+import FlashCard from './Pages/FlashCard/FlashCardPage';
+import Stack from './components/Stack';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -16,8 +18,8 @@ const App: React.FC = () => {
         <h1>🗺️ WorldMap Application</h1>
         <p>A full-stack application with Spring Boot and React</p>
       </div> */}
-      
-      {!isHomePage && <Navigation />}
+
+      <Navigation />
       
       <Routes>
         <Route path="/" element={<Home />} />
@@ -25,6 +27,8 @@ const App: React.FC = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/worldmap" element={<WorldMap />} />
+        <Route path="/flash-card" element={<FlashCard />} />
+        <Route path="/stack" element={<Stack />} />
       </Routes>
     </div>
   );

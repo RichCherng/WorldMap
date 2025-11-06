@@ -1,0 +1,166 @@
+import { motion, useMotionValue, useTransform, useAnimation } from 'motion/react';
+import { useState, useRef, useEffect } from 'react';
+import './Stack.css';
+
+/** https://reactbits.dev/components/stack */
+
+interface CardRotateProps {
+  children: React.ReactNode;
+  onSendToBack: () => void;
+  onSingleClick?: () => void;
+  onDoubleClick?: () => void;
+  sensitivity: number;
+}
+
+function CardRotate({ children, onSendToBack, onSingleClick, onDoubleClick, sensitivity }: CardRotateProps) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-100, 100], [60, -60]);
+  const rotateY = useTransform(x, [-100, 100], [-60, 60]);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controls = useAnimation();
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  // Initialize the animation controls with default rotation
+  useEffect(() => {
+    controls.set({ rotateY: 0 });
+  }, [controls]);
+
+  async function handleClick() {
+
+    if (clickTimeoutRef.current) {
+      // Double click detected
+      clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = null;
+      onDoubleClick?.();
+      console.log('Double click detected');
+      // Flip animation
+      const newFlippedState = !isFlipped;
+      setIsFlipped(newFlippedState);
+      
+      await controls.start({
+        rotateY: newFlippedState ? 180 : 0,
+        transition: {
+          duration: 0.6,
+          ease: "easeInOut"
+        }
+      });
+    } else {
+      // Single click - wait to see if double click follows
+      clickTimeoutRef.current = setTimeout(() => {
+        onSingleClick?.();
+        clickTimeoutRef.current = null;
+      }, 300);
+    }
+  }
+
+  function handleDragEnd(_: never, info: { offset: { x: number; y: number } }) {
+    if (Math.abs(info.offset.x) > sensitivity || Math.abs(info.offset.y) > sensitivity) {
+      onSendToBack();
+    } else {
+      x.set(0);
+      y.set(0);
+    }
+  }
+
+  return (
+    <motion.div
+      className="card-rotate"
+      style={{ x, y, rotateX }}
+      animate={controls}
+      drag
+      dragConstraints={{ top: 0, right: 0, bottom: 0, left: 0 }}
+      dragElastic={0.6}
+      whileTap={{ cursor: 'grabbing' }}
+      onDragEnd={handleDragEnd}
+      onClick={handleClick}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+interface StackProps {
+  randomRotation?: boolean;
+  sensitivity?: number;
+  cardDimensions?: { width: number; height: number };
+  sendToBackOnClick?: boolean;
+  cardsData?: { id: number; img: string, img2: string, isFlipped: boolean }[];
+  animationConfig?: { stiffness: number; damping: number };
+}
+
+export default function Stack({
+  randomRotation = false,
+  sensitivity = 200,
+  cardDimensions = { width: 208, height: 208 },
+  cardsData = [],
+  animationConfig = { stiffness: 260, damping: 20 },
+  sendToBackOnClick = false
+}: StackProps) {
+  const [cards, setCards] = useState(
+    cardsData.length
+      ? cardsData
+      : [
+          { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', isFlipped: false },
+          { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', isFlipped: false },
+          { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', isFlipped: false },
+          { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', isFlipped: false }
+        ]
+  );
+
+  const sendToBack = (id: number) => {
+    setCards(prev => {
+      const newCards = [...prev];
+      const index = newCards.findIndex(card => card.id === id);
+      const [card] = newCards.splice(index, 1);
+      newCards.unshift(card);
+      return newCards;
+    });
+  };
+
+  return (
+    <div
+      className="stack-container"
+      style={{
+        width: cardDimensions.width,
+        height: cardDimensions.height,
+        perspective: 600
+      }}
+    >
+      {cards.map((card, index) => {
+        const randomRotate = randomRotation ? Math.random() * 10 - 5 : 0;
+        return (
+          <CardRotate 
+            key={card.id} 
+            onSendToBack={() => sendToBack(card.id)} 
+            // onDoubleClick={() => setCards([...cards, cards[index] = { ...cards[index], isFlipped: !cards[index].isFlipped }])}
+            sensitivity={sensitivity}>
+            <motion.div
+              className="card"
+              onClick={() => sendToBackOnClick && sendToBack(card.id)}
+              animate={{
+                rotateZ: (cards.length - index - 1) * 4 + randomRotate,
+                scale: 1 + index * 0.06 - cards.length * 0.06,
+                transformOrigin: '90% 90%'
+              }}
+              initial={false}
+              transition={{
+                type: 'spring',
+                stiffness: animationConfig.stiffness,
+                damping: animationConfig.damping
+              }}
+              style={{
+                width: cardDimensions.width,
+                height: cardDimensions.height
+              }}
+            >
+              {card.isFlipped && card.img2 ? <img src={card.img2} alt={`card-${card.id}-flipped`} className="card-image" /> : <img src={card.img} alt={`card-${card.id}`} className="card-image" />}
+              {card.isFlipped ? "img2" : "img1"}
+              {`${card.isFlipped}`}
+              
+            </motion.div>
+          </CardRotate>);
+      })}
+    </div>
+  );
+}
