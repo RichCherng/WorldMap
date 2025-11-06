@@ -9,6 +9,9 @@ import FlashCard from './Pages/FlashCard/FlashCardPage';
 import Stack from './components/Stack';
 
 const App: React.FC = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/' || location.pathname === '/home';
+
   return (
     <div className="container">
       {/* <div className="header">
