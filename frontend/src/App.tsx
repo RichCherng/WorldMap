@@ -5,21 +5,18 @@ import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
 import WorldMap from './components/WorldMap';
-import FlashCard from './components/FlashCard';
+import FlashCard from './Pages/FlashCard/FlashCard';
 import Stack from './components/Stack';
 
 const App: React.FC = () => {
-  const location = useLocation();
-  const isHomePage = location.pathname === '/' || location.pathname === '/home';
-
   return (
     <div className="container">
       {/* <div className="header">
         <h1>🗺️ WorldMap Application</h1>
         <p>A full-stack application with Spring Boot and React</p>
       </div> */}
-      
-      {!isHomePage && <Navigation />}
+
+      <Navigation />
       
       <Routes>
         <Route path="/" element={<Home />} />

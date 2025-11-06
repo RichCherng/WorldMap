@@ -1,18 +1,36 @@
 import { motion, useMotionValue, useTransform } from 'motion/react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './Stack.css';
 
 interface CardRotateProps {
   children: React.ReactNode;
   onSendToBack: () => void;
+  onSingleClick?: () => void;
+  onDoubleClick?: () => void;
   sensitivity: number;
 }
 
-function CardRotate({ children, onSendToBack, sensitivity }: CardRotateProps) {
+function CardRotate({ children, onSendToBack, onSingleClick, onDoubleClick, sensitivity }: CardRotateProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useTransform(y, [-100, 100], [60, -60]);
   const rotateY = useTransform(x, [-100, 100], [-60, 60]);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  function handleClick() {
+    if (clickTimeoutRef.current) {
+      // Double click detected
+      clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = null;
+      onDoubleClick?.();
+    } else {
+      // Single click - wait to see if double click follows
+      clickTimeoutRef.current = setTimeout(() => {
+        onSingleClick?.();
+        clickTimeoutRef.current = null;
+      }, 300);
+    }
+  }
 
   function handleDragEnd(_: never, info: { offset: { x: number; y: number } }) {
     if (Math.abs(info.offset.x) > sensitivity || Math.abs(info.offset.y) > sensitivity) {
