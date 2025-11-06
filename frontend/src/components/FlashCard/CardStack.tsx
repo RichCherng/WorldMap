@@ -9,7 +9,6 @@ interface CardStackProps {
   sensitivity?: number;
   cardDimensions?: CardDimensions;
   sendToBackOnClick?: boolean;
-  // cardsData?: { id: number; img: string, img2: string, isFlipped: boolean }[];
   cardsData: CardData[];
   animationConfig?: { stiffness: number; damping: number };
 }
@@ -37,8 +36,6 @@ export default function CardStack({
     });
   };
 
-
-
   return (
     <div
       className="stack-container"
@@ -53,11 +50,14 @@ export default function CardStack({
         return (
           <CardRotate 
             key={card.id} 
-            onSendToBack={() => sendToBack(card.id)} 
+            onSendToBack={() => sendToBack(card.id)}
+            onDoubleClick={() => {}}
             sensitivity={0}>
+            {(isFlipped) => (
               <Card 
                 onClick={ () => sendToBackOnClick && sendToBack(card.id)}
                 card={card}
+                isFlipped={isFlipped}
                 dimensions={cardDimensions}
                 animate={{
                   rotateZ: (cards.length - index - 1) * 4 + randomRotate,
@@ -66,14 +66,15 @@ export default function CardStack({
                 }}
                 animationConfig={animationConfig}
               />
-            </CardRotate>)
+            )}
+          </CardRotate>)
       })}
     </div>
   )
 }
 
 interface CardRotateProps {
-  children: React.ReactNode;
+  children: (isFlipped: boolean) => React.ReactNode;
   onSendToBack: () => void;
   onSingleClick?: () => void;
   onDoubleClick?: () => void;
@@ -143,7 +144,7 @@ function CardRotate({children, onSendToBack, onSingleClick, onDoubleClick, sensi
       onDragEnd={handleDragEnd}
       onClick={handleClick}
     >
-      {children}
+      {children(isFlipped)}
     </motion.div>
   );
 }

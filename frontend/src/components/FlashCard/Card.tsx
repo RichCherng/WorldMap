@@ -17,13 +17,14 @@ export interface CardProps {
     // cardDimensions?: { width: number; height: number };
     onClick?: () => void;
     card: CardData;
+    isFlipped: boolean;
     dimensions: CardDimensions;
     animate: any;
     animationConfig: { stiffness: number; damping: number };
 }
 
 
-export default function Card({onClick, card, dimensions, animate, animationConfig}: CardProps) {
+export default function Card({onClick, card, isFlipped, dimensions, animate, animationConfig}: CardProps) {
     return (
         <motion.div
             className="card"
@@ -40,7 +41,7 @@ export default function Card({onClick, card, dimensions, animate, animationConfi
                 height: dimensions.height
             }}
             > 
-            {card.front}
+            {isFlipped ? card.back : card.front}
             </motion.div>
     )
 }   
