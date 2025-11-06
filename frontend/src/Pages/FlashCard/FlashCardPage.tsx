@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import './FlashCard.css';
+import './FlashCardPage.css';
 import Stack from '../../components/Stack';
 import CircularGallery from '../../components/CircularGallery';
+import FlashCard from '../../components/FlashCard/FlashCard';
+import { CardData } from '../../components/FlashCard/Card';
 
-const FlashCard: React.FC = () => {
+const FlashCardPage: React.FC = () => {
   useEffect(() => {
     // Add class to body to enable scrolling when FlashCard is mounted
     document.body.classList.add('flashcard-page-active');
@@ -75,23 +77,24 @@ const CardGallery = () => {
 
 const CardStack = () => {
   const images = [
-    { id: 1, img: "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format" },
-    { id: 2, img: "https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format" },
-    { id: 3, img: "https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format" },
-    { id: 4, img: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format" }
-  ];
+          { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format'},
+          { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format'},
+          { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format'},
+          { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format'}
+        ]
 
   return (
     <div id="flashcard-stack-wrapper">
-      <Stack
-        randomRotation={true}
-        sensitivity={180}
-        sendToBackOnClick={false}
-        cardDimensions={{ width: 200, height: 200 }}
-        cardsData={images}
-      />
+      {
+        <FlashCard 
+          randomRotation={true}
+          sensitivity={180}
+          sendToBackOnClick={false}
+          cardDimensions={{ width: 200, height: 200 }}
+          cardsData={images}/>
+      }
     </div>
   );
 };
 
-export default FlashCard;
+export default FlashCardPage;

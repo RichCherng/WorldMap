@@ -1,6 +1,8 @@
 import { motion, useMotionValue, useTransform, useAnimation } from 'motion/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './Stack.css';
+
+/** https://reactbits.dev/components/stack */
 
 interface CardRotateProps {
   children: React.ReactNode;
@@ -18,6 +20,11 @@ function CardRotate({ children, onSendToBack, onSingleClick, onDoubleClick, sens
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const controls = useAnimation();
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // Initialize the animation controls with default rotation
+  useEffect(() => {
+    controls.set({ rotateY: 0 });
+  }, [controls]);
 
   async function handleClick() {
 
@@ -78,7 +85,7 @@ interface StackProps {
   sensitivity?: number;
   cardDimensions?: { width: number; height: number };
   sendToBackOnClick?: boolean;
-  cardsData?: { id: number; img: string }[];
+  cardsData?: { id: number; img: string, img2: string, isFlipped: boolean }[];
   animationConfig?: { stiffness: number; damping: number };
 }
 
@@ -94,10 +101,10 @@ export default function Stack({
     cardsData.length
       ? cardsData
       : [
-          { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format' },
-          { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format' },
-          { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format' },
-          { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format' }
+          { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', isFlipped: false },
+          { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', isFlipped: false },
+          { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', isFlipped: false },
+          { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', isFlipped: false }
         ]
   );
 
@@ -122,9 +129,12 @@ export default function Stack({
     >
       {cards.map((card, index) => {
         const randomRotate = randomRotation ? Math.random() * 10 - 5 : 0;
-
         return (
-          <CardRotate key={card.id} onSendToBack={() => sendToBack(card.id)} sensitivity={sensitivity}>
+          <CardRotate 
+            key={card.id} 
+            onSendToBack={() => sendToBack(card.id)} 
+            // onDoubleClick={() => setCards([...cards, cards[index] = { ...cards[index], isFlipped: !cards[index].isFlipped }])}
+            sensitivity={sensitivity}>
             <motion.div
               className="card"
               onClick={() => sendToBackOnClick && sendToBack(card.id)}
@@ -144,10 +154,12 @@ export default function Stack({
                 height: cardDimensions.height
               }}
             >
-              <img src={card.img} alt={`card-${card.id}`} className="card-image" />
+              {card.isFlipped && card.img2 ? <img src={card.img2} alt={`card-${card.id}-flipped`} className="card-image" /> : <img src={card.img} alt={`card-${card.id}`} className="card-image" />}
+              {card.isFlipped ? "img2" : "img1"}
+              {`${card.isFlipped}`}
+              
             </motion.div>
-          </CardRotate>
-        );
+          </CardRotate>);
       })}
     </div>
   );

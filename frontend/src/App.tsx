@@ -5,7 +5,7 @@ import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
 import WorldMap from './components/WorldMap';
-import FlashCard from './Pages/FlashCard/FlashCard';
+import FlashCard from './Pages/FlashCard/FlashCardPage';
 import Stack from './components/Stack';
 
 const App: React.FC = () => {
