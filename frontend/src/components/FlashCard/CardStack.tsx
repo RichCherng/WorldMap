@@ -103,14 +103,26 @@ function CardRotate({children, onSendToBack, onSingleClick, onDoubleClick, sensi
       clickTimeoutRef.current = null;
       onDoubleClick?.();
       console.log('Double click detected');
-      // Flip animation
+      // Two-phase flip animation for proper content sync
       const newFlippedState = !isFlipped;
+      
+      // Phase 1: Rotate to 90 degrees (card becomes edge-on and invisible)
+      await controls.start({
+        rotateY: 90,
+        transition: {
+          duration: 0.3,
+          ease: "easeInOut"
+        }
+      });
+      
+      // Change content when card is invisible (edge-on)
       setIsFlipped(newFlippedState);
       
+      // Phase 2: Rotate from 90 to final position (0 or 180 degrees)
       await controls.start({
-        rotateY: newFlippedState ? 180 : 0,
+        rotateY: 0,
         transition: {
-          duration: 0.6,
+          duration: 0.3,
           ease: "easeInOut"
         }
       });
