@@ -78,10 +78,10 @@
 }
 
 #folder-container {
-  position: absolute;
-  right: 2rem;
+  position: fixed;
+  left: 2rem;
   bottom: 2rem;
-  z-index: 10;
+  z-index: 1000;
   pointer-events: none;
 }
 
@@ -89,10 +89,38 @@
   pointer-events: auto;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px);
+  border-radius: 50%;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 8px 32px rgba(82, 39, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  min-height: 50px;
+  opacity: 0.8;
+}
+
+#folder-container.folder-disabled .folder {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 #folder-container .folder:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(82, 39, 255, 0.4);
+  background: rgba(255, 255, 255, 0.9);
+  opacity: 1;
+}
+
+#folder-container.folder-disabled .folder:hover {
+  transform: none;
+  box-shadow: 0 8px 32px rgba(82, 39, 255, 0.1);
+  background: rgba(255, 255, 255, 0.3);
+  opacity: 0.5;
 }
 
 #flashcard-container {
@@ -212,7 +240,7 @@
   }
   
   #folder-container {
-    right: 1rem;
+    left: 1rem;
     bottom: 1rem;
   }
   
@@ -266,4 +294,99 @@ body.flashcard-page-active,
   overflow: visible !important;
   height: auto !important;
   max-height: none !important;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Card content container */
+#flashcard-card-container {
+  position: relative;
+  min-height: 300px;
+  width: 100%;
+}
+
+/* Loading state */
+#flashcard-loading-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+#flashcard-loading-text {
+  font-size: 1.5rem;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+.flashcard-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(59, 130, 246, 0.3);
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Error state */
+#flashcard-error-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+#flashcard-error-title {
+  font-size: 1.5rem;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+#flashcard-error-message {
+  font-size: 1rem;
+  color: #4b5563;
+}
+
+#flashcard-error-retry-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+#flashcard-error-retry-button:hover {
+  background-color: #2563eb;
+}
+
+/* Cards loaded state */
+#flashcard-cards-loaded {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 }

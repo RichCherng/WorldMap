@@ -1,0 +1,60 @@
+/* VocabCollection Component Styles */
+
+/* Reduce overall SheetFooter spacing */
+.compact-footer {
+  padding-top: 0.5rem !important;
+  gap: 0.5rem !important;
+}
+
+/* Style inputs within the item to match the list appearance */
+.vocab-input-section .item {
+  padding: 16px;
+  background-color: #4b4a4a;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.vocab-input-section .item .item-text {
+  color: white;
+  margin: 0;
+}
+
+/* Inline input styling */
+.vocab-inline-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.inline-vocab-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: white;
+  padding: 0.15rem 0.35rem;
+  font-size: inherit;
+  line-height: inherit;
+  min-width: 60px;
+  max-width: 120px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inline-vocab-input::placeholder {
+  color: #bbb;
+}
+
+.inline-vocab-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.vocab-inline-inputs span {
+  color: white;
+  font-weight: normal;
+}

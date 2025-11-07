@@ -41,7 +41,6 @@ export default function Card({onClick, card, isFlipped, dimensions, animate, ani
             }}
             > 
             {isFlipped ? card.back : card.front}
-            {isFlipped ? "back" : "front"}
             </motion.div>
     )
 }   

@@ -1,13 +1,38 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './FlashCardPage.css';
-import Stack from '../../components/Stack';
-import CircularGallery from '../../components/CircularGallery';
-import FlashCard from '../../components/FlashCard/FlashCard';
-import { CardData } from '../../components/FlashCard/Card';
-import ChineseCard, { ChineseCardData } from '../../components/FlashCard/Language/ChineseCard';
-import Folder from '../../components/Folder';
+import CircularGallery from '@/components/CircularGallery';
+import FlashCard from '@/components/FlashCard/FlashCard';
+import { CardData } from '@/components/FlashCard/Card';
+import ChineseCard, { ChineseCardData } from '@/components/FlashCard/Language/ChineseCard';
+import Folder from '@/components/Folder';
+import { ChineseVocabCollection } from './VocabCollections/ChineseVocabCollection';
+import { fetchChineseCards } from '@/services/chineseCardService';
+
+const LoadingState: React.FC = () => (
+  <div id="flashcard-loading-state">
+    <div id="flashcard-loading-text">Loading Chinese cards...</div>
+    <div className="flashcard-loading-spinner"></div>
+  </div>
+);
+
+const ErrorState: React.FC<{ message: string }> = ({ message }) => (
+  <div id="flashcard-error-state">
+    <div id="flashcard-error-title">Error Loading Cards</div>
+    <div id="flashcard-error-message">{message}</div>
+    <button
+      id="flashcard-error-retry-button"
+      onClick={() => window.location.reload()}
+    >
+      Retry
+    </button>
+  </div>
+);
 
 const FlashCardPage: React.FC = () => {
+  const [chineseCards, setChineseCards] = useState<ChineseCardData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     // Add class to body to enable scrolling when FlashCard is mounted
     document.body.classList.add('flashcard-page-active');
@@ -19,6 +44,20 @@ const FlashCardPage: React.FC = () => {
     if (containerElement) {
       containerElement.classList.add('flashcard-page-active');
     }
+
+    // Fetch Chinese cards from API
+    fetchChineseCards()
+      .then(data => {
+        setChineseCards(data);
+        setError(null);
+      })
+      .catch(err => {
+        console.error('Failed to fetch Chinese cards:', err);
+        setError(err.message || 'Failed to load Chinese cards');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
     // Cleanup function to remove class when component unmounts
     return () => {
@@ -34,15 +73,22 @@ const FlashCardPage: React.FC = () => {
 
   return (
     <div id="flashcard-scrollable-container">
+      {!loading && !error && <ChineseVocabCollection words={chineseCards} />}
       <div id="flashcard-content">
         <h1 id="flashcard-page-title">Interactive Flash Cards</h1>
         <div id="flashcard-stack-section">
           <h2 id="flashcard-section-title">Study Dev</h2>
-          <p id="flashcard-section-description">Drag the cards around to interact with them</p>
-          <ChineseCardStack />
-          <div id="folder-container">
-            <Folder size={.50} color="#5227FF" className="custom-folder" />
+
+          <div id="flashcard-card-container">
+            {loading && <LoadingState />}
+            {error && <ErrorState message={error} />}
+            {!loading && !error && (
+              <div id="flashcard-cards-loaded">
+                <ChineseCardStack words={chineseCards} />
+              </div>
+            )}
           </div>
+
         </div>
         <div id="flashcard-stack-section">
           <h2 id="flashcard-section-title">Card Stack 2</h2>
@@ -54,7 +100,7 @@ const FlashCardPage: React.FC = () => {
           <p id="flashcard-section-description">Scroll through the circular gallery</p>
           <CardGallery />
         </div>
-        
+
         {/* Add extra content to ensure scrolling is needed */}
         <div id="flashcard-extra-content">
           <h2 id="flashcard-section-title">More Content</h2>
@@ -86,15 +132,7 @@ const CardGallery = () => {
 };
 
 
-const ChineseCardStack: React.FC = () => {
-  const words: ChineseCardData[] = [
-          { id: 1, chineseWord: '你好', englishWord: 'Hello', pinyin: 'Nǐ hǎo', img: 'https://i.pinimg.com/736x/82/42/75/824275fa74fdff9a946834a52e38ff6c.jpg' },
-          { id: 2, chineseWord: '谢谢', englishWord: 'Thank you', pinyin: 'Xièxiè'},
-          { id: 3, chineseWord: '再见', englishWord: 'Goodbye', pinyin: 'Zàijiàn'},
-          { id: 4, chineseWord: '请', englishWord: 'Please', pinyin: 'Qǐng',  },
-          { id: 5, chineseWord: '我', englishWord: 'I, me', pinyin: 'Wǒ' },
-        ]
-
+const ChineseCardStack: React.FC<{ words: ChineseCardData[] }> = ({ words }) => {
   const cards: CardData[] = words.map(w => (ChineseCard(w) as CardData));
 
   return (
@@ -104,7 +142,7 @@ const ChineseCardStack: React.FC = () => {
           randomRotation={true}
           sensitivity={180}
           sendToBackOnClick={false}
-          cardDimensions={{ width: 215, height: 215 }}
+          cardDimensions={{ width: 250, height: 250 }}
           cardsData={cards}/>
       }
     </div>
