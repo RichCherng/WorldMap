@@ -32,4 +32,14 @@ public class ApiController {
         response.put("version", "1.0.0");
         return response;
     }
+
+    @GET
+    @Path("/status/firebase")
+    public Map<String, String> firebaseStatus() {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "ok");
+        return response;
+    }
+
+    
 }
