@@ -86,12 +86,11 @@ const ChineseCardStack: React.FC = () => {
   const words: ChineseCardData[] = [
           { id: 1, chineseWord: '你好', englishWord: 'Hello', pinyin: 'Nǐ hǎo', img: 'https://i.pinimg.com/736x/82/42/75/824275fa74fdff9a946834a52e38ff6c.jpg' },
           { id: 2, chineseWord: '谢谢', englishWord: 'Thank you', pinyin: 'Xièxiè'},
-          { id: 3, chineseWord: '再见', englishWord: 'Goodbye', pinyin: 'Zàijiàn', img: 'https://i.pinimg.com/736x/4b/7e/1d/4b7e1d1f3f6f4e2f5f5e3e3c4e8e8e8e.jpg' },
+          { id: 3, chineseWord: '再见', englishWord: 'Goodbye', pinyin: 'Zàijiàn'},
           { id: 4, chineseWord: '请', englishWord: 'Please', pinyin: 'Qǐng',  },
           { id: 5, chineseWord: '我', englishWord: 'I, me', pinyin: 'Wǒ' },
         ]
 
-  // const cards = images.map(c => ({ id: c.id, front: <img src={c.img} alt={`card-${c.id}`} className="card-image" />, back: <img src={c.img2} alt={`card-${c.id}-flipped`} className="card-image" />}))
   const cards: CardData[] = words.map(w => (ChineseCard(w) as CardData));
 
   return (
