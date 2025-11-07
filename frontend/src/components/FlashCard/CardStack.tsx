@@ -102,7 +102,6 @@ function CardRotate({children, onSendToBack, onSingleClick, onDoubleClick, sensi
       clearTimeout(clickTimeoutRef.current);
       clickTimeoutRef.current = null;
       onDoubleClick?.();
-      console.log('Double click detected');
       // Two-phase flip animation for proper content sync
       const newFlippedState = !isFlipped;
       

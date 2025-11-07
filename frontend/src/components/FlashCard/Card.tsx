@@ -14,7 +14,6 @@ export interface CardData {
 }
 
 export interface CardProps {
-    // cardDimensions?: { width: number; height: number };
     onClick?: () => void;
     card: CardData;
     isFlipped: boolean;
@@ -42,6 +41,7 @@ export default function Card({onClick, card, isFlipped, dimensions, animate, ani
             }}
             > 
             {isFlipped ? card.back : card.front}
+            {isFlipped ? "back" : "front"}
             </motion.div>
     )
 }   
