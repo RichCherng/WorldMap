@@ -5,6 +5,7 @@ import CircularGallery from '../../components/CircularGallery';
 import FlashCard from '../../components/FlashCard/FlashCard';
 import { CardData } from '../../components/FlashCard/Card';
 import ChineseCard, { ChineseCardData } from '../../components/FlashCard/Language/ChineseCard';
+import Folder from '../../components/Folder';
 
 const FlashCardPage: React.FC = () => {
   useEffect(() => {
@@ -39,6 +40,9 @@ const FlashCardPage: React.FC = () => {
           <h2 id="flashcard-section-title">Study Dev</h2>
           <p id="flashcard-section-description">Drag the cards around to interact with them</p>
           <ChineseCardStack />
+          <div id="folder-container">
+            <Folder size={.50} color="#5227FF" className="custom-folder" />
+          </div>
         </div>
         <div id="flashcard-stack-section">
           <h2 id="flashcard-section-title">Card Stack 2</h2>
@@ -100,7 +104,7 @@ const ChineseCardStack: React.FC = () => {
           randomRotation={true}
           sensitivity={180}
           sendToBackOnClick={false}
-          cardDimensions={{ width: 250, height: 250 }}
+          cardDimensions={{ width: 215, height: 215 }}
           cardsData={cards}/>
       }
     </div>
