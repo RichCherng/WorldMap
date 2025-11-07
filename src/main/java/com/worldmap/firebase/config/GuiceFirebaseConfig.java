@@ -5,8 +5,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.worldmap.config.ApplicationConfig;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +33,17 @@ public class GuiceFirebaseConfig {
         try {
             // Check if Firebase app is already initialized
             if (FirebaseApp.getApps().isEmpty()) {
+                String serviceAccountPath = applicationConfig.getFirebase().getServiceAccountPath();
+                
+                // Check if service account file exists
+                if (serviceAccountPath == null || serviceAccountPath.contains("demo") || !java.nio.file.Files.exists(java.nio.file.Paths.get(serviceAccountPath))) {
+                    System.out.println("⚠️  Firebase initialization skipped - no valid service account file found");
+                    System.out.println("   Expected path: " + serviceAccountPath);
+                    System.out.println("   Firebase features will use mock data");
+                    initialized = true;
+                    return;
+                }
+                
                 InputStream serviceAccount = getServiceAccountStream();
 
                 FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder()
@@ -40,15 +51,15 @@ public class GuiceFirebaseConfig {
 
                 FirebaseApp.initializeApp(optionsBuilder.build());
                 
-                System.out.println("Firebase has been initialized successfully via Guice!");
-                System.out.println("Service Account Path: " + applicationConfig.getFirebase().getServiceAccountPath());
-                System.out.println("Project ID: " + applicationConfig.getFirebase().getProjectId());
-                System.out.println("Collection: " + applicationConfig.getFirebase().getCollection());
+                System.out.println("✅ Firebase has been initialized successfully via Guice!");
+                System.out.println("   Service Account Path: " + applicationConfig.getFirebase().getServiceAccountPath());
+                System.out.println("   Project ID: " + applicationConfig.getFirebase().getProjectId());
+                System.out.println("   Collection: " + applicationConfig.getFirebase().getCollection());
             }
             initialized = true;
-        } catch (IOException e) {
-            System.err.println("Failed to initialize Firebase via Guice: " + e.getMessage());
-            throw new RuntimeException("Firebase initialization failed", e);
+        } catch (Exception e) {
+            System.err.println("⚠️  Firebase initialization failed, continuing with mock data: " + e.getMessage());
+            initialized = true; // Mark as initialized to prevent retries
         }
     }
 

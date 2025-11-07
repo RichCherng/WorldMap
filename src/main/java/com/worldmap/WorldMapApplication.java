@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.worldmap.config.ApplicationConfig;
 import com.worldmap.guice.modules.ApplicationConfigModule;
 import com.worldmap.guice.modules.FirebaseModule;
+import com.worldmap.guice.modules.JerseyGuiceModule;
 import com.worldmap.guice.modules.WebServerModule;
 import com.worldmap.web.WebServer;
 
@@ -16,10 +17,11 @@ public class WorldMapApplication {
 
     public static void main(String[] args) {
         try {
-            // Create Guice injector with basic modules (Firebase disabled for testing)
+            // Create Guice injector with all modules including Firebase and Jersey-Guice integration
             Injector injector = Guice.createInjector(
                 new ApplicationConfigModule(),
-                // new FirebaseModule(), // Temporarily disabled
+                new FirebaseModule(),
+                new JerseyGuiceModule(),
                 new WebServerModule()
             );
 

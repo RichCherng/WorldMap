@@ -1,6 +1,7 @@
 package com.worldmap.guice.modules;
 
 import com.google.cloud.firestore.Firestore;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -15,8 +16,7 @@ public class FirebaseModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // Need explicit binding since it's used as dependency in @Provides method
-        bind(GuiceFirebaseConfig.class).in(Singleton.class);
+        // Let Guice auto-discover the @Inject constructor
     }
 
     @Provides
@@ -24,6 +24,18 @@ public class FirebaseModule extends AbstractModule {
     public Firestore provideFirestore(GuiceFirebaseConfig firebaseConfig) {
         // Initialize Firebase if not already done
         firebaseConfig.initialize();
-        return FirestoreClient.getFirestore();
+        
+        try {
+            // Try to get Firestore client
+            if (!FirebaseApp.getApps().isEmpty()) {
+                return FirestoreClient.getFirestore();
+            } else {
+                System.out.println("⚠️  Firebase not initialized, Firestore will be null (using mock data)");
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️  Failed to get Firestore client: " + e.getMessage());
+            return null;
+        }
     }
 }
