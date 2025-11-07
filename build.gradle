@@ -1,7 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.5'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'application'
     id 'com.github.node-gradle.node' version '7.0.1'
 }
 
@@ -20,8 +19,29 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // Guice dependency injection
+    implementation 'com.google.inject:guice:7.0.0'
+    implementation 'com.google.inject.extensions:guice-servlet:7.0.0'
+    implementation 'javax.inject:javax.inject:1'
+    
+    // Jetty web server
+    implementation 'org.eclipse.jetty:jetty-server:11.0.18'
+    implementation 'org.eclipse.jetty:jetty-servlet:11.0.18'
+    implementation 'org.eclipse.jetty:jetty-webapp:11.0.18'
+    
+    // JAX-RS API and Jersey implementation
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
+    implementation 'org.glassfish.jersey.core:jersey-server:3.1.5'
+    implementation 'org.glassfish.jersey.containers:jersey-container-servlet:3.1.5'
+    implementation 'org.glassfish.jersey.inject:jersey-hk2:3.1.5'
+    implementation 'org.glassfish.jersey.media:jersey-media-json-jackson:3.1.5'
+    
+    // JSON processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
+    
+    // Configuration management
+    implementation 'com.typesafe:config:1.4.3'
     
     // Firebase Admin SDK
     implementation 'com.google.firebase:firebase-admin:9.2.0'
@@ -29,14 +49,12 @@ dependencies {
     // Additional Google Cloud dependencies for Firestore
     implementation 'com.google.cloud:google-cloud-firestore:3.15.6'
     
-    // Google Guice for dependency injection
-    implementation 'com.google.inject:guice:7.0.0'
-    implementation 'com.google.inject.extensions:guice-servlet:7.0.0'
-    implementation 'javax.inject:javax.inject:1'
+    // Logging
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
     
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testImplementation 'org.mockito:mockito-core:5.8.0'
 }
 
 // Node.js configuration for React build
@@ -61,17 +79,22 @@ task buildReact(type: com.github.gradle.node.npm.task.NpmTask) {
     outputs.dir("frontend/build")
 }
 
-// Copy React build to Spring Boot static resources
+// Copy React build to static resources (for Jetty serving)
 task copyReactBuild(type: Copy) {
-    description = "Copy React build to Spring Boot static resources"
+    description = "Copy React build to static resources"
     from "frontend/build"
-    into "src/main/resources/static"
+    into "src/main/resources/webapp"
     dependsOn buildReact
 }
 
 // Make sure React is built before processing resources
 processResources {
     dependsOn copyReactBuild
+}
+
+// Application main class
+application {
+    mainClass = 'com.worldmap.WorldMapApplication'
 }
 
 tasks.named('test') {

@@ -15,7 +15,7 @@ public class FirebaseModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // Bind Firebase configuration as singleton
+        // Need explicit binding since it's used as dependency in @Provides method
         bind(GuiceFirebaseConfig.class).in(Singleton.class);
     }
 

@@ -1,14 +1,9 @@
 package com.worldmap.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
 /**
- * Compact application configuration properties.
- * Combines the benefits of @ConfigurationProperties with simplicity.
+ * Application configuration properties for application.
+ * No Spring dependencies - just plain Java configuration.
  */
-@Component
-@ConfigurationProperties(prefix = "app")
 public class ApplicationConfig {
 
     private Server server = new Server();

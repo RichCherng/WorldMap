@@ -1,25 +1,30 @@
 package com.worldmap.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.HashMap;
 
-@RestController
-@RequestMapping("/api")
+@Path("/")
+@Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class ApiController {
 
-    @GetMapping("/hello")
+    @GET
+    @Path("/hello")
     public Map<String, String> hello() {
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Hello from Spring Boot!");
+        response.put("message", "Hello!");
         response.put("timestamp", java.time.LocalDateTime.now().toString());
         return response;
     }
 
-    @GetMapping("/status")
+    @GET
+    @Path("/status")
     public Map<String, Object> status() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "OK");
