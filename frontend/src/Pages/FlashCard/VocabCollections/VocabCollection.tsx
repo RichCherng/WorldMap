@@ -11,12 +11,14 @@ interface VocabCollectionsProps {
     children?: React.ReactNode;
     description?: string;
     title?: string;
+    onAddVocab?: (vocab: { native: string; pronunciation: string; translation: string }) => Promise<void>;
 }
 
 export function VocabCollections({
     children,
     title = "<Language> Vocabulary",
-    description = "Description Placeholder"
+    description = "Description Placeholder",
+    onAddVocab
 }: VocabCollectionsProps) {
     // State for input values
     const [nativeText, setNativeText] = useState(""); // "美国人", "español", "bonjour"
@@ -24,21 +26,42 @@ export function VocabCollections({
     const [translationText, setTranslationText] = useState(""); // "American", "Spanish", "hello"
     const [searchText, setSearchText] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
+    const [addError, setAddError] = useState<string | null>(null);
 
     // Handle form submission
-    const handleAddVocab = () => {
+    const handleAddVocab = async () => {
+        // Validate inputs
+        if (!nativeText.trim() || !pronunciationText.trim() || !translationText.trim()) {
+            setAddError("All fields are required");
+            return;
+        }
+
         const vocabEntry = {
-            native: nativeText,
-            pronunciation: pronunciationText,
-            translation: translationText
+            native: nativeText.trim(),
+            pronunciation: pronunciationText.trim(),
+            translation: translationText.trim()
         };
 
-        console.log("New vocab entry:", vocabEntry);
+        setIsAdding(true);
+        setAddError(null);
 
-        // Clear inputs after adding
-        setNativeText("");
-        setPronunciationText("");
-        setTranslationText("");
+        try {
+            if (onAddVocab) {
+                await onAddVocab(vocabEntry);
+            } else {
+                console.log("New vocab entry:", vocabEntry);
+            }
+
+            // Clear inputs after successful add
+            setNativeText("");
+            setPronunciationText("");
+            setTranslationText("");
+        } catch (error) {
+            setAddError(error instanceof Error ? error.message : "Failed to add vocabulary");
+        } finally {
+            setIsAdding(false);
+        }
     };
 
     return (
@@ -58,7 +81,7 @@ export function VocabCollections({
             <SearchBar searchText={searchText} setSearchText={setSearchText} />
             {children}
             <SheetFooter className="flex-col space-y-1 compact-footer">
-                <AddVocabInput 
+                <AddVocabInput
                     nativeText={nativeText}
                     setNativeText={setNativeText}
                     pronunciationText={pronunciationText}
@@ -66,12 +89,23 @@ export function VocabCollections({
                     translationText={translationText}
                     setTranslationText={setTranslationText}
                 />
-                <Button 
-                    type="submit" 
+                {addError && (
+                    <div style={{
+                        color: '#ff6b6b',
+                        fontSize: '0.875rem',
+                        padding: '0.5rem',
+                        textAlign: 'center'
+                    }}>
+                        {addError}
+                    </div>
+                )}
+                <Button
+                    type="submit"
                     className="w-full h-8 text-sm"
                     onClick={handleAddVocab}
+                    disabled={isAdding}
                 >
-                    Add
+                    {isAdding ? 'Adding...' : 'Add'}
                 </Button>
             </SheetFooter>
         </SheetContent>

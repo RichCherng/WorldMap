@@ -383,10 +383,3 @@ body.flashcard-page-active,
   background-color: #2563eb;
 }
 
-/* Cards loaded state */
-#flashcard-cards-loaded {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-}

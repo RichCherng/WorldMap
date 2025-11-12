@@ -1,38 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import './FlashCardPage.css';
 import CircularGallery from '@/components/CircularGallery';
 import FlashCard from '@/components/FlashCard/FlashCard';
 import { CardData } from '@/components/FlashCard/Card';
 import ChineseCard, { ChineseCardData } from '@/components/FlashCard/Language/ChineseCard';
-import Folder from '@/components/Folder';
 import { ChineseVocabCollection } from './VocabCollections/ChineseVocabCollection';
-import { fetchChineseCards } from '@/services/chineseCardService';
-
-const LoadingState: React.FC = () => (
-  <div id="flashcard-loading-state">
-    <div id="flashcard-loading-text">Loading Chinese cards...</div>
-    <div className="flashcard-loading-spinner"></div>
-  </div>
-);
-
-const ErrorState: React.FC<{ message: string }> = ({ message }) => (
-  <div id="flashcard-error-state">
-    <div id="flashcard-error-title">Error Loading Cards</div>
-    <div id="flashcard-error-message">{message}</div>
-    <button
-      id="flashcard-error-retry-button"
-      onClick={() => window.location.reload()}
-    >
-      Retry
-    </button>
-  </div>
-);
 
 const FlashCardPage: React.FC = () => {
-  const [chineseCards, setChineseCards] = useState<ChineseCardData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     // Add class to body to enable scrolling when FlashCard is mounted
     document.body.classList.add('flashcard-page-active');
@@ -44,20 +18,6 @@ const FlashCardPage: React.FC = () => {
     if (containerElement) {
       containerElement.classList.add('flashcard-page-active');
     }
-
-    // Fetch Chinese cards from API
-    fetchChineseCards()
-      .then(data => {
-        setChineseCards(data);
-        setError(null);
-      })
-      .catch(err => {
-        console.error('Failed to fetch Chinese cards:', err);
-        setError(err.message || 'Failed to load Chinese cards');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
 
     // Cleanup function to remove class when component unmounts
     return () => {
@@ -73,51 +33,50 @@ const FlashCardPage: React.FC = () => {
 
   return (
     <div id="flashcard-scrollable-container">
-      {!loading && !error && <ChineseVocabCollection words={chineseCards} />}
-      <div id="flashcard-content">
-        <h1 id="flashcard-page-title">Interactive Flash Cards</h1>
-        <div id="flashcard-stack-section">
-          <h2 id="flashcard-section-title">Study Dev</h2>
+      <ChineseVocabCollection>
+        {(cards, loading) => (
+          <div id="flashcard-content">
+            <h1 id="flashcard-page-title">Interactive Flash Cards</h1>
+            <div id="flashcard-stack-section">
+              <h2 id="flashcard-section-title">Study Dev</h2>
 
-          <div id="flashcard-card-container">
-            {loading && <LoadingState />}
-            {error && <ErrorState message={error} />}
-            {!loading && !error && (
-              <div id="flashcard-cards-loaded">
-                <ChineseCardStack words={chineseCards} />
+              <div id="flashcard-card-container">
+                {!loading && cards.length > 0 && (
+                  <ChineseCardStack words={cards} />
+                )}
               </div>
-            )}
-          </div>
 
-        </div>
-        <div id="flashcard-stack-section">
-          <h2 id="flashcard-section-title">Card Stack 2</h2>
-          <p id="flashcard-section-description">Drag the cards around to interact with them</p>
-          <SampleCardStack />
-        </div>
-        <div id="flashcard-gallery-section">
-          <h2 id="flashcard-section-title">Card Gallery</h2>
-          <p id="flashcard-section-description">Scroll through the circular gallery</p>
-          <CardGallery />
-        </div>
+            </div>
+            <div id="flashcard-stack-section">
+              <h2 id="flashcard-section-title">Card Stack 2</h2>
+              <p id="flashcard-section-description">Drag the cards around to interact with them</p>
+              <SampleCardStack />
+            </div>
+            <div id="flashcard-gallery-section">
+              <h2 id="flashcard-section-title">Card Gallery</h2>
+              <p id="flashcard-section-description">Scroll through the circular gallery</p>
+              <CardGallery />
+            </div>
 
-        {/* Add extra content to ensure scrolling is needed */}
-        <div id="flashcard-extra-content">
-          <h2 id="flashcard-section-title">More Content</h2>
-          <p id="flashcard-section-description">This section demonstrates scrolling functionality</p>
-          <div style={{ height: '400px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '1rem', padding: '2rem', margin: '2rem 0' }}>
-            <h3>Scrollable Content Area</h3>
-            <p>This area is here to ensure the page has enough content to require scrolling.</p>
-            <p>You should be able to scroll up and down to see all the content on this page.</p>
-            <p>The page includes:</p>
-            <ul>
-              <li>Interactive Card Stack</li>
-              <li>Circular Gallery</li>
-              <li>This additional content section</li>
-            </ul>
+            {/* Add extra content to ensure scrolling is needed */}
+            <div id="flashcard-extra-content">
+              <h2 id="flashcard-section-title">More Content</h2>
+              <p id="flashcard-section-description">This section demonstrates scrolling functionality</p>
+              <div style={{ height: '400px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '1rem', padding: '2rem', margin: '2rem 0' }}>
+                <h3>Scrollable Content Area</h3>
+                <p>This area is here to ensure the page has enough content to require scrolling.</p>
+                <p>You should be able to scroll up and down to see all the content on this page.</p>
+                <p>The page includes:</p>
+                <ul>
+                  <li>Interactive Card Stack</li>
+                  <li>Circular Gallery</li>
+                  <li>This additional content section</li>
+                </ul>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
+      </ChineseVocabCollection>
     </div>
   );
 };

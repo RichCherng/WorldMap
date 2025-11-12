@@ -22,36 +22,116 @@ import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import VocabList from "./VocabList";
 import { ChineseCardData } from "@/components/FlashCard/Language/ChineseCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VocabCollections } from "./VocabCollection";
+import { addChineseCard, deleteChineseCard, fetchChineseCards } from "@/services/chineseCardService";
 
 
-interface ChineseVocabCollectionProps {  
-    words: ChineseCardData[];
+interface ChineseVocabCollectionProps {
+    onCardsChange?: (cards: ChineseCardData[]) => void;
+    onLoadingChange?: (loading: boolean) => void;
+    children?: (cards: ChineseCardData[], loading: boolean) => React.ReactNode;
 }
 
-export function ChineseVocabCollection({ words }: ChineseVocabCollectionProps) {
+export function ChineseVocabCollection({ onCardsChange, onLoadingChange, children }: ChineseVocabCollectionProps) {
+    const [cards, setCards] = useState<ChineseCardData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // const [items, setItems] = useState(words.map(word => `${word.chineseWord} (${word.pinyin}) : ${word.englishWord}`));
-    // const items = words.map(word => `${word.chineseWord} (${word.pinyin}) : ${word.englishWord}`);
-    const [items, setItems] = useState(words.map(word => ({
+    // Fetch cards on mount
+    useEffect(() => {
+        // Immediately notify parent that we're starting with empty cards and loading
+        if (onCardsChange) {
+            onCardsChange([]);
+        }
+        if (onLoadingChange) {
+            onLoadingChange(true);
+        }
+
+        fetchChineseCards()
+            .then(data => {
+                setCards(data);
+                setError(null);
+                if (onCardsChange) {
+                    onCardsChange(data);
+                }
+            })
+            .catch(err => {
+                console.error('Failed to fetch Chinese cards:', err);
+                setError(err.message || 'Failed to load Chinese cards');
+            })
+            .finally(() => {
+                setLoading(false);
+                if (onLoadingChange) {
+                    onLoadingChange(false);
+                }
+            });
+    }, [onCardsChange, onLoadingChange]);
+
+    // Map cards to items with IDs for tracking
+    const items = cards.map(word => ({
+        id: word.id,
         native: word.chineseWord,
         pronunciation: word.pinyin,
         translation: word.englishWord
-    })));
+    }));
+
+    const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string }) => {
+        // Call the API to add the card
+        const newCard = await addChineseCard({
+            chineseWord: vocab.native,
+            pinyin: vocab.pronunciation,
+            englishWord: vocab.translation
+        });
+
+        // Update local cards state
+        const updatedCards = [...cards, newCard];
+        setCards(updatedCards);
+
+        // Notify parent component if callback provided
+        if (onCardsChange) {
+            onCardsChange(updatedCards);
+        }
+    };
+
+    const handleDeleteVocab = async (item: any, index: number) => {
+        const cardId = items[index]?.id;
+        if (!cardId) return;
+
+        try {
+            // Call the API to delete the card
+            await deleteChineseCard(cardId);
+
+            // Update local cards state
+            const updatedCards = cards.filter(card => card.id !== cardId);
+            setCards(updatedCards);
+
+            // Notify parent component if callback provided
+            if (onCardsChange) {
+                onCardsChange(updatedCards);
+            }
+        } catch (error) {
+            console.error('Failed to delete vocab:', error);
+            // You might want to show an error message to the user here
+        }
+    };
 
   return (
-    <VocabCollections
-        title="Chinese Vocabulary"
-        description="Manage your Chinese vocabulary here. Click save when you&apos;re done."
-        >
-        <VocabList
-            items={items}
-            onItemSelect={(item, index) => console.log(item, index)}
-            onItemDelete={(item, index) => {}}
-            showGradients={false}
-            enableArrowNavigation={true}
-            displayScrollbar={false}/>
-    </VocabCollections>
+    <>
+      <VocabCollections
+          title="Chinese Vocabulary"
+          description="Manage your Chinese vocabulary here. Click save when you&apos;re done."
+          onAddVocab={handleAddVocab}
+          >
+          <VocabList
+              items={items}
+              onItemSelect={(item, index) => console.log(item, index)}
+              onItemDelete={handleDeleteVocab}
+              showGradients={false}
+              enableArrowNavigation={true}
+              displayScrollbar={false}/>
+      </VocabCollections>
+      {children && children(cards, loading)}
+    </>
   )
 }
