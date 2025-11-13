@@ -21,14 +21,40 @@ WorldMap/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/worldmap/
-│   │   │   ├── WorldMapApplication.java      # Spring Boot main class
-│   │   │   └── controller/
-│   │   │       ├── HomeController.java       # Serves React routes
-│   │   │       └── ApiController.java        # REST API endpoints
+│   │   │   ├── WorldMapApplication.java      # Application entry point with Guice
+│   │   │   ├── config/
+│   │   │   │   └── ApplicationConfig.java    # Configuration POJO
+│   │   │   ├── controller/
+│   │   │   │   ├── ApiController.java        # System API endpoints
+│   │   │   │   └── ChineseFlashCardController.java  # Flashcard CRUD endpoints
+│   │   │   ├── guice/modules/
+│   │   │   │   ├── ApplicationConfigModule.java     # Config DI module
+│   │   │   │   ├── FirebaseModule.java              # Firebase/Firestore DI module
+│   │   │   │   ├── JerseyGuiceModule.java           # JAX-RS integration module
+│   │   │   │   └── WebServerModule.java             # Jetty server module
+│   │   │   ├── firebase/
+│   │   │   │   └── config/GuiceFirebaseConfig.java  # Firebase config
+│   │   │   └── web/
+│   │   │       └── WebServer.java            # Jetty server wrapper
 │   │   └── resources/
-│   │       ├── application.properties        # Spring Boot configuration
-│   │       └── static/                       # React build output (auto-generated)
-│   └── test/java/com/worldmap/              # Java tests
+│   │       ├── application.properties        # Application configuration
+│   │       ├── firebase-service-account.json # Firebase credentials
+│   │       ├── static/                       # React build output (auto-generated)
+│   │       └── webapp/                       # Static web resources
+│   └── test/
+│       ├── resources/
+│       │   └── application.properties        # Test configuration (Firebase disabled)
+│       └── java/com/worldmap/
+│           ├── guice/modules/
+│           │   ├── TestFirebaseModule.java   # Test helper for null Firestore
+│           │   ├── ApplicationConfigModuleTest.java
+│           │   ├── FirebaseModuleTest.java
+│           │   ├── JerseyGuiceModuleTest.java
+│           │   └── WebServerModuleTest.java
+│           └── controller/
+│               └── ApiControllerTest.java
+├── docs/
+│   └── GUICE_DEPENDENCY_INJECTION.md        # DI patterns documentation
 └── frontend/
     ├── package.json                         # React dependencies
     ├── public/
@@ -123,11 +149,21 @@ Visit http://localhost:8080 to see the application.
 - **Server-side fallback**: Jetty serves unmatched routes with `index.html` for React routing
 - **API routes**: `/api/*` endpoints are handled by JAX-RS (Jersey) controllers with Guice injection
 
+### API Documentation
+
+The API is fully documented with Swagger/OpenAPI:
+
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8080/api/openapi.json
+
+All endpoints include `@Tag`, `@Operation`, and `@Parameter` annotations for comprehensive documentation.
+
 ### API Endpoints
 
 #### General API
 - `GET /api/hello` - Returns a greeting message with timestamp
 - `GET /api/status` - Returns application status information
+- `GET /api/status/firebase` - Check Firebase connection status
 
 #### Chinese Flashcard API (`/api/flashcards/chinese`)
 
@@ -239,10 +275,34 @@ To enable Firebase/Firestore integration:
 
 ## 🧪 Testing
 
-Run Java tests:
+### Backend Testing
+
+The backend includes comprehensive unit tests for all Guice modules and controllers:
+
 ```bash
-./gradlew test
+gradle test
 ```
+
+**Test Coverage:**
+- ✅ 59 unit tests across 5 test files
+- ✅ ApplicationConfigModuleTest (9 tests) - Configuration loading and binding
+- ✅ FirebaseModuleTest (8 tests) - Firestore provider and initialization
+- ✅ JerseyGuiceModuleTest (10 tests) - JAX-RS integration with Guice
+- ✅ WebServerModuleTest (11 tests) - Jetty server configuration
+- ✅ ApiControllerTest (11 tests) - API endpoint behavior
+
+**Test Configuration:**
+- Firebase is disabled in tests (`src/test/resources/application.properties`)
+- TestFirebaseModule provides null Firestore safely for testing
+- Real ResourceConfig instances used (not mocked) for Jersey integration tests
+- Controllers tested for correct response structure and HTTP behavior
+
+View test results:
+```bash
+open build/reports/tests/test/index.html
+```
+
+### Frontend Testing
 
 Run React tests:
 ```bash
@@ -360,6 +420,7 @@ npm test
 
 - **JAX-RS Tutorial**: https://docs.oracle.com/javaee/7/tutorial/jaxrs.htm
 - **Google Guice Guide**: https://github.com/google/guice/wiki/GettingStarted
+- **Guice Dependency Injection (WorldMap)**: [docs/GUICE_DEPENDENCY_INJECTION.md](docs/GUICE_DEPENDENCY_INJECTION.md) - Comprehensive guide to DI patterns in this project
 - **Protocol Buffers**: https://protobuf.dev/
 - **Firebase/Firestore**: https://firebase.google.com/docs/firestore
 - **React Router**: https://reactrouter.com/

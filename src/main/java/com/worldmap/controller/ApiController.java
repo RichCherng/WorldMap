@@ -7,7 +7,7 @@ import jakarta.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.inject.Singleton;
+import com.google.inject.Singleton;
 import java.util.Map;
 import java.util.HashMap;
 
