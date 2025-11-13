@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -33,7 +34,7 @@ public class ChineseFlashCardController {
     private final Firestore firestore;
 
     @Inject
-    public ChineseFlashCardController(Firestore firestore) {
+    public ChineseFlashCardController(@Nullable Firestore firestore) {
         this.firestore = firestore;
         
         if (firestore != null) {

@@ -10,11 +10,11 @@
 - **Do not code beyond what is asked** – stick strictly to the task definition and avoid adding extra features or functionality not explicitly requested.
 - If a task seems ambiguous or incomplete, clarify with the user before proceeding.
 - **For complex tasks with multiple steps:**
-    1. Create a detailed todo list using the `manage_todo_list` tool
-    2. Add these todo items as subtasks to the appropriate task file (e.g., `tasks/BACKEND_SETUP_TASK.md`)
+    1. Define tasks and subtasks directly in the appropriate task file (e.g., `tasks/BACKEND_SETUP_TASK.md`)
+    2. Use nested subtasks with checkboxes (❌/🔄/✅) to track progress
     3. Present the plan to the user for review before starting implementation
-    4. Update task status (❌/🔄/✅) as work progresses
-    5. Mark todos as completed in both the todo list and task file
+    4. Update task status as work progresses in the task file
+    5. Do NOT use the `manage_todo_list` tool - all todos should be in task files
 
 ### 🧱 Code Structure & Modularity
 - **Never create a file longer than 500 lines of code.** If a file approaches this limit, refactor by splitting it into modules or helper files.
@@ -28,7 +28,7 @@
 ### ✅ Task Completion
 - **Mark completed tasks in `TASK.md` or task files** immediately after finishing them.
 - Add new sub-tasks or TODOs discovered during development to the appropriate task file
-- **Update both the todo list and task file** to keep them in sync
+- **Update task status (❌/🔄/✅)** in the task file as you work through subtasks
 - When all subtasks are complete, update the main task status from ❌ to ✅
 
 
