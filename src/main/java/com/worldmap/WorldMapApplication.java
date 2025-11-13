@@ -70,6 +70,8 @@ public class WorldMapApplication {
             System.out.println("💉 Guice Integration: Native");
             System.out.println("📝 Collection: " + firebaseConfig.getCollection());
             System.out.println("🚀 Web Server: Jetty");
+            System.out.println("📚 Swagger API Docs: http://localhost:" + serverConfig.getPort() + "/swagger-ui.html");
+            System.out.println("📚 API Endpoints: http://localhost:" + serverConfig.getPort() + "/api/hello");
             System.out.println("=".repeat(70) + "\n");
         }
     }

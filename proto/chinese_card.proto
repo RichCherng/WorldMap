@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package worldmap.flashcard;
+
+option java_package = "com.worldmap.flashcard";
+option java_outer_classname = "ChineseCardProto";
+option java_multiple_files = true;
+
+// ChineseCard represents a Chinese vocabulary flashcard
+message ChineseCard {
+  int64 id = 1;
+  string chinese_word = 2;
+  string english_word = 3;
+  string pinyin = 4;
+  string img = 5;  // Optional image URL
+  int64 created_at = 6;  // Unix timestamp in milliseconds
+  int64 updated_at = 7;  // Unix timestamp in milliseconds
+}
+
+// Request to create a new Chinese card
+message CreateChineseCardRequest {
+  string chinese_word = 1;
+  string english_word = 2;
+  string pinyin = 3;
+  string img = 4;  // Optional image URL
+}
+
+// Response after creating a Chinese card
+message CreateChineseCardResponse {
+  bool success = 1;
+  ChineseCard data = 2;
+  string message = 3;
+  string error = 4;
+}
+
+// Request to get all Chinese cards
+message GetChineseCardsRequest {
+  // Empty for now, can add pagination later
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+// Response with list of Chinese cards
+message GetChineseCardsResponse {
+  bool success = 1;
+  repeated ChineseCard data = 2;
+  string message = 3;
+  string error = 4;
+  int32 total_count = 5;  // Total number of cards
+}
+
+// Request to get a specific Chinese card by ID
+message GetChineseCardRequest {
+  int64 id = 1;
+}
+
+// Response with a single Chinese card
+message GetChineseCardResponse {
+  bool success = 1;
+  ChineseCard data = 2;
+  string message = 3;
+  string error = 4;
+}
+
+// Request to update a Chinese card
+message UpdateChineseCardRequest {
+  int64 id = 1;
+  string chinese_word = 2;
+  string english_word = 3;
+  string pinyin = 4;
+  string img = 5;
+}
+
+// Response after updating a Chinese card
+message UpdateChineseCardResponse {
+  bool success = 1;
+  ChineseCard data = 2;
+  string message = 3;
+  string error = 4;
+}
+
+// Request to delete a Chinese card
+message DeleteChineseCardRequest {
+  int64 id = 1;
+}
+
+// Response after deleting a Chinese card
+message DeleteChineseCardResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+}
+
+// ChineseCardService defines the API for managing Chinese flashcards
+service ChineseCardService {
+  // Create a new Chinese card
+  rpc CreateChineseCard(CreateChineseCardRequest) returns (CreateChineseCardResponse);
+
+  // Get all Chinese cards
+  rpc GetChineseCards(GetChineseCardsRequest) returns (GetChineseCardsResponse);
+
+  // Get a specific Chinese card by ID
+  rpc GetChineseCard(GetChineseCardRequest) returns (GetChineseCardResponse);
+
+  // Update an existing Chinese card
+  rpc UpdateChineseCard(UpdateChineseCardRequest) returns (UpdateChineseCardResponse);
+
+  // Delete a Chinese card
+  rpc DeleteChineseCard(DeleteChineseCardRequest) returns (DeleteChineseCardResponse);
+}

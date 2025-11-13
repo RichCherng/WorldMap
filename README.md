@@ -1,12 +1,14 @@
-# WorldMap - Spring Boot + React Application
+# WorldMap - Jetty + Guice + React Application
 
-A full-stack web application that demonstrates the integration of Spring Boot (Java) backend with React frontend, built using Gradle.
+A full-stack web application with Chinese flashcard learning features, built with Jetty, Google Guice, JAX-RS (Jersey), Firebase/Firestore, and React, using Gradle.
 
 ## 🏗️ Architecture
 
-- **Backend**: Spring Boot 3.3.5 with Java 21
+- **Backend**: Jetty 11 + Google Guice + JAX-RS (Jersey) with Java 21
 - **Frontend**: React 18 with React Router
-- **Build System**: Gradle 9.1.0 with Node.js plugin
+- **Database**: Firebase/Firestore for data persistence
+- **API Contracts**: Protocol Buffers (protobuf) for type-safe APIs
+- **Build System**: Gradle with Node.js plugin
 - **Development**: Dual terminal setup with hot reloading
 - **Packaging**: Single executable JAR with embedded React build
 
@@ -56,10 +58,11 @@ For the best development experience with hot reloading:
 
 #### Terminal 1 - Backend Server
 ```bash
-gradle bootRun
+gradle run
 ```
-- Spring Boot backend runs on **http://localhost:8080**
+- Jetty backend runs on **http://localhost:8080**
 - Serves API endpoints and production static files
+- Firebase/Firestore enabled for data persistence
 - You'll see a startup banner with local addresses
 
 #### Terminal 2 - Frontend Development Server
@@ -75,7 +78,7 @@ gradle npm_start
 1. **For active development**: Use **http://localhost:3000**
    - ✅ Instant hot reloading for React changes
    - ✅ Full React development tools support
-   - ✅ API calls automatically forwarded to Spring Boot
+   - ✅ API calls automatically forwarded to Jetty backend
 
 2. **For production testing**: Use **http://localhost:8080**
    - ✅ Tests the actual production build
@@ -85,7 +88,7 @@ gradle npm_start
 
 If you prefer rebuilding for each change:
 ```bash
-gradle build && gradle bootRun
+gradle build && gradle run
 ```
 Visit http://localhost:8080 (rebuild required for React changes)
 
@@ -116,39 +119,114 @@ Visit http://localhost:8080 to see the application.
 
 ### Routing
 
-- **Client-side routing**: React Router handles `/`, `/home`, `/about`, `/contact`
-- **Server-side fallback**: Spring Boot's `HomeController` forwards unmatched routes to `index.html`
-- **API routes**: `/api/*` endpoints are handled by Spring Boot controllers
+- **Client-side routing**: React Router handles `/`, `/home`, `/about`, `/contact`, `/flashcard`
+- **Server-side fallback**: Jetty serves unmatched routes with `index.html` for React routing
+- **API routes**: `/api/*` endpoints are handled by JAX-RS (Jersey) controllers with Guice injection
 
 ### API Endpoints
 
+#### General API
 - `GET /api/hello` - Returns a greeting message with timestamp
 - `GET /api/status` - Returns application status information
 
+#### Chinese Flashcard API (`/api/flashcards/chinese`)
+
+All endpoints return JSON responses with the following structure:
+```json
+{
+  "success": true/false,
+  "data": {...},
+  "message": "...",
+  "error": "..." // only present on errors
+}
+```
+
+**CRUD Operations:**
+
+- `GET /api/flashcards/chinese` - Get all Chinese flashcards
+  - Query params: `page` (default: 1), `pageSize` (default: 50)
+  - Returns: List of flashcards with `totalCount`
+  - Supports mock data when Firebase is not configured
+
+- `GET /api/flashcards/chinese/{id}` - Get a single flashcard by ID
+  - Path param: `id` (long)
+  - Returns: Single flashcard object
+
+- `POST /api/flashcards/chinese` - Create a new flashcard
+  - Request body:
+    ```json
+    {
+      "chineseWord": "你好",
+      "englishWord": "Hello",
+      "pinyin": "nǐ hǎo",
+      "img": "https://..." // optional
+    }
+    ```
+  - Validates required fields (chineseWord, englishWord, pinyin)
+  - Returns: Created flashcard with generated ID
+
+- `PUT /api/flashcards/chinese/{id}` - Update an existing flashcard
+  - Path param: `id` (long)
+  - Request body: Same as POST (all fields)
+  - Returns: Updated flashcard object
+
+- `DELETE /api/flashcards/chinese/{id}` - Delete a flashcard
+  - Path param: `id` (long)
+  - Returns: Success message
+
+**Data Management:**
+
+- `POST /api/flashcards/chinese/initialize` - Initialize Firebase with default data
+  - Checks if data already exists in Firebase/Firestore
+  - If empty, populates with 15 default Chinese vocabulary cards
+  - Returns detailed response with `initialized`, `cardsAdded`, `cardsFailed`, `errors`
+  - Only works when Firebase is properly configured
+
+**Data Model:**
+```typescript
+{
+  id: number,
+  chineseWord: string,  // e.g., "你好"
+  englishWord: string,  // e.g., "Hello"
+  pinyin: string,       // e.g., "nǐ hǎo"
+  img?: string          // Optional image URL
+}
+```
+
 ## 🔧 Configuration
 
-### Spring Boot Configuration (`application.properties`)
+### Application Configuration (`application.properties`)
 
 ```properties
+# Server configuration
 server.port=8080
-server.servlet.context-path=/
+server.host=0.0.0.0
 
-# Static resources configuration
-spring.web.resources.static-locations=classpath:/static/
-spring.web.resources.cache.period=3600
+# Firebase configuration
+firebase.enabled=true
+firebase.credentials.path=src/main/resources/firebase-credentials.json
+firebase.database.url=https://worldmap-default-rtdb.firebaseio.com
 
-# Logging configuration
-logging.level.com.worldmap=INFO
-logging.level.root=WARN
-logging.level.org.springframework.boot.web.embedded.tomcat=INFO
+# Guice configuration
+guice.native.integration=true
 
-# Application name
-spring.application.name=WorldMap
-
-# Show startup info
-spring.main.banner-mode=console
-spring.output.ansi.enabled=always
+# Application info
+app.name=WorldMap
+app.version=0.0.1-SNAPSHOT
+app.environment=development
 ```
+
+### Firebase Setup
+
+To enable Firebase/Firestore integration:
+
+1. Create a Firebase project at https://console.firebase.google.com
+2. Generate a service account key (JSON)
+3. Place the credentials file at `src/main/resources/firebase-credentials.json`
+4. Update `firebase.database.url` in `application.properties`
+5. Firestore will be automatically initialized on startup
+
+**Note**: The application works with mock data if Firebase is not configured.
 
 ### React Configuration (`package.json`)
 
@@ -175,15 +253,16 @@ npm test
 ## 📦 Available Gradle Tasks
 
 ### Development Tasks
-- `gradle bootRun` - Run Spring Boot application (backend server)
+- `gradle run` - Run Jetty application (backend server)
 - `gradle npm_start` - Run React development server with hot reloading
 - `gradle clean` - Clean build directories
 
 ### Build Tasks
-- `gradle build` - Build entire application (React + Spring Boot)
+- `gradle build` - Build entire application (React + Jetty)
+- `gradle generateProto` - Generate Java classes from protobuf definitions
 - `gradle npmInstall` - Install React dependencies only
 - `gradle buildReact` - Build React application only
-- `gradle copyReactBuild` - Copy React build to Spring resources
+- `gradle copyReactBuild` - Copy React build to static resources
 
 ### Testing Tasks
 - `gradle test` - Run Java tests
@@ -191,26 +270,40 @@ npm test
 
 ## 🎯 Features Demonstrated
 
-1. **Full-stack Integration**: Seamless communication between React and Spring Boot
-2. **Single JAR Deployment**: Deploy both frontend and backend as one artifact
-3. **Client-side Routing**: React Router with server-side fallback
-4. **REST API**: JSON endpoints consumed by React
-5. **Modern Build System**: Gradle + Node.js plugin integration
-6. **Development Workflow**: Separate dev servers with proxy configuration
+1. **Full-stack Integration**: Seamless communication between React and Jetty/JAX-RS backend
+2. **Chinese Flashcard Learning**: Interactive flashcards with vocabulary management
+3. **Firebase/Firestore Integration**: Real-time data persistence with fallback to mock data
+4. **Dependency Injection**: Google Guice for clean, testable architecture
+5. **Protocol Buffers**: Type-safe API contracts with code generation
+6. **REST API**: JSON endpoints with CRUD operations consumed by React
+7. **Single JAR Deployment**: Deploy both frontend and backend as one artifact
+8. **Client-side Routing**: React Router with server-side fallback
+9. **Modern Build System**: Gradle + Node.js plugin + Protobuf integration
+10. **Development Workflow**: Separate dev servers with proxy configuration
 
 ## 🛠️ Customization
 
 ### Adding New React Routes
 
-1. Create a new component in `frontend/src/components/`
-2. Add the route in `App.js`
-3. Update `HomeController.java` to include the new route in the mapping
+1. Create a new component in `frontend/src/components/` or `frontend/src/Pages/`
+2. Add the route in `App.tsx`
+3. Jetty automatically serves `index.html` for unmatched routes
 
 ### Adding New API Endpoints
 
-1. Add methods to `ApiController.java` or create new controller classes
-2. Use the `/api/` prefix for API routes
-3. React can call these endpoints using axios
+1. Create a new controller class in `src/main/java/com/worldmap/controller/`
+2. Annotate with `@Path`, `@Singleton`, and JAX-RS annotations (`@GET`, `@POST`, etc.)
+3. Use the `/api/` prefix for API routes (configured in servlet mapping)
+4. Inject dependencies via `@Inject` constructor parameter with Guice
+5. React can call these endpoints using the service layer pattern
+
+### Adding Protobuf Definitions
+
+1. Create `.proto` files in the `proto/` directory
+2. Define messages and services using proto3 syntax
+3. Run `gradle generateProto` to generate Java classes
+4. Generated classes will be in `build/generated/source/proto/main/java/`
+5. Use generated classes for type-safe API development
 
 ### Styling
 
@@ -221,8 +314,11 @@ npm test
 
 - The React app is configured with `"homepage": "."` for proper routing in the JAR
 - API calls use relative URLs that work both in development (with proxy) and production
-- The build process automatically handles Node.js installation and React building
-- All static assets are served by Spring Boot from the `static` directory
+- The build process automatically handles Node.js installation, React building, and protobuf generation
+- All static assets are served by Jetty from the `webapp` directory
+- Firebase credentials are loaded from `application.properties` configuration
+- Mock data is used when Firebase is not configured, allowing development without database setup
+- Protobuf definitions in `proto/` are automatically compiled during the build process
 
 ## 🔍 Troubleshooting
 
@@ -236,21 +332,36 @@ npm test
 ### Development Issues
 
 - **React changes not appearing**: Use http://localhost:3000 (dev server) not :8080
-- **API calls failing**: Ensure Spring Boot backend is running on :8080
+- **API calls failing**: Ensure Jetty backend is running on :8080
 - **npm command not found**: Use `gradle npm_start` instead of `npm start`
 - **Hot reload not working**: Restart the React dev server (`gradle npm_start`)
+- **Protobuf classes not found**: Run `gradle generateProto` to generate Java classes
 
 ### Runtime Issues
 
-- Check that API endpoints return expected JSON
+- **Firebase errors**: Check that `firebase-credentials.json` exists and is valid
+- **Mock data used instead of Firebase**: Verify Firebase configuration in `application.properties`
+- **API endpoints returning 404**: Ensure controllers are in the correct package and annotated properly
+- **Guice injection failing**: Check that `@Inject` constructors are properly defined
 - Verify React routing configuration matches server-side fallbacks
 - Ensure proxy configuration is correct for development mode
 
 ## 💡 Development Tips
 
 - **Hot Reloading**: Always use the dual terminal approach for active development
-- **API Testing**: Backend runs independently on :8080 for API testing
+- **API Testing**: Backend runs independently on :8080 for API testing with tools like Postman
 - **Production Testing**: Build and test at :8080 before deployment
-- **Port Conflicts**: Change ports in `application.properties` if needed
+- **Port Conflicts**: Change `server.port` in `application.properties` if needed
+- **Firebase Development**: Use mock data mode during initial development, then connect Firebase later
+- **Protobuf Updates**: Regenerate Java classes with `gradle generateProto` after modifying `.proto` files
+- **TypeScript API Types**: Keep frontend TypeScript interfaces in sync with protobuf definitions
 
-This setup provides a solid foundation for building full-stack applications with Spring Boot and React! 🎉
+## 🎓 Learning Resources
+
+- **JAX-RS Tutorial**: https://docs.oracle.com/javaee/7/tutorial/jaxrs.htm
+- **Google Guice Guide**: https://github.com/google/guice/wiki/GettingStarted
+- **Protocol Buffers**: https://protobuf.dev/
+- **Firebase/Firestore**: https://firebase.google.com/docs/firestore
+- **React Router**: https://reactrouter.com/
+
+This setup provides a solid foundation for building modern, scalable full-stack applications with Jetty, Guice, Firebase, and React! 🎉

@@ -1,7 +1,7 @@
 package com.worldmap.model;
 
 public class ChineseFlashCard {
-    private int id;
+    private long id;
     private String chineseWord;
     private String englishWord;
     private String pinyin;
@@ -9,7 +9,7 @@ public class ChineseFlashCard {
 
     public ChineseFlashCard() {}
 
-    public ChineseFlashCard(int id, String chineseWord, String englishWord, String pinyin, String img) {
+    public ChineseFlashCard(long id, String chineseWord, String englishWord, String pinyin, String img) {
         this.id = id;
         this.chineseWord = chineseWord;
         this.englishWord = englishWord;
@@ -18,11 +18,11 @@ public class ChineseFlashCard {
     }
 
     // Getters and Setters
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

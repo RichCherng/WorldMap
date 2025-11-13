@@ -1,7 +1,6 @@
 package com.worldmap.guice.modules;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.worldmap.config.ApplicationConfig;
@@ -25,7 +24,7 @@ public class WebServerModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Server provideJettyServer(ApplicationConfig config, ResourceConfig resourceConfig, Injector injector) {
+    public Server provideJettyServer(ApplicationConfig config, ResourceConfig resourceConfig) {
         int port = config.getServer().getPort();
         Server server = new Server(port);
         
@@ -41,13 +40,10 @@ public class WebServerModule extends AbstractModule {
         // Add the Jersey servlet to handle all API requests
         apiHandler.addServlet(jerseyServlet, "/*");
         
-        // Initialize Jersey-Guice bridge
-        // Note: This is a simplified approach - full bridge requires ServletContainer's ServiceLocator
-        JerseyGuiceModule.initializeGuiceBridge(null, injector);
-        
+        // Bridge initialization is now handled by ContainerLifecycleListener in JerseyGuiceModule
         System.out.println("🌉 Jersey configured with Guice ResourceConfig integration");
         
-        // Create web application context for static resources
+        // Create web application context for static resources (webapp only)
         WebAppContext staticHandler = new WebAppContext();
         staticHandler.setContextPath("/");
         staticHandler.setResourceBase("src/main/resources/webapp");

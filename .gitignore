@@ -39,6 +39,9 @@ frontend/dist/
 
 ### Build artifacts (copied by Gradle) ###
 src/main/resources/static/
+src/main/resources/webapp/
+# But keep swagger-ui.html (manually created, not a build artifact)
+!src/main/resources/webapp/swagger-ui.html
 
 ### Environment Variables ###
 .env

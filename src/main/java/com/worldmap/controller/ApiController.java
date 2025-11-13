@@ -4,6 +4,8 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.inject.Singleton;
 import java.util.Map;
@@ -12,10 +14,12 @@ import java.util.HashMap;
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
+@Tag(name = "System", description = "System API endpoints")
 public class ApiController {
 
     @GET
     @Path("/hello")
+    @Operation(summary = "Hello endpoint", description = "Simple hello endpoint to verify the API is running")
     public Map<String, String> hello() {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Hello!");
@@ -25,6 +29,7 @@ public class ApiController {
 
     @GET
     @Path("/status")
+    @Operation(summary = "API status", description = "Get the status of the WorldMap API")
     public Map<String, Object> status() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "OK");
@@ -35,11 +40,10 @@ public class ApiController {
 
     @GET
     @Path("/status/firebase")
+    @Operation(summary = "Firebase status", description = "Check Firebase connection status")
     public Map<String, String> firebaseStatus() {
         Map<String, String> response = new HashMap<>();
         response.put("status", "ok");
         return response;
     }
-
-    
 }

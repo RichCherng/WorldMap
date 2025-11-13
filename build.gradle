@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.node-gradle.node' version '7.0.1'
+    id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'com.worldmap'
@@ -23,12 +24,12 @@ dependencies {
     implementation 'com.google.inject:guice:7.0.0'
     implementation 'com.google.inject.extensions:guice-servlet:7.0.0'
     implementation 'javax.inject:javax.inject:1'
-    
+
     // Jetty web server
     implementation 'org.eclipse.jetty:jetty-server:11.0.18'
     implementation 'org.eclipse.jetty:jetty-servlet:11.0.18'
     implementation 'org.eclipse.jetty:jetty-webapp:11.0.18'
-    
+
     // JAX-RS API and Jersey implementation
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
     implementation 'org.glassfish.jersey.core:jersey-server:3.1.5'
@@ -36,27 +37,38 @@ dependencies {
     implementation 'org.glassfish.jersey.inject:jersey-hk2:3.1.5'
     implementation 'org.glassfish.jersey.media:jersey-media-json-jackson:3.1.5'
     
+    // Servlet API for web server integration
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
     // HK2-Guice bridge for Jersey-Guice integration
     implementation 'org.glassfish.hk2:guice-bridge:3.0.5'
     implementation 'org.glassfish.hk2:hk2-api:3.0.5'
     implementation 'org.glassfish.hk2:hk2-locator:3.0.5'
-    
+
     // JSON processing
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
-    
+
+    // Protocol Buffers
+    implementation 'com.google.protobuf:protobuf-java:3.25.1'
+    implementation 'com.google.protobuf:protobuf-java-util:3.25.1'
+
     // Configuration management
     implementation 'com.typesafe:config:1.4.3'
-    
+
     // Firebase Admin SDK
     implementation 'com.google.firebase:firebase-admin:9.2.0'
-    
+
     // Additional Google Cloud dependencies for Firestore
     implementation 'com.google.cloud:google-cloud-firestore:3.15.6'
-    
+
     // Logging
     implementation 'org.slf4j:slf4j-simple:2.0.9'
-    
+
+    // Swagger/OpenAPI for Jersey
+    implementation 'io.swagger.core.v3:swagger-jaxrs2-jakarta:2.2.20'
+    implementation 'io.swagger.core.v3:swagger-integration:2.2.20'
+
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testImplementation 'org.mockito:mockito-core:5.8.0'
@@ -104,4 +116,26 @@ application {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Protobuf configuration
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.25.1'
+    }
+    generateProtoTasks {
+        all()
+    }
+}
+
+// Add generated protobuf sources to source sets
+sourceSets {
+    main {
+        proto {
+            srcDir 'proto'
+        }
+        java {
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
 }
