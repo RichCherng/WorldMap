@@ -360,6 +360,7 @@ npm test
 
 - **JAX-RS Tutorial**: https://docs.oracle.com/javaee/7/tutorial/jaxrs.htm
 - **Google Guice Guide**: https://github.com/google/guice/wiki/GettingStarted
+- **Guice Dependency Injection (WorldMap)**: [docs/GUICE_DEPENDENCY_INJECTION.md](docs/GUICE_DEPENDENCY_INJECTION.md) - Comprehensive guide to DI patterns in this project
 - **Protocol Buffers**: https://protobuf.dev/
 - **Firebase/Firestore**: https://firebase.google.com/docs/firestore
 - **React Router**: https://reactrouter.com/
