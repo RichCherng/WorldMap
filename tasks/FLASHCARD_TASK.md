@@ -86,8 +86,86 @@
 - ❌ **Create Flash Card APIs**
     - **Description:** Implement RESTful API endpoints for flashcard CRUD operations with Firebase/Firestore integration
     - **Branch:** `<branch-name>`
-    
+
+    - ❌ **Create Firestore Service Layer**
+        - **Description:** Create a generic Firestore service for common database operations that can be reused across different flashcard types
+        - **Component:** `FirestoreService` (`src/main/java/com/worldmap/service/`)
+        - **Purpose:**
+            - Abstract common Firestore CRUD operations (create, read, update, delete, query)
+            - Provide type-safe document conversion utilities
+            - Handle Firestore connection and error management
+            - Support pagination and filtering
+        - **Subtasks:**
+            - ❌ **Create and validate Firestore connection**
+                - Verify Firebase credentials are properly configured in `src/main/resources/firebase-credentials.json`
+                - Ensure `firebase.enabled=true` in `application.properties`
+                - Test Firestore connection on service initialization
+                - Add connection validation method: `boolean isConnected()` - Returns true if Firestore is initialized and connected
+                - Log connection status on startup (connected/not configured/error)
+                - Handle connection errors gracefully with meaningful error messages
+                - Create a test endpoint or unit test to verify connection works
+            - ❌ **Implement FirestoreService CRUD methods**
+                - ❌ `<T> T create(String collection, String docId, Map<String, Object> data, Class<T> type)` - Create document
+                - ❌ `<T> T get(String collection, String docId, Class<T> type)` - Get single document
+                - ❌ `<T> List<T> getAll(String collection, int page, int pageSize, Class<T> type)` - Get all documents with pagination
+                - ❌ `<T> T update(String collection, String docId, Map<String, Object> data, Class<T> type)` - Update document
+                - ❌ `void delete(String collection, String docId)` - Delete document
+                - ❌ `long count(String collection)` - Count total documents in collection
+                - ❌ `boolean exists(String collection, String docId)` - Check if document exists
+            - ❌ **Create unit tests for FirestoreService**
+                - Test all CRUD operations (create, get, getAll, update, delete, count, exists)
+                - Test connection validation and error handling
+                - Test behavior when Firebase is not configured (null Firestore)
+                - Use JUnit 5 and Mockito for testing
+                - Achieve >80% code coverage
+        - **Requirements:**
+            - ❌ Use `@Singleton` annotation for single instance
+            - ❌ Inject Firestore via `@Inject` constructor (accepts `@Nullable Firestore`)
+            - ❌ Handle null Firestore gracefully (when Firebase not configured)
+            - ❌ Throw custom exceptions with meaningful error messages
+            - ❌ Support async operations using `ApiFuture<T>`
+            - ❌ Add proper logging for all operations (connection status, CRUD operations, errors)
+            - ❌ Validate Firestore connection before performing operations
+        - **Benefits:**
+            - Reduces code duplication across Chinese/French flashcard services
+            - Centralizes Firestore error handling
+            - Makes it easier to add new flashcard types in the future
+            - Ensures Firestore is properly configured before use
+
     - ❌ **Chinese Flash Card API**
+        - **Protobuf Source:** `proto/chinese_card.proto` (already defined with ChineseFlashCard messages)
+        - **Generated Classes:** `build/generated/source/proto/main/java/com/worldmap/flashcard/`
+            - `ChineseFlashCard` - Main data model
+            - `CreateChineseFlashCardRequest/Response`
+            - `GetChineseFlashCardsRequest/Response`
+            - `GetChineseFlashCardRequest/Response`
+            - `UpdateChineseFlashCardRequest/Response`
+            - `DeleteChineseFlashCardRequest/Response`
+        - **Subtasks:**
+            - ❌ **Implement ChineseFlashCardController**
+                - Location: `src/main/java/com/worldmap/controller/`
+                - JAX-RS REST controller with `@Path("/api/flashcards/chinese")`
+                - Receives JSON requests, converts to protobuf request objects
+                - Calls ChineseFlashCardService methods
+                - Returns protobuf response objects (auto-converted to JSON by Jackson)
+            - ❌ **Implement ChineseFlashCardService**
+                - Location: `src/main/java/com/worldmap/service/`
+                - Business logic layer working entirely with protobuf objects
+                - Converts protobuf messages ↔ Firestore documents
+                - Handles Firebase/Firestore operations (CRUD on "chinese_flashcards" collection)
+                - Validates data and builds protobuf responses with success/error/message fields
+                - Falls back to mock data when Firebase not configured
+            - ❌ **Configure Guice dependency injection**
+                - Ensure ChineseFlashCardService is injectable via Guice
+                - Register bindings in appropriate Guice module
+                - Use `@Singleton` and `@Inject` annotations properly
+            - ❌ **Create unit tests for ChineseFlashCardService**
+                - Test all CRUD operations with protobuf objects
+                - Test protobuf ↔ Firestore document conversion helpers
+                - Test validation logic
+                - Test mock data fallback when Firebase not configured
+                - Use JUnit 5 and Mockito
+                - Achieve >80% code coverage
         - **Endpoints to implement:**
             - ❌ `GET /api/flashcards/chinese` - Get all flashcards with pagination (page, pageSize)
             - ❌ `GET /api/flashcards/chinese/{id}` - Get single flashcard by ID
@@ -95,16 +173,56 @@
             - ❌ `PUT /api/flashcards/chinese/{id}` - Update existing flashcard
             - ❌ `DELETE /api/flashcards/chinese/{id}` - Delete flashcard
             - ❌ `POST /api/flashcards/chinese/initialize` - Initialize Firebase with default data
-        - **Data Model:** ChineseFlashCard (id, chineseWord, englishWord, pinyin, img?)
+        - **Data Flow:**
+            1. Client sends JSON request → Controller receives & converts to protobuf request
+            2. Service processes using protobuf objects, interacts with Firestore
+            3. Service returns protobuf response → Controller converts to JSON response
         - **Requirements:**
+            - ❌ Use protobuf-generated classes from `proto/chinese_card.proto` for all request/response types
             - ❌ Connect to Firebase/Firestore successfully (collection: "chinese_flashcards")
+            - ❌ Create helper methods: `convertToFirestoreDoc(ChineseFlashCard)` and `convertFromFirestoreDoc(DocumentSnapshot)`
             - ❌ Implement proper error handling and validation
-            - ❌ Return standardized JSON responses with success/error structure
+            - ❌ Return JSON responses matching protobuf response message structure
             - ❌ Support mock data fallback when Firebase not configured
-            - ❌ Use Guice dependency injection for service layer
-            - ❌ Use protobuf-generated classes for data model
+            - ❌ Use Guice dependency injection (`@Inject` for dependencies)
+            - ❌ Register all services in Guice modules for proper DI
+            - ❌ Create comprehensive unit tests (>80% coverage)
+            - ❌ Use `@Singleton` for service classes
     
     - ❌ **French Flash Card API**
+        - **Protobuf Source:** Will be defined in `proto/french_flashcard.proto` (following Chinese flashcard pattern)
+        - **Generated Classes:** `build/generated/source/proto/main/java/com/worldmap/flashcard/`
+            - `FrenchFlashCard` - Main data model
+            - `CreateFrenchFlashCardRequest/Response`
+            - `GetFrenchFlashCardsRequest/Response`
+            - `GetFrenchFlashCardRequest/Response`
+            - `UpdateFrenchFlashCardRequest/Response`
+            - `DeleteFrenchFlashCardRequest/Response`
+        - **Subtasks:**
+            - ❌ **Implement FrenchFlashCardController**
+                - Location: `src/main/java/com/worldmap/controller/`
+                - JAX-RS REST controller with `@Path("/api/flashcards/french")`
+                - Receives JSON requests, converts to protobuf request objects
+                - Calls FrenchFlashCardService methods
+                - Returns protobuf response objects (auto-converted to JSON by Jackson)
+            - ❌ **Implement FrenchFlashCardService**
+                - Location: `src/main/java/com/worldmap/service/`
+                - Business logic layer working entirely with protobuf objects
+                - Converts protobuf messages ↔ Firestore documents
+                - Handles Firebase/Firestore operations (CRUD on "french_flashcards" collection)
+                - Validates data and builds protobuf responses with success/error/message fields
+                - Falls back to mock data when Firebase not configured
+            - ❌ **Configure Guice dependency injection**
+                - Ensure FrenchFlashCardService is injectable via Guice
+                - Register bindings in appropriate Guice module
+                - Use `@Singleton` and `@Inject` annotations properly
+            - ❌ **Create unit tests for FrenchFlashCardService**
+                - Test all CRUD operations with protobuf objects
+                - Test protobuf ↔ Firestore document conversion helpers
+                - Test validation logic
+                - Test mock data fallback when Firebase not configured
+                - Use JUnit 5 and Mockito
+                - Achieve >80% code coverage
         - **Endpoints to implement:**
             - ❌ `GET /api/flashcards/french` - Get all flashcards with pagination (page, pageSize)
             - ❌ `GET /api/flashcards/french/{id}` - Get single flashcard by ID
@@ -112,14 +230,21 @@
             - ❌ `PUT /api/flashcards/french/{id}` - Update existing flashcard
             - ❌ `DELETE /api/flashcards/french/{id}` - Delete flashcard
             - ❌ `POST /api/flashcards/french/initialize` - Initialize Firebase with default data
-        - **Data Model:** FrenchFlashCard (id, frenchWord, englishWord, pronunciation, img?)
+        - **Data Flow:**
+            1. Client sends JSON request → Controller receives & converts to protobuf request
+            2. Service processes using protobuf objects, interacts with Firestore
+            3. Service returns protobuf response → Controller converts to JSON response
         - **Requirements:**
+            - ❌ Use protobuf-generated classes from `proto/french_flashcard.proto` for all request/response types
             - ❌ Connect to Firebase/Firestore successfully (collection: "french_flashcards")
+            - ❌ Create helper methods: `convertToFirestoreDoc(FrenchFlashCard)` and `convertFromFirestoreDoc(DocumentSnapshot)`
             - ❌ Implement proper error handling and validation
-            - ❌ Return standardized JSON responses with success/error structure
+            - ❌ Return JSON responses matching protobuf response message structure
             - ❌ Support mock data fallback when Firebase not configured
-            - ❌ Use Guice dependency injection for service layer
-            - ❌ Use protobuf-generated classes for data model
+            - ❌ Use Guice dependency injection (`@Inject` for dependencies)
+            - ❌ Register all services in Guice modules for proper DI
+            - ❌ Create comprehensive unit tests (>80% coverage)
+            - ❌ Use `@Singleton` for service classes
     
     - **Date:** November 13, 2025
 
