@@ -6,6 +6,7 @@
 - Before executing, review the task with user. If the task need revision, ask user for help to define the task.
 
 ### 🎯 Task Execution
+- **Always use a specific branch for each task** – if no branch is specified or doesn't exist, ask the user to specify a branch name before starting work. Never work directly on the main branch.
 - **Each task should be well-defined** with clear scope and requirements before implementation.
 - **Do not code beyond what is asked** – stick strictly to the task definition and avoid adding extra features or functionality not explicitly requested.
 - If a task seems ambiguous or incomplete, clarify with the user before proceeding.

@@ -12,7 +12,7 @@
 
 ### Backend Infrastructure
 
-- ❌ **Overhaul Java Backend Setup**
+- ✅ **Overhaul Java Backend Setup**
     - **Description:** Work with chat to define requirements and architecture for what the Java backend service should look like. Modernize backend structure with proper dependency injection, service patterns, and scalable architecture.
     - **Branch:** `Java-backend`
     - **Subtasks:**
@@ -28,7 +28,7 @@
             - ✅ Configure application-level injector
             - ✅ Refactor existing services to use @Inject
             - ✅ Document DI patterns and usage
-            - 🔄 **Create unit tests for Guice modules and DI integration**
+            - ✅ **Create unit tests for Guice modules and DI integration**
                 - ✅ Create test resources file: `src/test/resources/application.properties` with Firebase disabled and test configuration values
                 - ✅ **Create helper**: `src/test/java/com/worldmap/guice/modules/TestFirebaseModule.java` - Test-only module that safely provides null Firestore for testing
                 - ✅ **Test `ApplicationConfigModule`**: `src/test/java/com/worldmap/guice/modules/ApplicationConfigModuleTest.java`
