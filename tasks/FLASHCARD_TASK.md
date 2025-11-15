@@ -130,10 +130,10 @@
             - Auto-updates when protobuf definitions change
             - Familiar workflow for developers used to Swagger UI
 
-    - ❌ **Setup Service-Level gRPC Server**
+    - 🔄 **Setup Service-Level gRPC Server**
         - **Description:** Create a centralized gRPC server that hosts all gRPC services (Chinese FlashCard, French FlashCard, etc.) on a single port, replacing Jetty
         - **Component:** `GrpcServer` (`src/main/java/com/worldmap/grpc/`)
-        - **Branch:** `grpc-server-setup`
+        - **Branch:** `grpc-server-setup` ✅ (created from chinese-flashcard-grpc-api)
         - **Architecture:** One gRPC server (port 8080) hosting multiple gRPC services
         - **Purpose:**
             - Provide a single entry point for all gRPC services
@@ -393,6 +393,53 @@
     - **Date:** November 13, 2025
 
 ### Frontend Development
+
+- ❌ **Separate Frontend Hosting from Java Backend**
+    - **Description:** Configure frontend to run independently from the Java backend, using modern SPA architecture
+    - **Branch:** `frontend-hosting-setup`
+    - **Purpose:**
+        - Decouple frontend deployment from backend deployment
+        - Enable faster development with hot reload
+        - Prepare for production deployment (CDN, Vercel, Netlify, etc.)
+        - Follow modern SPA architecture patterns
+    - **Subtasks:**
+        - ❌ **Remove Jetty static file serving**
+            - Remove `copyReactBuild` task from build.gradle
+            - Remove `buildReact` dependency from `processResources`
+            - Remove Jetty server initialization from WorldMapApplication
+            - Remove Jetty dependencies from build.gradle (keep only if needed for other purposes)
+        - ❌ **Configure Vite dev server for development**
+            - Update frontend package.json with proper dev script
+            - Configure Vite to proxy gRPC-Web requests to localhost:8080
+            - Set up CORS configuration for development
+            - Document how to run frontend dev server (npm run dev on port 3000)
+        - ❌ **Update frontend configuration**
+            - Create environment variables for API endpoint (localhost:8080 for dev)
+            - Configure gRPC-Web client to use environment variable
+            - Add .env.development and .env.production files
+        - ❌ **Document production deployment options**
+            - Add README section for deploying to Vercel
+            - Add README section for deploying to Netlify
+            - Add README section for deploying to S3 + CloudFront
+            - Document environment variable configuration for production
+        - ❌ **Update README.md**
+            - Document new architecture (separate frontend/backend)
+            - Add development workflow (run backend + frontend separately)
+            - Update "Getting Started" section
+            - Add troubleshooting for CORS issues
+    - **Requirements:**
+        - ❌ Frontend runs independently on port 3000 (development)
+        - ❌ Backend (gRPC) runs on port 8080
+        - ❌ CORS properly configured for development
+        - ❌ Environment variables for API endpoints
+        - ❌ Clear documentation for developers
+    - **Benefits:**
+        - Hot reload during development (faster iteration)
+        - Independent scaling of frontend and backend
+        - Modern deployment options (CDN, serverless)
+        - Cleaner separation of concerns
+        - Frontend can be deployed to CDN for better performance
+    - **Date:** November 13, 2025
 
 - ❌ **Create Flash Card UI Components**
     - **Description:** Build React components for displaying and interacting with flashcards
