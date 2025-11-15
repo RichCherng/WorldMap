@@ -2,6 +2,8 @@
 
 **Description:** Building a Chinese Flash Card learning feature with full-stack implementation including backend APIs, Firebase integration, frontend UI, and comprehensive testing.
 
+**Architecture:** gRPC-based API using Protocol Buffers for type-safe communication between frontend (gRPC-Web) and backend (gRPC server)
+
 **Main Branch:** `main`
 
 **Feature Branch:** `FlashCard`
@@ -91,8 +93,8 @@
     - ❌ **Setup grpcui for API Testing and Documentation**
         - **Description:** Configure grpcui as a web-based UI for testing gRPC services (similar to Swagger UI for REST APIs)
         - **Dependencies:**
-            - ❌ gRPC server must be configured and running (port 9090)
-            - ❌ gRPC Server Reflection must be enabled on backend
+            - ❌ Requires "Setup Service-Level gRPC Server" task to be completed (GrpcServer running on port 8080)
+            - ❌ gRPC Server Reflection must be enabled (handled in GrpcServer setup)
             - ❌ At least one gRPC service must be implemented (ChineseFlashCardGrpcService)
             - ✅ Protobuf definitions must be finalized (chinese_card.proto)
         - **Purpose:**
@@ -105,12 +107,11 @@
                 - Install grpcui tool (Go-based utility)
                 - Document installation instructions in README
                 - Verify grpcui can connect to gRPC server
-            - ❌ **Enable gRPC Server Reflection in backend**
-                - Add gRPC reflection service to server
-                - Configure reflection to expose all services
-                - Test reflection endpoint works
+            - ❌ **Verify gRPC Server Reflection is enabled**
+                - Confirm GrpcServer has ProtoReflectionService registered
+                - Test reflection endpoint works with grpcurl or grpcui
             - ❌ **Create grpcui startup script**
-                - Create script to launch grpcui pointing to gRPC server (port 9090)
+                - Create script to launch grpcui pointing to gRPC server (port 8080)
                 - Add to README or create dedicated script file
                 - Document how to access grpcui web interface
             - ❌ **Test grpcui with Chinese FlashCard service**
@@ -128,6 +129,63 @@
             - Interactive testing without writing client code
             - Auto-updates when protobuf definitions change
             - Familiar workflow for developers used to Swagger UI
+
+    - ❌ **Setup Service-Level gRPC Server**
+        - **Description:** Create a centralized gRPC server that hosts all gRPC services (Chinese FlashCard, French FlashCard, etc.) on a single port, replacing Jetty
+        - **Component:** `GrpcServer` (`src/main/java/com/worldmap/grpc/`)
+        - **Branch:** `grpc-server-setup`
+        - **Architecture:** One gRPC server (port 8080) hosting multiple gRPC services
+        - **Purpose:**
+            - Provide a single entry point for all gRPC services
+            - Efficient resource usage (one server instance, one port)
+            - Standard industry pattern used by Google, Uber, Netflix
+            - Simplifies deployment (only one port to manage)
+        - **Subtasks:**
+            - ❌ **Create GrpcServer class**
+                - Location: `src/main/java/com/worldmap/grpc/GrpcServer.java`
+                - Use Guice dependency injection
+                - Accept all gRPC service implementations via constructor injection
+                - Build server with `ServerBuilder.forPort(8080)`
+                - Register all injected services using `.addService()`
+                - Enable gRPC Server Reflection for grpcui support
+                - Add graceful shutdown hook
+            - ❌ **Create GrpcModule for Guice**
+                - Location: `src/main/java/com/worldmap/config/GrpcModule.java`
+                - Bind GrpcServer as singleton
+                - Bind all gRPC service implementations
+                - Configure server port (8080) as a constant or from config
+            - ❌ **Integrate GrpcServer with WorldMapApplication**
+                - Replace Jetty server initialization with GrpcServer
+                - Use Guice injector to get GrpcServer instance
+                - Start GrpcServer on port 8080
+                - Add shutdown hook to stop GrpcServer gracefully
+                - Log server startup status (port, services registered)
+                - Remove Jetty dependencies and initialization code
+            - ❌ **Enable gRPC Server Reflection**
+                - Add `ProtoReflectionService` to server
+                - Required for grpcui to auto-discover services
+                - Test reflection with `grpcurl` or grpcui
+            - ❌ **Update README.md**
+                - Document gRPC server architecture and port (8080)
+                - Explain that Jetty has been removed
+                - Add instructions for running the gRPC server
+                - Document how to test with grpcui
+                - Update frontend development instructions (connect to localhost:8080)
+                - Add protobuf regeneration instructions
+                - Document service registration process via Guice
+        - **Requirements:**
+            - ❌ Single gRPC server instance on port 8080
+            - ❌ Support dynamic service registration via Guice
+            - ❌ Enable gRPC Server Reflection for grpcui
+            - ❌ Graceful startup and shutdown
+            - ❌ Proper error handling and logging
+            - ❌ Jetty server disabled/removed
+        - **Benefits:**
+            - All gRPC services share one server (efficient)
+            - Easy to add new services (just inject them)
+            - Single port for all APIs (simpler deployment)
+            - Standard gRPC architecture pattern
+            - Frontend served separately (via npm/Vite dev server or static hosting)
 
     - ✅ **Create Firestore Service Layer**
         - **Description:** Create a generic Firestore service for common database operations that can be reused across different flashcard types
@@ -181,6 +239,7 @@
             - Ensures Firestore is properly configured before use
             
     - ❌ **Chinese Flash Card gRPC API**
+        - **Branch:** `chinese-flashcard-grpc-api`
         - **Protobuf Source:** `proto/chinese_card.proto` (already defined with ChineseFlashCard messages and service)
         - **Generated Classes:** `build/generated/source/proto/main/java/com/worldmap/flashcard/`
             - `ChineseFlashCard` - Main data model
@@ -190,12 +249,11 @@
             - `UpdateChineseFlashCardRequest/Response`
             - `DeleteChineseFlashCardRequest/Response`
             - `ChineseFlashCardServiceGrpc` - gRPC service stub
+        - **Dependencies:**
+            - ❌ Requires "Setup Service-Level gRPC Server" task to be completed first
+            - ✅ gRPC dependencies already added to build.gradle
+            - ✅ Protobuf plugin configured to generate gRPC stubs
         - **Subtasks:**
-            - ❌ **Configure gRPC server and dependencies**
-                - Add gRPC Java dependencies to build.gradle (grpc-netty, grpc-protobuf, grpc-stub, grpc-services)
-                - Configure protobuf plugin to generate gRPC service stubs
-                - Set up gRPC server to run alongside Jetty (different port, e.g., 9090)
-                - Enable gRPC Server Reflection for grpcui support
             - ❌ **Implement ChineseFlashCardGrpcService**
                 - Location: `src/main/java/com/worldmap/grpc/`
                 - Extend `ChineseFlashCardServiceGrpc.ChineseFlashCardServiceImplBase`
@@ -211,12 +269,9 @@
                 - Falls back to mock data when Firebase not configured
             - ❌ **Configure Guice dependency injection**
                 - Ensure ChineseFlashCardService is injectable via Guice
-                - Register gRPC service in server configuration
+                - Register ChineseFlashCardGrpcService in GrpcModule
                 - Use `@Singleton` and `@Inject` annotations properly
-            - ❌ **Setup grpcui for testing/documentation**
-                - Verify gRPC reflection is enabled on server
-                - Document how to run grpcui against the gRPC server
-                - Test all RPC methods via grpcui web interface
+                - GrpcServer will auto-register this service via Guice injection
             - ❌ **Create unit tests for ChineseFlashCardService**
                 - Test all CRUD operations with protobuf objects
                 - Test protobuf ↔ Firestore document conversion helpers
@@ -237,20 +292,20 @@
             4. Service returns protobuf response → gRPC server sends to client
         - **Requirements:**
             - ❌ Use protobuf-generated classes from `proto/chinese_card.proto` for all request/response types
-            - ❌ Generate gRPC service stubs from protobuf
-            - ❌ Configure gRPC server (port 9090) with Server Reflection enabled
+            - ✅ gRPC service stubs generated from protobuf
+            - ❌ Service will be registered in centralized GrpcServer (see "Setup Service-Level gRPC Server" task)
             - ❌ Connect to Firebase/Firestore successfully (collection: "chinese_flashcards")
             - ❌ Create helper methods: `convertToFirestoreDoc(ChineseFlashCard)` and `convertFromFirestoreDoc(DocumentSnapshot)`
             - ❌ Implement proper error handling and validation
             - ❌ Return protobuf response objects directly (no JSON conversion needed)
             - ❌ Support mock data fallback when Firebase not configured
             - ❌ Use Guice dependency injection (`@Inject` for dependencies)
-            - ❌ Register all services in Guice modules for proper DI
+            - ❌ Register ChineseFlashCardGrpcService in GrpcModule for auto-registration
             - ❌ Create comprehensive unit tests (>80% coverage)
             - ❌ Use `@Singleton` for service classes
-            - ❌ Test via grpcui web interface
+            - ❌ Test via grpcui web interface (after GrpcServer is running)
     
-    - ❌ **French Flash Card API**
+    - ❌ **French Flash Card gRPC API**
         - **Protobuf Source:** Will be defined in `proto/french_flashcard.proto` (following Chinese flashcard pattern)
         - **Generated Classes:** `build/generated/source/proto/main/java/com/worldmap/flashcard/`
             - `FrenchFlashCard` - Main data model
@@ -259,13 +314,18 @@
             - `GetFrenchFlashCardRequest/Response`
             - `UpdateFrenchFlashCardRequest/Response`
             - `DeleteFrenchFlashCardRequest/Response`
+            - `FrenchFlashCardServiceGrpc` - gRPC service stub
+        - **Dependencies:**
+            - ❌ Requires "Setup Service-Level gRPC Server" task to be completed first
+            - ✅ gRPC dependencies already added to build.gradle
+            - ✅ Protobuf plugin configured to generate gRPC stubs
         - **Subtasks:**
-            - ❌ **Implement FrenchFlashCardController**
-                - Location: `src/main/java/com/worldmap/controller/`
-                - JAX-RS REST controller with `@Path("/api/flashcards/french")`
-                - Receives JSON requests, converts to protobuf request objects
-                - Calls FrenchFlashCardService methods
-                - Returns protobuf response objects (auto-converted to JSON by Jackson)
+            - ❌ **Implement FrenchFlashCardGrpcService**
+                - Location: `src/main/java/com/worldmap/grpc/`
+                - Extend `FrenchFlashCardServiceGrpc.FrenchFlashCardServiceImplBase`
+                - Implement all RPC methods defined in protobuf service
+                - Delegates to FrenchFlashCardService for business logic
+                - Returns protobuf response objects directly
             - ❌ **Implement FrenchFlashCardService**
                 - Location: `src/main/java/com/worldmap/service/`
                 - Business logic layer working entirely with protobuf objects
@@ -275,8 +335,9 @@
                 - Falls back to mock data when Firebase not configured
             - ❌ **Configure Guice dependency injection**
                 - Ensure FrenchFlashCardService is injectable via Guice
-                - Register bindings in appropriate Guice module
+                - Register FrenchFlashCardGrpcService in GrpcModule
                 - Use `@Singleton` and `@Inject` annotations properly
+                - GrpcServer will auto-register this service via Guice injection
             - ❌ **Create unit tests for FrenchFlashCardService**
                 - Test all CRUD operations with protobuf objects
                 - Test protobuf ↔ Firestore document conversion helpers
@@ -284,28 +345,31 @@
                 - Test mock data fallback when Firebase not configured
                 - Use JUnit 5 and Mockito
                 - Achieve >80% code coverage
-        - **Endpoints to implement:**
-            - ❌ `GET /api/flashcards/french` - Get all flashcards with pagination (page, pageSize)
-            - ❌ `GET /api/flashcards/french/{id}` - Get single flashcard by ID
-            - ❌ `POST /api/flashcards/french` - Create new flashcard (validate: frenchWord, englishWord, pronunciation required)
-            - ❌ `PUT /api/flashcards/french/{id}` - Update existing flashcard
-            - ❌ `DELETE /api/flashcards/french/{id}` - Delete flashcard
-            - ❌ `POST /api/flashcards/french/initialize` - Initialize Firebase with default data
+        - **gRPC Methods to implement:**
+            - ❌ `CreateFrenchFlashCard` - Create new flashcard (validate: frenchWord, englishWord, pronunciation required)
+            - ❌ `GetFrenchFlashCards` - Get all flashcards with pagination (page, pageSize)
+            - ❌ `GetFrenchFlashCard` - Get single flashcard by ID
+            - ❌ `UpdateFrenchFlashCard` - Update existing flashcard
+            - ❌ `DeleteFrenchFlashCard` - Delete flashcard
         - **Data Flow:**
-            1. Client sends JSON request → Controller receives & converts to protobuf request
-            2. Service processes using protobuf objects, interacts with Firestore
-            3. Service returns protobuf response → Controller converts to JSON response
+            1. Frontend sends gRPC-Web request → gRPC server receives protobuf request
+            2. gRPC service delegates to FrenchFlashCardService for business logic
+            3. Service processes using protobuf objects, interacts with Firestore
+            4. Service returns protobuf response → gRPC server sends to client
         - **Requirements:**
             - ❌ Use protobuf-generated classes from `proto/french_flashcard.proto` for all request/response types
+            - ❌ Generate gRPC service stubs from protobuf
+            - ❌ Service will be registered in centralized GrpcServer (same server as Chinese flashcards)
             - ❌ Connect to Firebase/Firestore successfully (collection: "french_flashcards")
             - ❌ Create helper methods: `convertToFirestoreDoc(FrenchFlashCard)` and `convertFromFirestoreDoc(DocumentSnapshot)`
             - ❌ Implement proper error handling and validation
-            - ❌ Return JSON responses matching protobuf response message structure
+            - ❌ Return protobuf response objects directly (no JSON conversion needed)
             - ❌ Support mock data fallback when Firebase not configured
             - ❌ Use Guice dependency injection (`@Inject` for dependencies)
-            - ❌ Register all services in Guice modules for proper DI
+            - ❌ Register FrenchFlashCardGrpcService in GrpcModule for auto-registration
             - ❌ Create comprehensive unit tests (>80% coverage)
             - ❌ Use `@Singleton` for service classes
+            - ❌ Test via grpcui web interface (after GrpcServer is running)
     
     - **Date:** November 13, 2025
 
@@ -347,24 +411,25 @@
     - **Styling:** Use existing CSS patterns or Tailwind CSS
     - **Date:** November 13, 2025
 
-- ❌ **Create API Service Layer for Frontend**
-    - **Description:** Create TypeScript service functions for all flashcard API calls
+- ❌ **Create gRPC-Web Service Layer for Frontend**
+    - **Description:** Create TypeScript gRPC-Web client for all flashcard API calls
     - **Branch:** `<branch-name>`
     - **Services to implement:**
-        - ❌ `flashcardService.ts` - API client functions
-            - ❌ `getAllFlashcards(page, pageSize)` - Fetch all cards
-            - ❌ `getFlashcardById(id)` - Fetch single card
-            - ❌ `createFlashcard(data)` - Create new card
-            - ❌ `updateFlashcard(id, data)` - Update card
-            - ❌ `deleteFlashcard(id)` - Delete card
-            - ❌ `initializeFlashcards()` - Initialize with default data
+        - ❌ `flashcardGrpcService.ts` - gRPC-Web client functions
+            - ❌ `getAllFlashcards(page, pageSize)` - Fetch all cards via gRPC
+            - ❌ `getFlashcardById(id)` - Fetch single card via gRPC
+            - ❌ `createFlashcard(data)` - Create new card via gRPC
+            - ❌ `updateFlashcard(id, data)` - Update card via gRPC
+            - ❌ `deleteFlashcard(id)` - Delete card via gRPC
+        - ❌ Configure gRPC-Web client to connect to backend (localhost:8080)
         - ❌ Error handling and response parsing
-        - ❌ TypeScript interfaces matching backend data model
+        - ❌ Use generated TypeScript types from protobuf
     - **Requirements:**
-        - ❌ Use fetch or axios consistently
-        - ❌ Handle network errors and API errors
-        - ❌ Type-safe with proper TypeScript types
-        - ❌ Add request/response interceptors if needed
+        - ❌ Install grpc-web and @improbable-eng/grpc-web dependencies
+        - ❌ Use generated TypeScript types from protobuf (already created in proto setup task)
+        - ❌ Handle gRPC errors and status codes
+        - ❌ Type-safe with protobuf-generated types
+        - ❌ Configure gRPC-Web client with proper metadata/headers
     - **Date:** November 13, 2025
 
 ### Testing
@@ -385,7 +450,7 @@
         - ❌ Achieve >70% component coverage
     - **Date:** November 13, 2025
 
-- ❌ **Create Swagger page**
-    - **Description:** Set up API documentation using Swagger/OpenAPI
-    - **Branch:** `<branch-name>`
+- ❌ **Setup grpcui for API Testing and Documentation**
+    - **Description:** grpcui is already defined as a subtask in the Chinese Flash Card gRPC API task above
+    - **Note:** This replaces Swagger/OpenAPI for gRPC-based APIs
     - **Date:** November 13, 2025
