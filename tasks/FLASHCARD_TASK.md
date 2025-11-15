@@ -4,6 +4,8 @@
 
 **Architecture:** gRPC-based API using Protocol Buffers for type-safe communication between frontend (gRPC-Web) and backend (gRPC server)
 
+**Technical Documentation:** [tech_doc/FLASHCARD_FEATURE.md](../tech_doc/FLASHCARD_FEATURE.md) - Comprehensive technical reference including architecture, data flow, API reference, and deployment guide
+
 **Main Branch:** `main`
 
 **Feature Branch:** `FlashCard`
@@ -613,22 +615,263 @@
         - Frontend can be deployed to CDN for better performance
     - **Date:** November 13, 2025
 
-- ❌ **Create Flash Card UI Components**
+- ✅ **Create Flash Card UI Components**
     - **Description:** Build React components for displaying and interacting with flashcards
-    - **Branch:** `<branch-name>`
-    - **Components to create:**
-        - ❌ `FlashCard.tsx` - Single card component with flip animation (Chinese ↔ English)
-        - ❌ `FlashCardList.tsx` - Display list/grid of all flashcards
-        - ❌ `FlashCardForm.tsx` - Form for creating/editing flashcards (chineseWord, englishWord, pinyin, img)
-        - ❌ `FlashCardDetail.tsx` - Detailed view of single flashcard
-    - **Features:**
-        - ❌ Card flip animation (click to reveal translation)
-        - ❌ Display pinyin pronunciation
-        - ❌ Optional image display
-        - ❌ Responsive design (mobile-friendly)
-        - ❌ Edit and delete buttons with confirmation
-    - **Styling:** Use existing CSS patterns or Tailwind CSS
+    - **Branch:** `chinese-flash-card`
+    - **Status:** Components already implemented with advanced features
+    - **Components created:**
+        - ✅ `FlashCard.tsx` - Main wrapper component ([frontend/src/components/FlashCard/FlashCard.tsx](frontend/src/components/FlashCard/FlashCard.tsx))
+        - ✅ `Card.tsx` - Base card component with flip animation using Framer Motion ([frontend/src/components/FlashCard/Card.tsx](frontend/src/components/FlashCard/Card.tsx))
+        - ✅ `CardStack.tsx` - Stack container with drag functionality ([frontend/src/components/FlashCard/CardStack.tsx](frontend/src/components/FlashCard/CardStack.tsx))
+        - ✅ `ChineseCard.tsx` - Chinese-specific card layout ([frontend/src/components/FlashCard/Language/ChineseCard.tsx](frontend/src/components/FlashCard/Language/ChineseCard.tsx))
+        - ✅ `FlashCardPage.tsx` - Full page implementation ([frontend/src/Pages/FlashCard/FlashCardPage.tsx](frontend/src/Pages/FlashCard/FlashCardPage.tsx))
+        - ✅ `ChineseVocabCollection.tsx` - Collection management component ([frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx](frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx))
+    - **Features implemented:**
+        - ✅ Card flip animation (double-click to flip, smooth 90-degree transition)
+        - ✅ Display pinyin pronunciation on card back
+        - ✅ Optional image display on card front
+        - ✅ Responsive design with configurable dimensions
+        - ✅ Drag to reorder cards in stack
+        - ✅ Random rotation for natural card stack appearance
+        - ✅ Add and delete vocabulary with UI feedback
+        - ✅ Animated vocabulary list with gradients
+    - **Current Integration:** Uses REST API service ([chineseCardService.ts](frontend/src/services/chineseCardService.ts)) with mock data
     - **Date:** November 13, 2025
+
+    - ❌ **Integrate Flash Card UI with gRPC-Web Service**
+    - **Description:** Replace REST API calls with gRPC-Web service integration using a clean Data Layer architecture for separation of concerns
+    - **Branch:** `flashcard-grpc-integration` (or continue in `chinese-flash-card`)
+    - **Architecture Decision:** Create a **Data Layer** (`chineseCardData.ts`) that handles all data operations (fetch, add, update, delete) and protobuf mapping. UI components (`ChineseVocabCollection`) only handle display and user interactions.
+    - **Architecture Pattern:**
+        ```
+        chineseCardData.ts (Data Layer)
+          ├── Fetches data from gRPC service
+          ├── Maps protobuf responses to ChineseCardData
+          ├── Provides clean CRUD interface
+          └── Exports typed functions
+
+        ChineseVocabCollection.tsx (UI Component)
+          ├── Calls data layer functions
+          ├── Manages UI state only
+          └── Renders UI (no gRPC/protobuf knowledge)
+        ```
+    - **Benefits:**
+        - ✅ Single Responsibility - Data layer handles API, UI handles display
+        - ✅ Easier Testing - Mock data layer instead of gRPC service
+        - ✅ Type Safety - Always work with ChineseCardData, not protobuf objects
+        - ✅ Reusability - Other components can use same data layer
+        - ✅ Centralized Mapping - Protobuf mapping logic in one place
+    - **Future Migration:** Plan to migrate to React Query later for automatic caching/refetching - see [REACTQUERY_TASK.md](REACTQUERY_TASK.md) and [tech_doc/REACT_QUERY.md](../tech_doc/REACT_QUERY.md)
+    - **Dependencies:**
+        - ✅ gRPC-Web service layer completed ([chineseFlashcardGrpcService.ts](frontend/src/services/chineseFlashcardGrpcService.ts))
+        - ✅ Backend gRPC API implemented and tested
+        - ✅ UI components already exist
+        - ✅ Data file exists ([chineseCardData.ts](frontend/src/data/chineseCardData.ts)) with mock data
+    - **Scope:** Create data layer in `chineseCardData.ts` and update `ChineseVocabCollection.tsx` to use it
+    - **Implementation Strategy:** Sequential CRUD integration - Read first, then Create, then Update, then Delete
+    - **Subtasks:**
+        - ❌ **Phase 1: Implement READ operation (Fetch all cards)**
+            - **Files to modify:**
+                1. `frontend/src/data/chineseCardData.ts` - Create data layer
+                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer
+            
+            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)**
+                - Import gRPC service: `import { getAllFlashcards } from '@/services/chineseFlashcardGrpcService'`
+                - Create `fetchChineseCards()` async function
+                - Call `getAllFlashcards(1, 1000)` to fetch all cards (page 1, size 1000)
+                - Extract cards from gRPC response: `response.getFlashcardsList()`
+                - Map protobuf ChineseFlashCard objects to ChineseCardData[]:
+                    ```typescript
+                    export async function fetchChineseCards(): Promise<ChineseCardData[]> {
+                        const response = await getAllFlashcards(1, 1000);
+                        return response.getFlashcardsList().map(card => ({
+                            id: card.getId(),
+                            chineseWord: card.getChineseword(),
+                            englishWord: card.getEnglishword(),
+                            pinyin: card.getPinyin(),
+                            img: card.getImg() || undefined
+                        }));
+                    }
+                    ```
+                - Add proper error handling (errors from gRPC service will bubble up)
+                - Keep mock data as fallback/reference
+            
+            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)**
+                - Import `fetchChineseCards` from `@/data/chineseCardData`
+                - Remove any direct gRPC service imports
+                - Update `useEffect` to call `fetchChineseCards()`
+                - Handle errors with user-friendly messages
+                - Update state with mapped data
+            
+            - **Testing:**
+                - Test: Start backend (`gradle run` on port 8080)
+                - Test: Start frontend (`npm start` on port 3000)
+                - Test: Verify cards load and display in CardStack
+                - Test: Check Network tab for gRPC request (Content-Type: application/grpc-web-text)
+                - Test: Verify error handling when backend is down
+                - Test: Verify no protobuf objects leak into UI components        
+        - ❌ **Phase 2: Implement CREATE operation (Add card)**
+            - **Files to modify:**
+                1. `frontend/src/data/chineseCardData.ts` - Create data layer function
+                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer
+            
+            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)**
+                - Import gRPC service: `import { createFlashcard } from '@/services/chineseFlashcardGrpcService'`
+                - Create `addChineseCard()` async function:
+                    ```typescript
+                    export async function addChineseCard(data: {
+                        chineseWord: string;
+                        englishWord: string;
+                        pinyin: string;
+                        img?: string;
+                    }): Promise<ChineseCardData> {
+                        const response = await createFlashcard(data);
+                        const card = response.getFlashcard()!;
+                        return {
+                            id: card.getId(),
+                            chineseWord: card.getChineseword(),
+                            englishWord: card.getEnglishword(),
+                            pinyin: card.getPinyin(),
+                            img: card.getImg() || undefined
+                        };
+                    }
+                    ```
+                - Handle validation errors from gRPC service
+            
+            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)**
+                - Import `addChineseCard` from `@/data/chineseCardData`
+                - Update `handleAddVocab` to call `addChineseCard()`
+                - Update local cards state with returned card
+                - Handle errors with user-friendly messages
+            
+            - **Testing:**
+                - Test: Add a new flashcard via UI
+                - Test: Verify gRPC CreateChineseFlashCard request in Network tab
+                - Test: Verify new card appears in CardStack immediately
+                - Test: Error handling for validation errors (missing required fields)
+
+        - ❌ **Phase 3: Implement UPDATE operation (Edit card)**
+            - **Files to modify:**
+                1. `frontend/src/data/chineseCardData.ts` - Create data layer function
+                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer
+            
+            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)**
+                - Import gRPC service: `import { updateFlashcard } from '@/services/chineseFlashcardGrpcService'`
+                - Create `updateChineseCard()` async function:
+                    ```typescript
+                    export async function updateChineseCard(
+                        id: number,
+                        data: {
+                            chineseWord: string;
+                            englishWord: string;
+                            pinyin: string;
+                            img?: string;
+                        }
+                    ): Promise<ChineseCardData> {
+                        const response = await updateFlashcard(id, data);
+                        const card = response.getFlashcard()!;
+                        return {
+                            id: card.getId(),
+                            chineseWord: card.getChineseword(),
+                            englishWord: card.getEnglishword(),
+                            pinyin: card.getPinyin(),
+                            img: card.getImg() || undefined
+                        };
+                    }
+                    ```
+                - Handle not found and validation errors
+            
+            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)**
+                - Import `updateChineseCard` from `@/data/chineseCardData`
+                - Add `handleUpdateVocab` function to call `updateChineseCard()`
+                - Add edit functionality to VocabList (inline edit or modal)
+                - Update local cards state with updated card
+                - Handle errors with user-friendly messages
+            
+            - **Testing:**
+                - Test: Edit an existing flashcard via UI
+                - Test: Verify gRPC UpdateChineseFlashCard request in Network tab
+                - Test: Verify changes reflect in CardStack immediately
+                - Test: Error handling for not found and validation errors
+
+        - ❌ **Phase 4: Implement DELETE operation (Remove card)**
+            - **Files to modify:**
+                1. `frontend/src/data/chineseCardData.ts` - Create data layer function
+                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer
+            
+            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)**
+                - Import gRPC service: `import { deleteFlashcard } from '@/services/chineseFlashcardGrpcService'`
+                - Create `deleteChineseCard()` async function:
+                    ```typescript
+                    export async function deleteChineseCard(id: number): Promise<boolean> {
+                        const response = await deleteFlashcard(id);
+                        return response.getSuccess();
+                    }
+                    ```
+                - Handle not found errors
+            
+            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)**
+                - Import `deleteChineseCard` from `@/data/chineseCardData`
+                - Update `handleDeleteVocab` to call `deleteChineseCard(cardId)`
+                - Update local cards state by removing deleted card
+                - Handle errors with user-friendly messages
+            
+            - **Testing:**
+                - Test: Delete a flashcard via UI
+                - Test: Verify gRPC DeleteChineseFlashCard request in Network tab
+                - Test: Verify card disappears from CardStack immediately
+                - Test: Error handling for not found errors
+
+        - ❌ **Phase 5: Cleanup and documentation**
+            - **Step 1: Deprecate old service file**
+                - Mark [chineseCardService.ts](frontend/src/services/chineseCardService.ts) as deprecated
+                - Add `@deprecated` comment at top: "Use chineseCardData.ts data layer instead"
+                - Verify no other components import from chineseCardService
+            
+            - **Step 2: Update documentation**
+                - Update README with data layer architecture
+                - Document the data flow: 
+                    ```
+                    UI Components → Data Layer (chineseCardData.ts) → gRPC Service → Backend
+                    ```
+                - Add troubleshooting section for gRPC connection issues
+                - Document all exported functions from chineseCardData.ts
+            
+            - **Step 3: Final testing**
+                - Test all CRUD operations end-to-end one more time
+                - Verify no protobuf objects in UI components
+                - Verify error handling works for all operations
+                - Test with backend down (error messages should be user-friendly)
+    
+    - **Requirements:**
+        - ❌ All flashcard operations (Create, Read, Update, Delete) use data layer
+        - ❌ Data layer (`chineseCardData.ts`) handles all gRPC communication and protobuf mapping
+        - ❌ UI components only work with `ChineseCardData` type (no protobuf knowledge)
+        - ❌ Proper error handling with user-friendly messages
+        - ❌ Loading states during API calls
+        - ❌ Data persists to backend (Firestore or mock data)
+        - ❌ No breaking changes to existing UI/UX
+        - ❌ Load all vocabulary at once (no pagination in UI)
+    
+    - **Data Flow:**
+        ```
+        ChineseVocabCollection.tsx (UI)
+            ↓ calls fetchChineseCards()
+        chineseCardData.ts (Data Layer)
+            ↓ calls getAllFlashcards()
+        chineseFlashcardGrpcService.ts (gRPC-Web Service)
+            ↓ gRPC-Web request
+        Backend (port 8080)
+            ↓ Firestore
+        Database
+        ```
+    
+    - **Type Mapping (handled in Data Layer):**
+        - Frontend `ChineseCardData`: `{ id, chineseWord, englishWord, pinyin, img }`
+        - Protobuf `ChineseFlashCard`: `{ id, chineseWord, englishWord, pinyin, img, createdAt, updatedAt }`
+        - Data layer extracts relevant fields and maps types
+    
+    - **Date:** November 17, 2025
 
 - ✅ **Create gRPC-Web Service Layer for Frontend**
     - **Description:** Implement official gRPC-Web client for all flashcard API calls using Google's grpc-web library with TypeScript

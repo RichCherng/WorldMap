@@ -39,6 +39,12 @@
 - **Update `README.md`** when new features are added, dependencies change, or setup steps are modified.
 - **Comment non-obvious code** and ensure everything is understandable to a mid-level developer.
 - When writing complex logic, **add an inline `# Reason:` comment** explaining the why, not just the what.
+- **Create and maintain technical documentation for each feature** in the `tech_doc/` folder:
+    - Each feature should have its own technical document
+    - Include architecture, data flow, API endpoints, and implementation details
+    - Update technical docs when features are modified or extended
+    - Reference relevant code files with file paths and line numbers
+    - **Each task should have an associated technical documentation reference** – link to the corresponding tech doc in the task file
 
 ### 🧠 AI Behavior Rules
 - **Never assume missing context. Ask questions if uncertain.**
