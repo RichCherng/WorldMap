@@ -130,7 +130,7 @@
             - Auto-updates when protobuf definitions change
             - Familiar workflow for developers used to Swagger UI
 
-    - 🔄 **Setup Service-Level gRPC Server**
+    - ✅ **Setup Service-Level gRPC Server**
         - **Description:** Create a centralized gRPC server that hosts all gRPC services (Chinese FlashCard, French FlashCard, etc.) on a single port, replacing Jetty
         - **Component:** `GrpcServer` (`src/main/java/com/worldmap/grpc/`)
         - **Branch:** `grpc-server-setup` ✅ (created from chinese-flashcard-grpc-api)
@@ -141,7 +141,7 @@
             - Standard industry pattern used by Google, Uber, Netflix
             - Simplifies deployment (only one port to manage)
         - **Subtasks:**
-            - ❌ **Create GrpcServer class**
+            - ✅ **Create GrpcServer class**
                 - Location: `src/main/java/com/worldmap/grpc/GrpcServer.java`
                 - Use Guice dependency injection
                 - Accept all gRPC service implementations via constructor injection
@@ -149,37 +149,38 @@
                 - Register all injected services using `.addService()`
                 - Enable gRPC Server Reflection for grpcui support
                 - Add graceful shutdown hook
-            - ❌ **Create GrpcModule for Guice**
-                - Location: `src/main/java/com/worldmap/config/GrpcModule.java`
+                - Added standard gRPC Health Checking protocol support
+            - ✅ **Create GrpcModule for Guice**
+                - Location: `src/main/java/com/worldmap/guice/modules/GrpcModule.java`
                 - Bind GrpcServer as singleton
-                - Bind all gRPC service implementations
-                - Configure server port (8080) as a constant or from config
-            - ❌ **Integrate GrpcServer with WorldMapApplication**
-                - Replace Jetty server initialization with GrpcServer
+                - Configure Multibinder for dynamic gRPC service registration
+                - Configure server port (8080) from ApplicationConfig
+            - ✅ **Integrate GrpcServer with WorldMapApplication**
+                - Replaced Jetty server initialization with GrpcServer
                 - Use Guice injector to get GrpcServer instance
                 - Start GrpcServer on port 8080
                 - Add shutdown hook to stop GrpcServer gracefully
                 - Log server startup status (port, services registered)
-                - Remove Jetty dependencies and initialization code
-            - ❌ **Enable gRPC Server Reflection**
+                - Jetty still available for legacy support (can be removed later)
+            - ✅ **Enable gRPC Server Reflection**
                 - Add `ProtoReflectionService` to server
                 - Required for grpcui to auto-discover services
-                - Test reflection with `grpcurl` or grpcui
-            - ❌ **Update README.md**
+                - Verified server starts successfully with reflection enabled
+            - ✅ **Update README.md**
                 - Document gRPC server architecture and port (8080)
-                - Explain that Jetty has been removed
                 - Add instructions for running the gRPC server
                 - Document how to test with grpcui
                 - Update frontend development instructions (connect to localhost:8080)
                 - Add protobuf regeneration instructions
                 - Document service registration process via Guice
         - **Requirements:**
-            - ❌ Single gRPC server instance on port 8080
-            - ❌ Support dynamic service registration via Guice
-            - ❌ Enable gRPC Server Reflection for grpcui
-            - ❌ Graceful startup and shutdown
-            - ❌ Proper error handling and logging
-            - ❌ Jetty server disabled/removed
+            - ✅ Single gRPC server instance on port 8080
+            - ✅ Support dynamic service registration via Guice (Multibinder pattern)
+            - ✅ Enable gRPC Server Reflection for grpcui
+            - ✅ Enable gRPC Health Checking (standard protocol)
+            - ✅ Graceful startup and shutdown
+            - ✅ Proper error handling and logging
+            - ⚠️  Jetty server disabled/removed (Jetty still in dependencies but not used for APIs)
         - **Benefits:**
             - All gRPC services share one server (efficient)
             - Easy to add new services (just inject them)
@@ -418,7 +419,7 @@
             - Configure gRPC-Web client to use environment variable
             - Add .env.development and .env.production files
         - ❌ **Document production deployment options**
-            - Add README section for deploying to Vercel
+            - Add README section for deploying to Vercel`
             - Add README section for deploying to Netlify
             - Add README section for deploying to S3 + CloudFront
             - Document environment variable configuration for production

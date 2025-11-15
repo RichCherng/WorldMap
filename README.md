@@ -1,16 +1,16 @@
-# WorldMap - Jetty + Guice + React Application
+# WorldMap - gRPC + Guice + React Application
 
-A full-stack web application with Chinese flashcard learning features, built with Jetty, Google Guice, JAX-RS (Jersey), Firebase/Firestore, and React, using Gradle.
+A full-stack web application with Chinese flashcard learning features, built with gRPC, Google Guice, Protocol Buffers, Firebase/Firestore, and React, using Gradle.
 
 ## 🏗️ Architecture
 
-- **Backend**: Jetty 11 + Google Guice + JAX-RS (Jersey) with Java 21
-- **Frontend**: React 18 with React Router
+- **Backend**: gRPC Server + Google Guice with Java 21
+- **Frontend**: React 18 with gRPC-Web client
 - **Database**: Firebase/Firestore for data persistence
-- **API Contracts**: Protocol Buffers (protobuf) for type-safe APIs
-- **Build System**: Gradle with Node.js plugin
-- **Development**: Dual terminal setup with hot reloading
-- **Packaging**: Single executable JAR with embedded React build
+- **API Protocol**: gRPC with Protocol Buffers for type-safe communication
+- **Build System**: Gradle with Node.js and Protobuf plugins
+- **Development**: Separate frontend and backend servers
+- **API Testing**: grpcui (web-based gRPC testing tool, similar to Swagger)
 
 ## 📁 Project Structure
 
@@ -18,29 +18,27 @@ A full-stack web application with Chinese flashcard learning features, built wit
 WorldMap/
 ├── build.gradle                 # Main Gradle build configuration
 ├── settings.gradle             # Gradle settings
+├── proto/
+│   └── chinese_card.proto      # Protocol Buffer definitions for Chinese flashcards
 ├── src/
 │   ├── main/
 │   │   ├── java/com/worldmap/
 │   │   │   ├── WorldMapApplication.java      # Application entry point with Guice
 │   │   │   ├── config/
 │   │   │   │   └── ApplicationConfig.java    # Configuration POJO
-│   │   │   ├── controller/
-│   │   │   │   ├── ApiController.java        # System API endpoints
-│   │   │   │   └── ChineseFlashCardController.java  # Flashcard CRUD endpoints
+│   │   │   ├── grpc/
+│   │   │   │   └── GrpcServer.java           # Centralized gRPC server
+│   │   │   ├── service/
+│   │   │   │   └── FirestoreService.java     # Generic Firestore service layer
 │   │   │   ├── guice/modules/
 │   │   │   │   ├── ApplicationConfigModule.java     # Config DI module
 │   │   │   │   ├── FirebaseModule.java              # Firebase/Firestore DI module
-│   │   │   │   ├── JerseyGuiceModule.java           # JAX-RS integration module
-│   │   │   │   └── WebServerModule.java             # Jetty server module
-│   │   │   ├── firebase/
-│   │   │   │   └── config/GuiceFirebaseConfig.java  # Firebase config
-│   │   │   └── web/
-│   │   │       └── WebServer.java            # Jetty server wrapper
+│   │   │   │   └── GrpcModule.java                  # gRPC server module
+│   │   │   └── firebase/
+│   │   │       └── config/GuiceFirebaseConfig.java  # Firebase config
 │   │   └── resources/
 │   │       ├── application.properties        # Application configuration
-│   │       ├── firebase-service-account.json # Firebase credentials
-│   │       ├── static/                       # React build output (auto-generated)
-│   │       └── webapp/                       # Static web resources
+│   │       └── firebase-service-account.json # Firebase credentials
 │   └── test/
 │       ├── resources/
 │       │   └── application.properties        # Test configuration (Firebase disabled)
@@ -78,45 +76,29 @@ WorldMap/
 - Java 21 or higher
 - Gradle 9.0 or higher (or use the Gradle wrapper)
 
-### Development Mode (Recommended: Dual Terminal Approach)
+### Running the Backend (gRPC Server)
 
-For the best development experience with hot reloading:
-
-#### Terminal 1 - Backend Server
+Start the gRPC server:
 ```bash
 gradle run
 ```
-- Jetty backend runs on **http://localhost:8080**
-- Serves API endpoints and production static files
+
+- gRPC server runs on **localhost:8080**
+- Serves gRPC API endpoints
 - Firebase/Firestore enabled for data persistence
-- You'll see a startup banner with local addresses
+- You'll see a startup banner with server information
 
-#### Terminal 2 - Frontend Development Server
+### Running the Frontend (Development)
+
+The frontend will be served separately using Vite dev server (to be configured):
 ```bash
-gradle npm_start
+cd frontend
+npm run dev
 ```
-- React dev server runs on **http://localhost:3000**
+
+- React dev server runs on **http://localhost:3000** (or configured port)
 - Hot reloading for instant React changes
-- Automatically proxies API calls to backend at :8080
-
-### Development Workflow
-
-1. **For active development**: Use **http://localhost:3000**
-   - ✅ Instant hot reloading for React changes
-   - ✅ Full React development tools support
-   - ✅ API calls automatically forwarded to Jetty backend
-
-2. **For production testing**: Use **http://localhost:8080**
-   - ✅ Tests the actual production build
-   - ✅ Verifies static resource serving
-
-### Alternative: Single Terminal Development
-
-If you prefer rebuilding for each change:
-```bash
-gradle build && gradle run
-```
-Visit http://localhost:8080 (rebuild required for React changes)
+- Connects to gRPC server at localhost:8080 via gRPC-Web
 
 ### Production Build
 
@@ -149,14 +131,33 @@ Visit http://localhost:8080 to see the application.
 - **Server-side fallback**: Jetty serves unmatched routes with `index.html` for React routing
 - **API routes**: `/api/*` endpoints are handled by JAX-RS (Jersey) controllers with Guice injection
 
-### API Documentation
+### gRPC Server Details
 
-The API is fully documented with Swagger/OpenAPI:
+The application uses a centralized gRPC server that:
+- Hosts all gRPC services on a single port (8080)
+- Enables gRPC Server Reflection for service discovery
+- Supports dynamic service registration via Guice dependency injection
+- Follows industry-standard patterns used by Google, Uber, and Netflix
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/api/openapi.json
+### API Testing with grpcui
 
-All endpoints include `@Tag`, `@Operation`, and `@Parameter` annotations for comprehensive documentation.
+grpcui provides a web-based interface for testing gRPC services (similar to Swagger UI for REST APIs):
+
+Install grpcui (Go-based tool):
+```bash
+go install github.com/fullstorydev/grpcui/cmd/grpcui@latest
+```
+
+Run grpcui to test the gRPC server:
+```bash
+grpcui -plaintext localhost:8080
+```
+
+This will:
+- Auto-discover all gRPC services via Server Reflection
+- Provide an interactive web UI for testing RPC methods
+- Display request/response messages in readable format
+- Update automatically when protobuf definitions change
 
 ### API Endpoints
 
@@ -330,16 +331,102 @@ npm test
 
 ## 🎯 Features Demonstrated
 
-1. **Full-stack Integration**: Seamless communication between React and Jetty/JAX-RS backend
-2. **Chinese Flashcard Learning**: Interactive flashcards with vocabulary management
-3. **Firebase/Firestore Integration**: Real-time data persistence with fallback to mock data
+1. **gRPC Architecture**: Modern RPC framework with Protocol Buffers for efficient communication
+2. **Chinese Flashcard Learning**: Interactive flashcards with vocabulary management (to be implemented)
+3. **Firebase/Firestore Integration**: Real-time data persistence with generic service layer
 4. **Dependency Injection**: Google Guice for clean, testable architecture
-5. **Protocol Buffers**: Type-safe API contracts with code generation
-6. **REST API**: JSON endpoints with CRUD operations consumed by React
-7. **Single JAR Deployment**: Deploy both frontend and backend as one artifact
-8. **Client-side Routing**: React Router with server-side fallback
+5. **Protocol Buffers**: Type-safe API contracts with automatic code generation
+6. **gRPC Server Reflection**: Auto-discovery for tools like grpcui
+7. **Centralized Server**: Single gRPC server hosting multiple services
+8. **Type-Safe APIs**: Shared protobuf definitions between backend (Java) and frontend (TypeScript)
 9. **Modern Build System**: Gradle + Node.js plugin + Protobuf integration
-10. **Development Workflow**: Separate dev servers with proxy configuration
+10. **Scalable Architecture**: Industry-standard patterns for microservices-ready applications
+
+## 🏛️ gRPC Architecture
+
+### Overview
+
+The application has been migrated from a REST/Jetty architecture to a modern gRPC-based architecture for improved performance and type safety.
+
+**Key Components:**
+
+1. **GrpcServer** ([src/main/java/com/worldmap/grpc/GrpcServer.java](src/main/java/com/worldmap/grpc/GrpcServer.java))
+   - Centralized server hosting all gRPC services
+   - Runs on port 8080 (configurable via `application.properties`)
+   - Automatically registers services via Guice injection
+   - Enables gRPC Server Reflection for grpcui support
+
+2. **GrpcModule** ([src/main/java/com/worldmap/guice/modules/GrpcModule.java](src/main/java/com/worldmap/guice/modules/GrpcModule.java))
+   - Guice module for gRPC server configuration
+   - Uses Multibinder for dynamic service registration
+   - Provides GrpcServer as a singleton
+
+3. **Protocol Buffers** ([proto/](proto/))
+   - Define message types and service interfaces
+   - Generate type-safe Java classes and TypeScript types
+   - Ensure frontend and backend use identical data structures
+
+**Benefits:**
+- **Performance**: Binary protocol, smaller payloads, HTTP/2 support
+- **Type Safety**: Compile-time validation of API contracts
+- **Code Generation**: Automatic client/server code from protobuf definitions
+- **Streaming**: Support for bidirectional streaming (future enhancement)
+- **Interoperability**: Works across languages and platforms
+
+### Adding New gRPC Services
+
+1. **Define the protobuf service** in `proto/your_service.proto`:
+   ```protobuf
+   syntax = "proto3";
+
+   package worldmap.yourservice;
+
+   service YourService {
+     rpc GetData(GetDataRequest) returns (GetDataResponse);
+   }
+
+   message GetDataRequest {
+     string id = 1;
+   }
+
+   message GetDataResponse {
+     bool success = 1;
+     string data = 2;
+   }
+   ```
+
+2. **Generate Java classes**:
+   ```bash
+   gradle generateProto
+   ```
+
+3. **Implement the gRPC service** in `src/main/java/com/worldmap/grpc/`:
+   ```java
+   @Singleton
+   public class YourGrpcService extends YourServiceGrpc.YourServiceImplBase {
+
+       @Inject
+       public YourGrpcService(/* dependencies */) {
+           // Constructor injection
+       }
+
+       @Override
+       public void getData(GetDataRequest request, StreamObserver<GetDataResponse> responseObserver) {
+           // Implementation
+       }
+   }
+   ```
+
+4. **Register the service** in GrpcModule by uncommenting and using Multibinder:
+   ```java
+   Multibinder.newSetBinder(binder(), BindableService.class)
+       .addBinding().to(YourGrpcService.class);
+   ```
+
+5. **Generate TypeScript types** for frontend:
+   ```bash
+   cd frontend && npm run generate:proto
+   ```
 
 ## 🛠️ Customization
 
@@ -347,15 +434,7 @@ npm test
 
 1. Create a new component in `frontend/src/components/` or `frontend/src/Pages/`
 2. Add the route in `App.tsx`
-3. Jetty automatically serves `index.html` for unmatched routes
-
-### Adding New API Endpoints
-
-1. Create a new controller class in `src/main/java/com/worldmap/controller/`
-2. Annotate with `@Path`, `@Singleton`, and JAX-RS annotations (`@GET`, `@POST`, etc.)
-3. Use the `/api/` prefix for API routes (configured in servlet mapping)
-4. Inject dependencies via `@Inject` constructor parameter with Guice
-5. React can call these endpoints using the service layer pattern
+3. Frontend is served independently via Vite dev server
 
 ### Protocol Buffers (Protobuf)
 
