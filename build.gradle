@@ -58,6 +58,10 @@ dependencies {
     implementation 'io.grpc:grpc-protobuf:1.60.0'
     implementation 'io.grpc:grpc-stub:1.60.0'
     implementation 'io.grpc:grpc-services:1.60.0'
+
+    // Armeria for gRPC-Web support
+    implementation 'com.linecorp.armeria:armeria-grpc:1.32.0'
+
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // For @Generated annotation
 
     // Configuration management

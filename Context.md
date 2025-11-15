@@ -4,6 +4,8 @@
 - Don't assume and only code with what defined in the Task.md
 - When given a task, check if that task exists. If the task doesn't exists, help user create and define that task.
 - Before executing, review the task with user. If the task need revision, ask user for help to define the task.
+- **When reviewing and revising the approach or task, always edit the task file with the new details** – ensure the task definition stays up-to-date with any changes in scope, requirements, or approach.
+
 
 ### 🎯 Task Execution
 - **Always use a specific branch for each task** – if no branch is specified or doesn't exist, ask the user to specify a branch name before starting work. Never work directly on the main branch.
@@ -37,6 +39,12 @@
 - **Update `README.md`** when new features are added, dependencies change, or setup steps are modified.
 - **Comment non-obvious code** and ensure everything is understandable to a mid-level developer.
 - When writing complex logic, **add an inline `# Reason:` comment** explaining the why, not just the what.
+- **Create and maintain technical documentation for each feature** in the `tech_doc/` folder:
+    - Each feature should have its own technical document
+    - Include architecture, data flow, API endpoints, and implementation details
+    - Update technical docs when features are modified or extended
+    - Reference relevant code files with file paths and line numbers
+    - **Each task should have an associated technical documentation reference** – link to the corresponding tech doc in the task file
 
 ### 🧠 AI Behavior Rules
 - **Never assume missing context. Ask questions if uncertain.**

@@ -4,6 +4,8 @@
 
 **Architecture:** gRPC-based API using Protocol Buffers for type-safe communication between frontend (gRPC-Web) and backend (gRPC server)
 
+**Technical Documentation:** [tech_doc/FLASHCARD_FEATURE.md](../tech_doc/FLASHCARD_FEATURE.md) - Comprehensive technical reference including architecture, data flow, API reference, and deployment guide
+
 **Main Branch:** `main`
 
 **Feature Branch:** `FlashCard`
@@ -613,43 +615,270 @@
         - Frontend can be deployed to CDN for better performance
     - **Date:** November 13, 2025
 
-- ❌ **Create Flash Card UI Components**
+- ✅ **Create Flash Card UI Components**
     - **Description:** Build React components for displaying and interacting with flashcards
-    - **Branch:** `<branch-name>`
-    - **Components to create:**
-        - ❌ `FlashCard.tsx` - Single card component with flip animation (Chinese ↔ English)
-        - ❌ `FlashCardList.tsx` - Display list/grid of all flashcards
-        - ❌ `FlashCardForm.tsx` - Form for creating/editing flashcards (chineseWord, englishWord, pinyin, img)
-        - ❌ `FlashCardDetail.tsx` - Detailed view of single flashcard
-    - **Features:**
-        - ❌ Card flip animation (click to reveal translation)
-        - ❌ Display pinyin pronunciation
-        - ❌ Optional image display
-        - ❌ Responsive design (mobile-friendly)
-        - ❌ Edit and delete buttons with confirmation
-    - **Styling:** Use existing CSS patterns or Tailwind CSS
+    - **Branch:** `chinese-flash-card`
+    - **Status:** Components already implemented with advanced features
+    - **Components created:**
+        - ✅ `FlashCard.tsx` - Main wrapper component ([frontend/src/components/FlashCard/FlashCard.tsx](frontend/src/components/FlashCard/FlashCard.tsx))
+        - ✅ `Card.tsx` - Base card component with flip animation using Framer Motion ([frontend/src/components/FlashCard/Card.tsx](frontend/src/components/FlashCard/Card.tsx))
+        - ✅ `CardStack.tsx` - Stack container with drag functionality ([frontend/src/components/FlashCard/CardStack.tsx](frontend/src/components/FlashCard/CardStack.tsx))
+        - ✅ `ChineseCard.tsx` - Chinese-specific card layout ([frontend/src/components/FlashCard/Language/ChineseCard.tsx](frontend/src/components/FlashCard/Language/ChineseCard.tsx))
+        - ✅ `FlashCardPage.tsx` - Full page implementation ([frontend/src/Pages/FlashCard/FlashCardPage.tsx](frontend/src/Pages/FlashCard/FlashCardPage.tsx))
+        - ✅ `ChineseVocabCollection.tsx` - Collection management component ([frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx](frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx))
+    - **Features implemented:**
+        - ✅ Card flip animation (double-click to flip, smooth 90-degree transition)
+        - ✅ Display pinyin pronunciation on card back
+        - ✅ Optional image display on card front
+        - ✅ Responsive design with configurable dimensions
+        - ✅ Drag to reorder cards in stack
+        - ✅ Random rotation for natural card stack appearance
+        - ✅ Add and delete vocabulary with UI feedback
+        - ✅ Animated vocabulary list with gradients
+    - **Current Integration:** Uses REST API service ([chineseCardService.ts](frontend/src/services/chineseCardService.ts)) with mock data
     - **Date:** November 13, 2025
 
-- ❌ **Create gRPC-Web Service Layer for Frontend**
-    - **Description:** Create TypeScript gRPC-Web client for all flashcard API calls
-    - **Branch:** `<branch-name>`
-    - **Services to implement:**
-        - ❌ `flashcardGrpcService.ts` - gRPC-Web client functions
-            - ❌ `getAllFlashcards(page, pageSize)` - Fetch all cards via gRPC
-            - ❌ `getFlashcardById(id)` - Fetch single card via gRPC
-            - ❌ `createFlashcard(data)` - Create new card via gRPC
-            - ❌ `updateFlashcard(id, data)` - Update card via gRPC
-            - ❌ `deleteFlashcard(id)` - Delete card via gRPC
-        - ❌ Configure gRPC-Web client to connect to backend (localhost:8080)
-        - ❌ Error handling and response parsing
-        - ❌ Use generated TypeScript types from protobuf
+- ❌ **Integrate Flash Card UI with gRPC-Web Service**
+    - **Description:** Replace REST API calls with gRPC-Web service integration in ChineseVocabCollection data manager using Container Component pattern (manual state management)
+    - **Branch:** `flashcard-grpc-integration` (or continue in `chinese-flash-card`)
+    - **Architecture Decision:** ChineseVocabCollection is the **data manager** that handles all Chinese flashcard data operations (fetch, add, delete, update) and provides data to child components via render props pattern
+    - **Future Migration:** Plan to migrate to React Query later for automatic caching/refetching - see [REACTQUERY_TASK.md](REACTQUERY_TASK.md) and [tech_doc/REACT_QUERY.md](../tech_doc/REACT_QUERY.md)
+    - **Dependencies:**
+        - ✅ gRPC-Web service layer completed ([chineseFlashcardGrpcService.ts](frontend/src/services/chineseFlashcardGrpcService.ts))
+        - ✅ Backend gRPC API implemented and tested
+        - ✅ UI components already exist
+    - **Problem:** [ChineseVocabCollection.tsx](frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx) uses [chineseCardService.ts](frontend/src/services/chineseCardService.ts) (REST/axios with mock data) instead of the new gRPC-Web service
+    - **Scope:** Only update ChineseVocabCollection data layer - no changes to FlashCardPage, VocabCollections UI, or other components
+    - **Implementation Strategy:** Sequential CRUD integration - Read first, then Add, then Update, then Delete
+    - **Subtasks:**
+        - ❌ **Phase 1: Implement READ operation (Fetch all cards)**
+            - **File to modify:** [ChineseVocabCollection.tsx](frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx)
+            - Replace `import { fetchChineseCards }` from chineseCardService
+            - Import `getAllFlashcards` from `chineseFlashcardGrpcService`
+            - Update `useEffect` to call `getAllFlashcards(1, 1000)` instead of `fetchChineseCards()`
+            - Extract cards from gRPC response: `response.getFlashcardsList()`
+            - Map protobuf ChineseFlashCard objects to ChineseCardData:
+                ```typescript
+                const mappedCards = response.getFlashcardsList().map(card => ({
+                    id: card.getId(),
+                    chineseWord: card.getChineseword(),
+                    englishWord: card.getEnglishword(),
+                    pinyin: card.getPinyin(),
+                    img: card.getImg()
+                }));
+                ```
+            - Update error handling for gRPC errors
+            - Test: Start backend and frontend, verify cards load and display in CardStack
+            - Test: Check Network tab for gRPC request (Content-Type: application/grpc-web-text)
+            - Test: Verify error handling when backend is down
+
+        - ❌ **Phase 2: Implement CREATE operation (Add card)**
+            - **File to modify:** [ChineseVocabCollection.tsx](frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx)
+            - Import `createFlashcard` from `chineseFlashcardGrpcService`
+            - Update `handleAddVocab` function to use `createFlashcard()`
+            - Build request data object:
+                ```typescript
+                const newCard = await createFlashcard({
+                    chineseWord: vocab.native,
+                    englishWord: vocab.translation,
+                    pinyin: vocab.pronunciation,
+                    img: '' // optional
+                });
+                ```
+            - Extract created card from response: `response.getFlashcard()`
+            - Map protobuf response to ChineseCardData
+            - Update local cards state with new card
+            - Test: Add a new flashcard via UI
+            - Test: Verify gRPC CreateChineseFlashCard request in Network tab
+            - Test: Verify new card appears in CardStack immediately
+            - Test: Error handling for validation errors (missing required fields)
+
+        - ❌ **Phase 3: Implement UPDATE operation (Edit card)**
+            - **File to modify:** [ChineseVocabCollection.tsx](frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx)
+            - Import `updateFlashcard` from `chineseFlashcardGrpcService`
+            - Add new `handleUpdateVocab` function:
+                ```typescript
+                const handleUpdateVocab = async (id: number, vocab: { native: string; pronunciation: string; translation: string }) => {
+                    const updated = await updateFlashcard(id, {
+                        chineseWord: vocab.native,
+                        englishWord: vocab.translation,
+                        pinyin: vocab.pronunciation
+                    });
+                    // Update local state
+                };
+                ```
+            - Add edit functionality to VocabList (inline edit or modal)
+            - Extract updated card from response: `response.getFlashcard()`
+            - Map protobuf response to ChineseCardData
+            - Update local cards state with updated card
+            - Test: Edit an existing flashcard via UI
+            - Test: Verify gRPC UpdateChineseFlashCard request in Network tab
+            - Test: Verify changes reflect in CardStack immediately
+            - Test: Error handling for not found and validation errors
+
+        - ❌ **Phase 4: Implement DELETE operation (Remove card)**
+            - **File to modify:** [ChineseVocabCollection.tsx](frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx)
+            - Import `deleteFlashcard` from `chineseFlashcardGrpcService`
+            - Update `handleDeleteVocab` function to use `deleteFlashcard(cardId)`
+            - Check response success: `response.getSuccess()`
+            - Update local cards state by removing deleted card
+            - Test: Delete a flashcard via UI
+            - Test: Verify gRPC DeleteChineseFlashCard request in Network tab
+            - Test: Verify card disappears from CardStack immediately
+            - Test: Error handling for not found errors
+
+        - ❌ **Phase 5: Cleanup and documentation**
+            - Mark [chineseCardService.ts](frontend/src/services/chineseCardService.ts) as deprecated
+            - Add `@deprecated` comment at top: "Use chineseFlashcardGrpcService.ts instead"
+            - Verify no other components import from chineseCardService
+            - Update README with gRPC-Web integration details
+            - Document the data flow: FlashCardPage → ChineseVocabCollection → gRPC-Web → Backend
+            - Add troubleshooting section for gRPC connection issues
+            - Test all CRUD operations end-to-end one more time
     - **Requirements:**
-        - ❌ Install grpc-web and @improbable-eng/grpc-web dependencies
-        - ❌ Use generated TypeScript types from protobuf (already created in proto setup task)
-        - ❌ Handle gRPC errors and status codes
-        - ❌ Type-safe with protobuf-generated types
-        - ❌ Configure gRPC-Web client with proper metadata/headers
-    - **Date:** November 13, 2025
+        - ❌ All flashcard operations (Create, Read, Update, Delete) use gRPC-Web
+        - ❌ Proper error handling with user-friendly messages
+        - ❌ Loading states during API calls
+        - ❌ Data persists to backend (Firestore or mock data)
+        - ❌ No breaking changes to existing UI/UX
+        - ❌ Load all vocabulary at once (no pagination)
+    - **Data Mapping:**
+        - Frontend `ChineseCardData`: `{ id, chineseWord, englishWord, pinyin, img }`
+        - Protobuf `ChineseFlashCard`: `{ id, chineseWord, englishWord, pinyin, img, createdAt, updatedAt }`
+        - Map protobuf to `ChineseCardData` by extracting relevant fields
+    - **Date:** November 15, 2025
+
+- ✅ **Create gRPC-Web Service Layer for Frontend**
+    - **Description:** Implement official gRPC-Web client for all flashcard API calls using Google's grpc-web library with TypeScript
+    - **Branch:** `chinese-flash-card`
+    - **Approach:** Official grpc-web (Google's implementation) with protoc-gen-grpc-web for code generation
+    - **Architecture:** Browser → gRPC-Web (HTTP/1.1) → Armeria (native gRPC-Web support) → gRPC Server (port 8080)
+
+    - **Subtasks:**
+        - ✅ **Install grpc-web dependencies**
+            - ✅ Install `grpc-web` package for runtime
+            - ✅ Install `google-protobuf` for protobuf serialization
+            - ✅ Install `@types/google-protobuf` for TypeScript types
+            - ✅ Update package.json with new dependencies
+
+        - ✅ **Install protoc-gen-grpc-web plugin**
+            - ✅ Install `protoc-gen-grpc-web` globally or as dev dependency
+            - ✅ Verify protoc compiler is available (or install it)
+            - ✅ Test plugin installation with `protoc --version`
+
+        - ✅ **Create npm script for gRPC-Web code generation**
+            - ✅ Add `generate:grpc-web` script to package.json
+            - ✅ Script should run protoc with grpc-web plugin
+            - ✅ Generate both JavaScript and TypeScript (.d.ts) files
+            - ✅ Command example:
+                ```bash
+                protoc -I=../proto chinese_card.proto \
+                  --js_out=import_style=commonjs:./src/types/grpc-web \
+                  --grpc-web_out=import_style=typescript,mode=grpcwebtext:./src/types/grpc-web
+                ```
+            - ✅ Output directory: `src/types/grpc-web/`
+
+        - ✅ **Generate gRPC-Web TypeScript client stubs**
+            - ✅ Run `npm run generate:grpc-web`
+            - ✅ Verify generated files:
+                - ✅ `chinese_card_pb.js` (message types)
+                - ✅ `chinese_card_pb.d.ts` (TypeScript definitions)
+                - ✅ `Chinese_cardServiceClientPb.ts` (service client)
+            - ✅ Add generated files to .gitignore (regenerate on build)
+
+        - ✅ **Add gRPC-Web support to Java backend**
+            - ✅ Add Armeria gRPC library (`com.linecorp.armeria:armeria-grpc:1.32.0`) to build.gradle
+            - ✅ Update GrpcServer.java to use Armeria (native gRPC-Web support)
+            - ✅ Configure CORS for browser requests
+            - ✅ Build successful with new dependencies
+
+        - ✅ **Implement grpcService.ts and chineseFlashcardGrpcService.ts**
+            - ✅ **Created generic service layer** (`src/services/grpcService.ts`)
+                - ✅ `withErrorHandling()` - Wraps Promise calls with consistent error handling
+                - ✅ `handleGrpcError()` - Converts gRPC errors to user-friendly messages based on StatusCode
+                - ✅ `GRPC_SERVER_URL` - Environment-based configuration (REACT_APP_GRPC_URL)
+                - ✅ Logs configured server URL in development mode
+                - ✅ Uses native gRPC-Web Promise support (no custom promise wrapper needed)
+            - ✅ **Created Chinese flashcard service** (`src/services/chineseFlashcardGrpcService.ts`)
+                - ✅ Import generated `ChineseFlashCardServiceClient`
+                - ✅ Create client instance pointing to `GRPC_SERVER_URL`
+                - ✅ Implement 5 wrapper functions (all wrapped with `withErrorHandling()`):
+                    1. ✅ `getAllFlashcards(page: number, pageSize: number)` - Returns Promise<GetChineseFlashCardsResponse>
+                    2. ✅ `getFlashcardById(id: number)` - Returns Promise<GetChineseFlashCardResponse>
+                    3. ✅ `createFlashcard(data)` - Returns Promise<CreateChineseFlashCardResponse>
+                    4. ✅ `updateFlashcard(id: number, data)` - Returns Promise<UpdateChineseFlashCardResponse>
+                    5. ✅ `deleteFlashcard(id: number)` - Returns Promise<DeleteChineseFlashCardResponse>
+                - ✅ Handle gRPC errors with proper StatusCode mapping to user-friendly messages
+                - ✅ Export typed functions for components to use
+                - ✅ Export client instance for advanced use cases
+            - ✅ **Created comprehensive README** (`src/services/README.md`)
+                - ✅ Architecture overview (generic + specific layers)
+                - ✅ Usage examples for Chinese flashcards
+                - ✅ Pattern for adding new services (French flashcards, etc.)
+                - ✅ Environment configuration guide (.env.development, .env.example)
+                - ✅ Error handling documentation with status code table
+                - ✅ Benefits of the pattern and "How It Works" section with flow diagram
+
+        - ✅ **Configure gRPC-Web client**
+            - ✅ Set base URL via environment variable (`process.env.REACT_APP_GRPC_URL`)
+            - ✅ Created `.env.development` with `REACT_APP_GRPC_URL=http://localhost:8080`
+            - ✅ Created `.env.example` for documentation
+            - ✅ Added global error handling via `withErrorHandling()` wrapper
+            - ✅ Error handler logs detailed error info (code, message, metadata)
+            - ✅ Error handler provides user-friendly messages based on gRPC StatusCode
+            - ✅ Defaults to `http://localhost:8080` if env var not set
+
+        - ❌ **Test gRPC-Web integration**
+            - Start Java backend: `gradle run` (port 8080)
+            - Start frontend dev server: `npm start` (port 3000)
+            - Test all 5 API methods from browser console
+            - Verify CORS headers are correct
+            - Check Network tab for gRPC-Web requests (Content-Type: application/grpc-web-text)
+            - Confirm responses are properly deserialized
+
+    - **Requirements:**
+        - ✅ Use official `grpc-web` package (not @improbable-eng/grpc-web)
+        - ✅ Generate TypeScript client stubs with `protoc-gen-grpc-web`
+        - ✅ Handle gRPC status codes (OK, NOT_FOUND, INVALID_ARGUMENT, UNAVAILABLE, INTERNAL, etc.)
+        - ✅ Type-safe with generated protobuf types
+        - ✅ CORS configured on backend for browser requests (via Armeria)
+        - ✅ Error handling with proper TypeScript error types (RpcError, StatusCode)
+        - ✅ Environment variable for gRPC endpoint URL (REACT_APP_GRPC_URL)
+
+    - **Generated Files Structure:**
+        ```
+        frontend/src/types/grpc-web/
+        ├── chinese_card_pb.js           # Protobuf message classes
+        ├── chinese_card_pb.d.ts         # TypeScript definitions for messages
+        └── Chinese_cardServiceClientPb.ts  # gRPC-Web service client
+        ```
+
+    - **Service Layer Structure:**
+        ```
+        frontend/src/services/
+        ├── grpcService.ts                      # Generic gRPC-Web helpers (error handling, config)
+        ├── chineseFlashcardGrpcService.ts      # Chinese flashcard API wrapper
+        └── README.md                           # Documentation and usage examples
+        ```
+
+    - **Dependencies to Add:**
+        - `grpc-web` - Official gRPC-Web runtime library
+        - `google-protobuf` - Protocol Buffers runtime library
+        - `@types/google-protobuf` - TypeScript types for google-protobuf
+        - `protoc-gen-grpc-web` (dev) - Code generator plugin
+
+    - **Backend Dependencies Added:**
+        - ✅ `com.linecorp.armeria:armeria-grpc:1.32.0` - Armeria with native gRPC-Web support
+        - Note: Did NOT use `io.grpc:grpc-web` (artifact doesn't exist), used Armeria instead
+
+    - **Key Implementation Decisions:**
+        - ✅ Used Armeria for native gRPC-Web support (no separate proxy/filter needed)
+        - ✅ gRPC-Web clients natively return Promises (no custom promisification needed)
+        - ✅ Renamed `flashcardGrpcService.ts` → `grpcService.ts` (more generic, supports all services)
+        - ✅ All service functions wrapped with `withErrorHandling()` for consistent error messages
+        - ✅ Request objects set fields directly (no nested `flashcard` object in Create/Update requests)
+
+    - **Date:** November 14-15, 2025
 
 ### Testing
 
