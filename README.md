@@ -357,13 +357,65 @@ npm test
 4. Inject dependencies via `@Inject` constructor parameter with Guice
 5. React can call these endpoints using the service layer pattern
 
-### Adding Protobuf Definitions
+### Protocol Buffers (Protobuf)
 
-1. Create `.proto` files in the `proto/` directory
+The project uses Protocol Buffers for type-safe API contracts between backend and frontend.
+
+#### Current Protobuf Definitions
+
+**Chinese FlashCard API** ([proto/chinese_card.proto](proto/chinese_card.proto))
+- Package: `worldmap.flashcard`
+- Messages: `ChineseFlashCard`, request/response types for CRUD operations
+- Service: `ChineseFlashCardService`
+- Generated Java classes: `build/generated/source/proto/main/java/com/worldmap/flashcard/`
+- Generated TypeScript types: `frontend/src/types/proto/chinese_flashcard.d.ts`
+
+#### Backend: Generate Java Classes from Protobuf
+
+1. Create or modify `.proto` files in the `proto/` directory
 2. Define messages and services using proto3 syntax
-3. Run `gradle generateProto` to generate Java classes
-4. Generated classes will be in `build/generated/source/proto/main/java/`
-5. Use generated classes for type-safe API development
+3. Run the following command to generate Java classes:
+   ```bash
+   gradle generateProto
+   ```
+4. Generated classes will be available in:
+   ```
+   build/generated/source/proto/main/java/com/worldmap/flashcard/
+   ```
+5. Use generated classes in your Java code for type-safe API development
+
+#### Frontend: Generate TypeScript Types from Protobuf
+
+1. Make sure protobuf dependencies are installed (already configured in `frontend/package.json`)
+2. Run the following command to generate TypeScript types:
+   ```bash
+   cd frontend
+   npm run generate:proto
+   ```
+3. Generated TypeScript definitions will be available in:
+   ```
+   frontend/src/types/proto/chinese_flashcard.d.ts
+   frontend/src/types/proto/chinese_flashcard.js
+   ```
+4. Import and use the types in your React/TypeScript code:
+   ```typescript
+   import { worldmap } from './types/proto/chinese_flashcard';
+
+   // Use the generated types
+   const flashcard: worldmap.flashcard.IChineseFlashCard = {
+     id: 1,
+     chineseWord: "你好",
+     englishWord: "Hello",
+     pinyin: "nǐ hǎo"
+   };
+   ```
+
+#### Keeping Backend and Frontend in Sync
+
+After updating any `.proto` file:
+1. **Regenerate Java classes**: `gradle generateProto`
+2. **Regenerate TypeScript types**: `cd frontend && npm run generate:proto`
+3. This ensures both backend and frontend use the same data structures
 
 ### Styling
 
@@ -413,8 +465,10 @@ npm test
 - **Production Testing**: Build and test at :8080 before deployment
 - **Port Conflicts**: Change `server.port` in `application.properties` if needed
 - **Firebase Development**: Use mock data mode during initial development, then connect Firebase later
-- **Protobuf Updates**: Regenerate Java classes with `gradle generateProto` after modifying `.proto` files
-- **TypeScript API Types**: Keep frontend TypeScript interfaces in sync with protobuf definitions
+- **Protobuf Updates**: After modifying `.proto` files:
+  - Backend: `gradle generateProto` (regenerates Java classes)
+  - Frontend: `cd frontend && npm run generate:proto` (regenerates TypeScript types)
+- **TypeScript API Types**: Auto-generated from protobuf - always in sync with backend
 
 ## 🎓 Learning Resources
 

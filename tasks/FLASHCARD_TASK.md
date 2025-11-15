@@ -18,31 +18,67 @@
 
 ### Protocol Buffers Setup
 
-- ❌ **Setup Protocol Buffers for Flash Card APIs**
-    - **Description:** Define protobuf schemas for type-safe API contracts between frontend and backend
-    - **Branch:** `<branch-name>`
+- ✅ **Setup Protocol Buffers for Chinese Flash Card APIs**
+    - **Description:** Define protobuf schemas for Chinese flashcards with type-safe API contracts between frontend and backend
+    - **Branch:** `proto-chinese-flashcard`
     - **Subtasks:**
-        - ❌ **Define Chinese Flash Card Data Model**
-            - ❌ Create `proto/chinese_flashcard.proto`
-            - ❌ Define `ChineseFlashCard` message (id, chineseWord, englishWord, pinyin, img)
-            - ❌ Define request/response messages (GetAllRequest, GetByIdRequest, CreateRequest, UpdateRequest, DeleteRequest)
+        - ✅ Keep existing `proto/chinese_card.proto` and regenerate/update it with proper naming conventions
+        - ✅ Update proto file with `ChineseFlashCard` message structure (rename from ChineseCard)
+            - ✅ Ensure fields: id, chineseWord, englishWord, pinyin, img (optional), createdAt, updatedAt
+            - ✅ Update all request/response messages to use ChineseFlashCard naming (Create, GetAll, GetById, Update, Delete)
+            - ✅ Update API service interface definition to ChineseFlashCardService
+            - ✅ Verify common response wrapper (success, data, message, error)
+        - ✅ Update build.gradle protobuf configuration if needed
+        - ✅ Generate Java classes
+            - ✅ Run `gradle generateProto` to compile protobuf definitions
+            - ✅ Verify generated classes in `build/generated/source/proto/main/java/com/worldmap/flashcard/`
+            - ✅ Confirm all message types compile without errors
+        - ✅ Generate TypeScript types for frontend from protobuf
+            - ✅ Install protobufjs and protobufjs-cli dependencies
+            - ✅ Create npm script to auto-generate TypeScript from protobuf
+            - ✅ Generate chinese_flashcard.d.ts from chinese_card.proto
+            - ✅ Verify TypeScript types match Java classes from protobuf
+        - ✅ Update documentation
+            - ✅ Update README.md with Chinese flashcard protobuf information
+            - ✅ Document the generated class locations and usage
+            - ✅ Add instructions for regenerating proto files
+    - **Requirements:**
+        - ✅ Use proto3 syntax
+        - ✅ Document message fields with comments
+        - ✅ Define proper field types and validation rules
+        - ✅ Auto-generate TypeScript types from protobuf using protobufjs tooling
+        - ✅ Keep protobuf definitions in sync between backend and frontend via code generation
+        - ✅ Update all references from ChineseCard to ChineseFlashCard for consistency
+    - **Date:** November 13, 2025
+
+- ❌ **Setup Protocol Buffers for French Flash Card APIs**
+    - **Description:** Define protobuf schemas for French flashcards with type-safe API contracts between frontend and backend
+    - **Branch:** `proto-french-flashcard`
+    - **Subtasks:**
+        - ❌ Create `proto/french_flashcard.proto` following Chinese flashcard pattern
+        - ❌ Define `FrenchFlashCard` message structure
+            - ❌ Define fields: id, frenchWord, englishWord, pronunciation, img (optional), createdAt, updatedAt
+            - ❌ Define request/response messages (Create, GetAll, GetById, Update, Delete)
             - ❌ Define API service interface
-            - ❌ Define common response wrapper (ApiResponse with success, data, message, error)
-            - ❌ Generate Java classes with `gradle generateProto`
-            - ❌ Verify generated classes in `build/generated/source/proto/`
-        - ❌ **Define French Flash Card Data Model**
-            - ❌ Create `proto/french_flashcard.proto`
-            - ❌ Define `FrenchFlashCard` message (id, frenchWord, englishWord, pronunciation, img)
-            - ❌ Define request/response messages (GetAllRequest, GetByIdRequest, CreateRequest, UpdateRequest, DeleteRequest)
-            - ❌ Define API service interface
-            - ❌ Define common response wrapper (ApiResponse with success, data, message, error)
-            - ❌ Generate Java classes with `gradle generateProto`
-            - ❌ Verify generated classes in `build/generated/source/proto/`
+            - ❌ Define common response wrapper (success, data, message, error)
+            - ❌ Add comprehensive field comments
+        - ❌ Generate Java classes
+            - ❌ Run `gradle generateProto` to compile protobuf definitions
+            - ❌ Verify generated classes in `build/generated/source/proto/main/java/com/worldmap/flashcard/`
+            - ❌ Confirm all message types compile without errors
+        - ❌ Generate TypeScript types for frontend
+            - ❌ Generate `FrenchFlashCard.ts` type definitions using protobuf.js
+            - ❌ Verify TypeScript types match Java classes
+        - ❌ Update documentation
+            - ❌ Update README.md with French flashcard protobuf information
+            - ❌ Document the generated class locations and usage
     - **Requirements:**
         - ❌ Use proto3 syntax
         - ❌ Document message fields with comments
         - ❌ Define proper field types and validation rules
-        - ❌ Create TypeScript types for frontend (manual or with protobuf.js)
+        - ❌ Include createdAt and updatedAt timestamp fields
+        - ❌ Generate TypeScript types using protobuf.js tooling
+        - ❌ Maintain consistency with Chinese flashcard proto structure
     - **Date:** November 13, 2025
 
 ### Backend Development
