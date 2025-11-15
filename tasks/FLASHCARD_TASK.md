@@ -630,77 +630,85 @@
     - **Styling:** Use existing CSS patterns or Tailwind CSS
     - **Date:** November 13, 2025
 
-- ❌ **Create gRPC-Web Service Layer for Frontend**
+- ✅ **Create gRPC-Web Service Layer for Frontend**
     - **Description:** Implement official gRPC-Web client for all flashcard API calls using Google's grpc-web library with TypeScript
-    - **Branch:** `grpc-web-service-layer`
+    - **Branch:** `chinese-flash-card`
     - **Approach:** Official grpc-web (Google's implementation) with protoc-gen-grpc-web for code generation
-    - **Architecture:** Browser → gRPC-Web (HTTP/1.1) → gRPC-Web Filter → gRPC Server (port 8080)
+    - **Architecture:** Browser → gRPC-Web (HTTP/1.1) → Armeria (native gRPC-Web support) → gRPC Server (port 8080)
 
     - **Subtasks:**
-        - ❌ **Install grpc-web dependencies**
-            - Install `grpc-web` package for runtime
-            - Install `google-protobuf` for protobuf serialization
-            - Install `@types/google-protobuf` for TypeScript types
-            - Update package.json with new dependencies
+        - ✅ **Install grpc-web dependencies**
+            - ✅ Install `grpc-web` package for runtime
+            - ✅ Install `google-protobuf` for protobuf serialization
+            - ✅ Install `@types/google-protobuf` for TypeScript types
+            - ✅ Update package.json with new dependencies
 
-        - ❌ **Install protoc-gen-grpc-web plugin**
-            - Install `protoc-gen-grpc-web` globally or as dev dependency
-            - Verify protoc compiler is available (or install it)
-            - Test plugin installation with `protoc --version`
+        - ✅ **Install protoc-gen-grpc-web plugin**
+            - ✅ Install `protoc-gen-grpc-web` globally or as dev dependency
+            - ✅ Verify protoc compiler is available (or install it)
+            - ✅ Test plugin installation with `protoc --version`
 
-        - ❌ **Create npm script for gRPC-Web code generation**
-            - Add `generate:grpc-web` script to package.json
-            - Script should run protoc with grpc-web plugin
-            - Generate both JavaScript and TypeScript (.d.ts) files
-            - Command example:
+        - ✅ **Create npm script for gRPC-Web code generation**
+            - ✅ Add `generate:grpc-web` script to package.json
+            - ✅ Script should run protoc with grpc-web plugin
+            - ✅ Generate both JavaScript and TypeScript (.d.ts) files
+            - ✅ Command example:
                 ```bash
                 protoc -I=../proto chinese_card.proto \
                   --js_out=import_style=commonjs:./src/types/grpc-web \
                   --grpc-web_out=import_style=typescript,mode=grpcwebtext:./src/types/grpc-web
                 ```
-            - Output directory: `src/types/grpc-web/`
+            - ✅ Output directory: `src/types/grpc-web/`
 
-        - ❌ **Generate gRPC-Web TypeScript client stubs**
-            - Run `npm run generate:grpc-web`
-            - Verify generated files:
-                - `chinese_card_pb.js` (message types)
-                - `chinese_card_pb.d.ts` (TypeScript definitions)
-                - `Chinese_cardServiceClientPb.ts` (service client)
-            - Add generated files to .gitignore (regenerate on build)
+        - ✅ **Generate gRPC-Web TypeScript client stubs**
+            - ✅ Run `npm run generate:grpc-web`
+            - ✅ Verify generated files:
+                - ✅ `chinese_card_pb.js` (message types)
+                - ✅ `chinese_card_pb.d.ts` (TypeScript definitions)
+                - ✅ `Chinese_cardServiceClientPb.ts` (service client)
+            - ✅ Add generated files to .gitignore (regenerate on build)
 
-        - ❌ **Add gRPC-Web support to Java backend**
-            - **Option A: In-process gRPC-Web filter (Recommended)**
-                - Add `io.grpc:grpc-web:1.60.0` dependency to build.gradle
-                - Add GrpcWebFilter to GrpcServer
-                - Configure CORS for browser requests
-                - Update GrpcServer.java to enable gRPC-Web
-            - **Option B: Envoy proxy (Alternative)**
-                - Set up Envoy proxy in front of gRPC server
-                - Configure envoy.yaml for gRPC-Web translation
-                - Run Envoy on separate port (e.g., 8081)
-            - **Decision:** Use Option A (in-process filter) for simpler setup
+        - ✅ **Add gRPC-Web support to Java backend**
+            - ✅ Add Armeria gRPC library (`com.linecorp.armeria:armeria-grpc:1.32.0`) to build.gradle
+            - ✅ Update GrpcServer.java to use Armeria (native gRPC-Web support)
+            - ✅ Configure CORS for browser requests
+            - ✅ Build successful with new dependencies
 
-        - ❌ **Implement flashcardGrpcService.ts**
-            - **File:** `src/services/flashcardGrpcService.ts`
-            - **Purpose:** Wrapper around generated gRPC-Web client for easy usage
-            - **Implementation:**
-                - Import generated `ChineseFlashCardServiceClient`
-                - Create client instance pointing to `http://localhost:8080`
-                - Implement 5 wrapper functions:
-                    1. `getAllFlashcards(page: number, pageSize: number)` - Returns Promise<GetChineseFlashCardsResponse>
-                    2. `getFlashcardById(id: number)` - Returns Promise<GetChineseFlashCardResponse>
-                    3. `createFlashcard(data: CreateRequest)` - Returns Promise<CreateChineseFlashCardResponse>
-                    4. `updateFlashcard(id: number, data: UpdateRequest)` - Returns Promise<UpdateChineseFlashCardResponse>
-                    5. `deleteFlashcard(id: number)` - Returns Promise<DeleteChineseFlashCardResponse>
-                - Handle gRPC errors (status codes, error messages)
-                - Convert gRPC status codes to user-friendly messages
-                - Export typed functions for components to use
+        - ✅ **Implement grpcService.ts and chineseFlashcardGrpcService.ts**
+            - ✅ **Created generic service layer** (`src/services/grpcService.ts`)
+                - ✅ `withErrorHandling()` - Wraps Promise calls with consistent error handling
+                - ✅ `handleGrpcError()` - Converts gRPC errors to user-friendly messages based on StatusCode
+                - ✅ `GRPC_SERVER_URL` - Environment-based configuration (REACT_APP_GRPC_URL)
+                - ✅ Logs configured server URL in development mode
+                - ✅ Uses native gRPC-Web Promise support (no custom promise wrapper needed)
+            - ✅ **Created Chinese flashcard service** (`src/services/chineseFlashcardGrpcService.ts`)
+                - ✅ Import generated `ChineseFlashCardServiceClient`
+                - ✅ Create client instance pointing to `GRPC_SERVER_URL`
+                - ✅ Implement 5 wrapper functions (all wrapped with `withErrorHandling()`):
+                    1. ✅ `getAllFlashcards(page: number, pageSize: number)` - Returns Promise<GetChineseFlashCardsResponse>
+                    2. ✅ `getFlashcardById(id: number)` - Returns Promise<GetChineseFlashCardResponse>
+                    3. ✅ `createFlashcard(data)` - Returns Promise<CreateChineseFlashCardResponse>
+                    4. ✅ `updateFlashcard(id: number, data)` - Returns Promise<UpdateChineseFlashCardResponse>
+                    5. ✅ `deleteFlashcard(id: number)` - Returns Promise<DeleteChineseFlashCardResponse>
+                - ✅ Handle gRPC errors with proper StatusCode mapping to user-friendly messages
+                - ✅ Export typed functions for components to use
+                - ✅ Export client instance for advanced use cases
+            - ✅ **Created comprehensive README** (`src/services/README.md`)
+                - ✅ Architecture overview (generic + specific layers)
+                - ✅ Usage examples for Chinese flashcards
+                - ✅ Pattern for adding new services (French flashcards, etc.)
+                - ✅ Environment configuration guide (.env.development, .env.example)
+                - ✅ Error handling documentation with status code table
+                - ✅ Benefits of the pattern and "How It Works" section with flow diagram
 
-        - ❌ **Configure gRPC-Web client**
-            - Set base URL via environment variable (process.env.REACT_APP_GRPC_URL)
-            - Add error interceptor for global error handling
-            - Configure request metadata/headers if needed
-            - Handle network errors and timeouts
+        - ✅ **Configure gRPC-Web client**
+            - ✅ Set base URL via environment variable (`process.env.REACT_APP_GRPC_URL`)
+            - ✅ Created `.env.development` with `REACT_APP_GRPC_URL=http://localhost:8080`
+            - ✅ Created `.env.example` for documentation
+            - ✅ Added global error handling via `withErrorHandling()` wrapper
+            - ✅ Error handler logs detailed error info (code, message, metadata)
+            - ✅ Error handler provides user-friendly messages based on gRPC StatusCode
+            - ✅ Defaults to `http://localhost:8080` if env var not set
 
         - ❌ **Test gRPC-Web integration**
             - Start Java backend: `gradle run` (port 8080)
@@ -711,13 +719,13 @@
             - Confirm responses are properly deserialized
 
     - **Requirements:**
-        - ❌ Use official `grpc-web` package (not @improbable-eng/grpc-web)
-        - ❌ Generate TypeScript client stubs with `protoc-gen-grpc-web`
-        - ❌ Handle gRPC status codes (OK, NOT_FOUND, INVALID_ARGUMENT, etc.)
-        - ❌ Type-safe with generated protobuf types
-        - ❌ CORS configured on backend for browser requests
-        - ❌ Error handling with proper TypeScript error types
-        - ❌ Environment variable for gRPC endpoint URL
+        - ✅ Use official `grpc-web` package (not @improbable-eng/grpc-web)
+        - ✅ Generate TypeScript client stubs with `protoc-gen-grpc-web`
+        - ✅ Handle gRPC status codes (OK, NOT_FOUND, INVALID_ARGUMENT, UNAVAILABLE, INTERNAL, etc.)
+        - ✅ Type-safe with generated protobuf types
+        - ✅ CORS configured on backend for browser requests (via Armeria)
+        - ✅ Error handling with proper TypeScript error types (RpcError, StatusCode)
+        - ✅ Environment variable for gRPC endpoint URL (REACT_APP_GRPC_URL)
 
     - **Generated Files Structure:**
         ```
@@ -730,7 +738,9 @@
     - **Service Layer Structure:**
         ```
         frontend/src/services/
-        └── flashcardGrpcService.ts      # Wrapper functions for easy usage
+        ├── grpcService.ts                      # Generic gRPC-Web helpers (error handling, config)
+        ├── chineseFlashcardGrpcService.ts      # Chinese flashcard API wrapper
+        └── README.md                           # Documentation and usage examples
         ```
 
     - **Dependencies to Add:**
@@ -739,10 +749,18 @@
         - `@types/google-protobuf` - TypeScript types for google-protobuf
         - `protoc-gen-grpc-web` (dev) - Code generator plugin
 
-    - **Backend Dependencies to Add:**
-        - `io.grpc:grpc-web:1.60.0` - gRPC-Web filter for Java
+    - **Backend Dependencies Added:**
+        - ✅ `com.linecorp.armeria:armeria-grpc:1.32.0` - Armeria with native gRPC-Web support
+        - Note: Did NOT use `io.grpc:grpc-web` (artifact doesn't exist), used Armeria instead
 
-    - **Date:** November 14, 2025
+    - **Key Implementation Decisions:**
+        - ✅ Used Armeria for native gRPC-Web support (no separate proxy/filter needed)
+        - ✅ gRPC-Web clients natively return Promises (no custom promisification needed)
+        - ✅ Renamed `flashcardGrpcService.ts` → `grpcService.ts` (more generic, supports all services)
+        - ✅ All service functions wrapped with `withErrorHandling()` for consistent error messages
+        - ✅ Request objects set fields directly (no nested `flashcard` object in Create/Update requests)
+
+    - **Date:** November 14-15, 2025
 
 ### Testing
 
