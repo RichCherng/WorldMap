@@ -23,14 +23,12 @@ public class GrpcModule extends AbstractModule {
     protected void configure() {
         // Create a Multibinder for BindableService
         // This allows other modules to add gRPC services dynamically
-        // Initialize empty Multibinder so that Set<BindableService> can be injected
-        Multibinder.newSetBinder(binder(), BindableService.class);
+        Multibinder<BindableService> serviceBinder = Multibinder.newSetBinder(binder(), BindableService.class);
 
-        // Services will be registered here in the future when implementing gRPC services
-        // Example: Multibinder.newSetBinder(binder(), BindableService.class)
-        //            .addBinding().to(ChineseFlashCardGrpcService.class);
+        // Register ChineseFlashCardGrpcService
+        serviceBinder.addBinding().to(com.worldmap.grpc.ChineseFlashCardGrpcService.class);
 
-        System.out.println("🔧 GrpcModule configured - ready for service registration");
+        System.out.println("🔧 GrpcModule configured with ChineseFlashCardGrpcService");
     }
 
     /**
