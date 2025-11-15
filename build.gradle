@@ -53,6 +53,13 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.25.1'
     implementation 'com.google.protobuf:protobuf-java-util:3.25.1'
 
+    // gRPC dependencies
+    implementation 'io.grpc:grpc-netty-shaded:1.60.0'
+    implementation 'io.grpc:grpc-protobuf:1.60.0'
+    implementation 'io.grpc:grpc-stub:1.60.0'
+    implementation 'io.grpc:grpc-services:1.60.0'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // For @Generated annotation
+
     // Configuration management
     implementation 'com.typesafe:config:1.4.3'
 
@@ -73,6 +80,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testImplementation 'org.mockito:mockito-core:5.8.0'
     testImplementation 'org.mockito:mockito-inline:5.2.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.8.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.1'
 }
 
@@ -118,6 +126,11 @@ application {
 
 tasks.named('test') {
     useJUnitPlatform()
+    jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
+    jvmArgs '--add-opens', 'java.base/java.util=ALL-UNNAMED'
+    jvmArgs '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED'
+    jvmArgs '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED'
+    systemProperty 'mockito.mock-maker.inline', 'true'
 }
 
 // Protobuf configuration
@@ -125,8 +138,15 @@ protobuf {
     protoc {
         artifact = 'com.google.protobuf:protoc:3.25.1'
     }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.60.0'
+        }
+    }
     generateProtoTasks {
-        all()
+        all()*.plugins {
+            grpc {}
+        }
     }
 }
 
