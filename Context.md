@@ -4,6 +4,8 @@
 - Don't assume and only code with what defined in the Task.md
 - When given a task, check if that task exists. If the task doesn't exists, help user create and define that task.
 - Before executing, review the task with user. If the task need revision, ask user for help to define the task.
+- **When reviewing and revising the approach or task, always edit the task file with the new details** – ensure the task definition stays up-to-date with any changes in scope, requirements, or approach.
+
 
 ### 🎯 Task Execution
 - **Always use a specific branch for each task** – if no branch is specified or doesn't exist, ask the user to specify a branch name before starting work. Never work directly on the main branch.
