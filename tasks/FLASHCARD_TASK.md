@@ -615,7 +615,7 @@
         - Frontend can be deployed to CDN for better performance
     - **Date:** November 13, 2025
 
-- ✅ **Create Flash Card UI Components**
+- ❌ **Create Flash Card UI Components**
     - **Description:** Build React components for displaying and interacting with flashcards
     - **Branch:** `chinese-flash-card`
     - **Status:** Components already implemented with advanced features
@@ -670,12 +670,12 @@
     - **Scope:** Create data layer in `chineseCardData.ts` and update `ChineseVocabCollection.tsx` to use it
     - **Implementation Strategy:** Sequential CRUD integration - Read first, then Create, then Update, then Delete
     - **Subtasks:**
-        - ❌ **Phase 1: Implement READ operation (Fetch all cards)**
+        - 🔄 **Phase 1: Implement READ operation (Fetch all cards)** ✅ Step 1 Complete, ✅ Step 2 Complete, ✅ Step 3 Complete
             - **Files to modify:**
-                1. `frontend/src/data/chineseCardData.ts` - Create data layer
-                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer
+                1. `frontend/src/data/chineseCardData.ts` - Create data layer ✅
+                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer ✅
             
-            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)**
+            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)** ✅
                 - Import gRPC service: `import { getAllFlashcards } from '@/services/chineseFlashcardGrpcService'`
                 - Create `fetchChineseCards()` async function
                 - Call `getAllFlashcards(1, 1000)` to fetch all cards (page 1, size 1000)
@@ -696,7 +696,7 @@
                 - Add proper error handling (errors from gRPC service will bubble up)
                 - Keep mock data as fallback/reference
             
-            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)**
+            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)** ✅
                 - Import `fetchChineseCards` from `@/data/chineseCardData`
                 - Remove any direct gRPC service imports
                 - Update `useEffect` to call `fetchChineseCards()`
@@ -704,12 +704,27 @@
                 - Update state with mapped data
             
             - **Testing:**
-                - Test: Start backend (`gradle run` on port 8080)
+                - Test: Start backend (`gradle run` on port 8080) ✅
                 - Test: Start frontend (`npm start` on port 3000)
                 - Test: Verify cards load and display in CardStack
                 - Test: Check Network tab for gRPC request (Content-Type: application/grpc-web-text)
                 - Test: Verify error handling when backend is down
-                - Test: Verify no protobuf objects leak into UI components        
+                - Test: Verify no protobuf objects leak into UI components
+            
+            - **Step 3: Fix gRPC Dependency Conflicts** ✅
+                - **Issue:** Backend had gRPC version conflicts between Firebase Admin SDK and explicitly declared gRPC dependencies
+                - **Error:** `java.lang.NoSuchMethodError: io.grpc.internal.Http2ClientStreamTransportState`
+                - **Solution Applied:**
+                    - ✅ Upgraded gRPC dependencies from 1.60.0 to 1.68.1 (latest stable)
+                    - ✅ Upgraded Armeria from 1.32.0 to 1.30.0 (compatible with gRPC 1.68.1)
+                    - ✅ Upgraded Firebase Admin SDK from 9.2.0 to 9.4.2
+                    - ✅ Upgraded Google Cloud Firestore from 3.15.6 to 3.25.2
+                    - ✅ Removed all gRPC exclusions - let Gradle handle version resolution
+                    - ✅ Updated protoc-gen-grpc-java plugin from 1.60.0 to 1.68.1
+                    - ✅ Ran `gradle clean build --refresh-dependencies`
+                - **Result:** ✅ Server starts successfully, Firestore connection working, no gRPC errors
+                - **Verification:** Backend logs show "Retrieved 0 documents from collection 'chinese_flashcards'" - working correctly!
+                - **Date:** November 17, 2025
         - ❌ **Phase 2: Implement CREATE operation (Add card)**
             - **Files to modify:**
                 1. `frontend/src/data/chineseCardData.ts` - Create data layer function

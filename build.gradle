@@ -13,6 +13,9 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all {
+        exclude group: 'io.grpc', module: 'grpc-xds'
+    }
 }
 
 repositories {
@@ -53,25 +56,25 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.25.1'
     implementation 'com.google.protobuf:protobuf-java-util:3.25.1'
 
-    // gRPC dependencies
-    implementation 'io.grpc:grpc-netty-shaded:1.60.0'
-    implementation 'io.grpc:grpc-protobuf:1.60.0'
-    implementation 'io.grpc:grpc-stub:1.60.0'
-    implementation 'io.grpc:grpc-services:1.60.0'
+    // gRPC dependencies (upgraded to 1.68.1 for compatibility with Firebase)
+    implementation 'io.grpc:grpc-netty-shaded:1.68.1'
+    implementation 'io.grpc:grpc-protobuf:1.68.1'
+    implementation 'io.grpc:grpc-stub:1.68.1'
+    implementation 'io.grpc:grpc-services:1.68.1'
 
-    // Armeria for gRPC-Web support
-    implementation 'com.linecorp.armeria:armeria-grpc:1.32.0'
+    // Armeria for gRPC-Web support (upgraded to 1.30.0 for gRPC 1.68 compatibility)
+    implementation 'com.linecorp.armeria:armeria-grpc:1.30.0'
 
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // For @Generated annotation
 
     // Configuration management
     implementation 'com.typesafe:config:1.4.3'
 
-    // Firebase Admin SDK
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
+    // Firebase Admin SDK (let Gradle resolve gRPC versions automatically)
+    implementation 'com.google.firebase:firebase-admin:9.4.2'
 
-    // Additional Google Cloud dependencies for Firestore
-    implementation 'com.google.cloud:google-cloud-firestore:3.15.6'
+    // Additional Google Cloud dependencies for Firestore (let Gradle resolve gRPC versions)
+    implementation 'com.google.cloud:google-cloud-firestore:3.25.2'
 
     // Logging
     implementation 'org.slf4j:slf4j-simple:2.0.9'
@@ -119,9 +122,10 @@ task copyReactBuild(type: Copy) {
 }
 
 // Make sure React is built before processing resources
-processResources {
-    dependsOn copyReactBuild
-}
+// DISABLED: Skip React build for backend-only development
+// processResources {
+//     dependsOn copyReactBuild
+// }
 
 // Application main class
 application {
@@ -144,7 +148,7 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.60.0'
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.68.1'
         }
     }
     generateProtoTasks {

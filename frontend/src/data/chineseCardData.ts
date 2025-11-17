@@ -1,8 +1,46 @@
 import { ChineseCardData } from '@/components/FlashCard/Language/ChineseCard';
+import { getAllFlashcards, createFlashcard, updateFlashcard, deleteFlashcard } from '@/services/chineseFlashcardGrpcService';
+
+/**
+ * Data Layer for Chinese Flashcards
+ * 
+ * This layer handles all data operations for Chinese flashcards, providing a clean
+ * interface between UI components and the gRPC-Web service. It abstracts away
+ * protobuf complexity and provides type-safe CRUD operations.
+ * 
+ * Architecture:
+ * UI Components → Data Layer (this file) → gRPC Service → Backend
+ */
+
+/**
+ * Fetch all Chinese flashcards from the backend
+ * 
+ * @returns Promise<ChineseCardData[]> - Array of Chinese flashcards
+ * @throws Error if the gRPC request fails
+ */
+export async function fetchChineseCards(): Promise<ChineseCardData[]> {
+  try {
+    // Fetch all cards with high page size (1000) to get everything in one request
+    const response = await getAllFlashcards(1, 1000);
+    
+    // Extract and map protobuf ChineseFlashCard objects to ChineseCardData
+    return response.getDataList().map((card) => ({
+      id: card.getId(),
+      chineseWord: card.getChineseWord(),
+      englishWord: card.getEnglishWord(),
+      pinyin: card.getPinyin(),
+      img: card.getImg() || undefined
+    }));
+  } catch (error) {
+    // Re-throw error - it's already been formatted by the gRPC service layer
+    console.error('Data layer: Failed to fetch Chinese cards:', error);
+    throw error;
+  }
+}
 
 /**
  * Mock data for Chinese flashcards.
- * This will be replaced by API calls in the future.
+ * Kept as reference and for fallback scenarios.
  */
 export const mockChineseCardData: ChineseCardData[] = [
   {

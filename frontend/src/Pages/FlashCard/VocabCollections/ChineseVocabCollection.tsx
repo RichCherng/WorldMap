@@ -24,7 +24,8 @@ import VocabList from "./VocabList";
 import { ChineseCardData } from "@/components/FlashCard/Language/ChineseCard";
 import { useState, useEffect } from "react";
 import { VocabCollections } from "./VocabCollection";
-import { addChineseCard, deleteChineseCard, fetchChineseCards } from "@/services/chineseCardService";
+import { fetchChineseCards } from "@/data/chineseCardData";
+// TODO: Import addChineseCard and deleteChineseCard when Phase 2 and Phase 4 are implemented
 
 
 interface ChineseVocabCollectionProps {
@@ -77,7 +78,11 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
     }));
 
     const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string }) => {
-        // Call the API to add the card
+        // TODO: Implement in Phase 2 using addChineseCard from data layer
+        console.warn('Add functionality not yet implemented - will be added in Phase 2');
+        
+        /*
+        // Phase 2 implementation:
         const newCard = await addChineseCard({
             chineseWord: vocab.native,
             pinyin: vocab.pronunciation,
@@ -92,9 +97,15 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         if (onCardsChange) {
             onCardsChange(updatedCards);
         }
+        */
     };
 
     const handleDeleteVocab = async (item: any, index: number) => {
+        // TODO: Implement in Phase 4 using deleteChineseCard from data layer
+        console.warn('Delete functionality not yet implemented - will be added in Phase 4');
+        
+        /*
+        // Phase 4 implementation:
         const cardId = items[index]?.id;
         if (!cardId) return;
 
@@ -114,6 +125,7 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
             console.error('Failed to delete vocab:', error);
             // You might want to show an error message to the user here
         }
+        */
     };
 
   return (
