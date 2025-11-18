@@ -348,6 +348,58 @@ npm test
 
 The application has been migrated from a REST/Jetty architecture to a modern gRPC-based architecture for improved performance and type safety.
 
+### Frontend Data Layer Pattern
+
+The frontend uses a clean **Data Layer** architecture for all API interactions:
+
+```
+UI Components → Data Layer → gRPC-Web Service → Backend (gRPC Server)
+```
+
+**Architecture Benefits:**
+- **Single Responsibility**: Data layer handles API calls, UI handles display
+- **Type Safety**: Components work with TypeScript types, not protobuf objects
+- **Testability**: Easy to mock the data layer instead of gRPC service
+- **Centralized Mapping**: Protobuf ↔ TypeScript conversion in one place
+- **Reusability**: Multiple components can use the same data functions
+
+**Example Data Flow:**
+
+```typescript
+// 1. UI Component calls data layer
+import { fetchChineseCards, addChineseCard, updateChineseCard, deleteChineseCard } from '@/data/chineseCardData';
+
+const cards = await fetchChineseCards();  // Returns ChineseCardData[]
+
+// 2. Data layer calls gRPC service
+// frontend/src/data/chineseCardData.ts
+export async function fetchChineseCards(): Promise<ChineseCardData[]> {
+  const response = await getAllFlashcards(1, 1000);  // gRPC call
+  return response.getDataList().map(card => ({       // Protobuf → TypeScript
+    id: card.getId(),
+    chineseWord: card.getChineseWord(),
+    // ... mapping logic
+  }));
+}
+
+// 3. gRPC-Web service makes the actual API request
+// frontend/src/services/chineseFlashcardGrpcService.ts
+export function getAllFlashcards(page: number, pageSize: number) {
+  const request = new GetChineseFlashCardsRequest();
+  request.setPage(page);
+  request.setPageSize(pageSize);
+  return withErrorHandling(client.getChineseFlashCards(request));
+}
+```
+
+**Key Files:**
+- **Data Layer**: `frontend/src/data/chineseCardData.ts` - Exports CRUD functions (`fetchChineseCards`, `addChineseCard`, `updateChineseCard`, `deleteChineseCard`)
+- **gRPC Service**: `frontend/src/services/chineseFlashcardGrpcService.ts` - gRPC-Web client wrapper
+- **UI Components**: `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Uses data layer
+
+**Error Handling:**
+Errors are handled at the gRPC service layer and propagated to the data layer, which re-throws them for the UI to display user-friendly messages.
+
 **Key Components:**
 
 1. **GrpcServer** ([src/main/java/com/worldmap/grpc/GrpcServer.java](src/main/java/com/worldmap/grpc/GrpcServer.java))
@@ -512,6 +564,33 @@ After updating any `.proto` file:
 - Protobuf definitions in `proto/` are automatically compiled during the build process
 
 ## 🔍 Troubleshooting
+
+### gRPC Connection Issues
+
+- **CORS errors in browser console**: 
+  - Ensure backend gRPC server is running on port 8080
+  - Check that `REACT_APP_GRPC_URL` in `.env.development` is correct
+  - Verify Armeria CORS configuration in GrpcServer.java
+
+- **"Failed to fetch" or network errors**:
+  - Confirm gRPC server is accessible: `curl http://localhost:8080`
+  - Check browser Network tab for failed requests
+  - Verify gRPC-Web request Content-Type is `application/grpc-web-text`
+
+- **Protobuf type errors**:
+  - Regenerate frontend types: `cd frontend && npm run generate:grpc-web`
+  - Ensure protobuf definitions are in sync between backend and frontend
+  - Check that generated files exist in `frontend/src/types/grpc-web/`
+
+- **"Service not found" errors**:
+  - Verify service is registered in GrpcModule with Multibinder
+  - Check that gRPC Server Reflection is enabled
+  - Test with grpcui: `grpcui -plaintext localhost:8080`
+
+- **Data layer errors**:
+  - Check browser console for detailed error messages
+  - Verify data layer functions are imported correctly
+  - Ensure gRPC service functions return Promises
 
 ### Build Issues
 

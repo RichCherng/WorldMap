@@ -37,6 +37,9 @@ frontend/.pnpm-debug.log*
 frontend/build/
 frontend/dist/
 
+### Generated gRPC-Web files ###
+frontend/src/types/grpc-web/
+
 ### Build artifacts (copied by Gradle) ###
 src/main/resources/static/
 src/main/resources/webapp/

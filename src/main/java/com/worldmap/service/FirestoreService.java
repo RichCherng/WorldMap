@@ -172,7 +172,12 @@ public class FirestoreService {
                 return null;
             }
 
-            T result = document.toObject(type);
+            T result;
+            if (type == Map.class) {
+                result = type.cast(document.getData());
+            } else {
+                result = document.toObject(type);
+            }
             logger.debug("Document retrieved successfully from collection '{}'", collection);
             return result;
 
@@ -221,7 +226,12 @@ public class FirestoreService {
 
             List<T> results = new ArrayList<>();
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                T item = document.toObject(type);
+                T item;
+                if (type == Map.class) {
+                    item = type.cast(document.getData());
+                } else {
+                    item = document.toObject(type);
+                }
                 if (item != null) {
                     results.add(item);
                 }

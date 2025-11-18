@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label"
-import { IconCheck, IconInfoCircle, IconPlus } from "@tabler/icons-react"
+import { IconCheck, IconInfoCircle, IconPlus, IconAlertCircle, IconX } from "@tabler/icons-react"
 import {
   Sheet,
   SheetClose,
@@ -24,7 +24,7 @@ import VocabList from "./VocabList";
 import { ChineseCardData } from "@/components/FlashCard/Language/ChineseCard";
 import { useState, useEffect } from "react";
 import { VocabCollections } from "./VocabCollection";
-import { addChineseCard, deleteChineseCard, fetchChineseCards } from "@/services/chineseCardService";
+import { fetchChineseCards, addChineseCard, updateChineseCard, deleteChineseCard } from "@/data/chineseCardData";
 
 
 interface ChineseVocabCollectionProps {
@@ -77,42 +77,104 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
     }));
 
     const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string }) => {
-        // Call the API to add the card
-        const newCard = await addChineseCard({
-            chineseWord: vocab.native,
-            pinyin: vocab.pronunciation,
-            englishWord: vocab.translation
-        });
-
-        // Update local cards state
-        const updatedCards = [...cards, newCard];
-        setCards(updatedCards);
-
-        // Notify parent component if callback provided
-        if (onCardsChange) {
-            onCardsChange(updatedCards);
-        }
-    };
-
-    const handleDeleteVocab = async (item: any, index: number) => {
-        const cardId = items[index]?.id;
-        if (!cardId) return;
-
         try {
-            // Call the API to delete the card
-            await deleteChineseCard(cardId);
+            // Clear any previous errors
+            setError(null);
+            
+            // Call the data layer to add the card via gRPC
+            const newCard = await addChineseCard({
+                chineseWord: vocab.native,
+                pinyin: vocab.pronunciation,
+                englishWord: vocab.translation
+            });
 
-            // Update local cards state
-            const updatedCards = cards.filter(card => card.id !== cardId);
+            // Update local cards state with the new card
+            const updatedCards = [...cards, newCard];
             setCards(updatedCards);
 
             // Notify parent component if callback provided
             if (onCardsChange) {
                 onCardsChange(updatedCards);
             }
-        } catch (error) {
+
+            console.log('Successfully added card:', newCard);
+        } catch (error: any) {
+            console.error('Failed to add vocab:', error);
+            setError(error.message || 'Failed to add vocabulary');
+        }
+    };
+
+    const handleEditVocab = async (item: any, index: number) => {
+        try {
+            // Clear any previous errors
+            setError(null);
+            
+            // Get the card ID from the items array
+            const cardId = items[index]?.id;
+            if (!cardId) {
+                console.error('No card ID found for index:', index);
+                setError('Unable to update: Card ID not found');
+                return;
+            }
+
+            // Call the data layer to update the card via gRPC
+            const updatedCard = await updateChineseCard(cardId, {
+                chineseWord: item.native,
+                pinyin: item.pronunciation,
+                englishWord: item.translation
+            });
+
+            // Update local cards state with the updated card
+            const updatedCards = cards.map(card => 
+                card.id === cardId ? updatedCard : card
+            );
+            setCards(updatedCards);
+
+            // Notify parent component if callback provided
+            if (onCardsChange) {
+                onCardsChange(updatedCards);
+            }
+
+            console.log('Successfully updated card:', updatedCard);
+        } catch (error: any) {
+            console.error('Failed to edit vocab:', error);
+            setError(error.message || 'Failed to update vocabulary');
+        }
+    };
+
+    const handleDeleteVocab = async (item: any, index: number) => {
+        try {
+            // Clear any previous errors
+            setError(null);
+            
+            // Get the card ID from the items array
+            const cardId = items[index]?.id;
+            if (!cardId) {
+                console.error('No card ID found for index:', index);
+                setError('Unable to delete: Card ID not found');
+                return;
+            }
+
+            // Call the data layer to delete the card via gRPC
+            const success = await deleteChineseCard(cardId);
+
+            if (success) {
+                // Update local cards state by removing the deleted card
+                const updatedCards = cards.filter(card => card.id !== cardId);
+                setCards(updatedCards);
+
+                // Notify parent component if callback provided
+                if (onCardsChange) {
+                    onCardsChange(updatedCards);
+                }
+
+                console.log('Successfully deleted card with ID:', cardId);
+            } else {
+                setError('Failed to delete vocabulary: Server returned unsuccessful status');
+            }
+        } catch (error: any) {
             console.error('Failed to delete vocab:', error);
-            // You might want to show an error message to the user here
+            setError(error.message || 'Failed to delete vocabulary');
         }
     };
 
@@ -123,9 +185,42 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
           description="Manage your Chinese vocabulary here. Click save when you&apos;re done."
           onAddVocab={handleAddVocab}
           >
+          {error && (
+            <div style={{
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fca5a5',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <IconAlertCircle size={20} color="#dc2626" />
+                <div>
+                  <strong style={{ color: '#dc2626' }}>Error</strong>
+                  <p style={{ margin: 0, color: '#991b1b', fontSize: '0.875rem' }}>{error}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0.25rem'
+                }}
+                aria-label="Dismiss error"
+              >
+                <IconX size={20} color="#dc2626" />
+              </button>
+            </div>
+          )}
           <VocabList
               items={items}
               onItemSelect={(item, index) => console.log(item, index)}
+              onItemEdit={handleEditVocab}
               onItemDelete={handleDeleteVocab}
               showGradients={false}
               enableArrowNavigation={true}

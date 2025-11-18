@@ -25,9 +25,9 @@ import java.util.*;
 public class ChineseFlashCardService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChineseFlashCardService.class);
-    private static final String COLLECTION_NAME = "chinese_flashcards";
 
     private final FirestoreService firestoreService;
+    private final String collectionName;
 
     /**
      * Constructor with dependency injection.
@@ -38,6 +38,7 @@ public class ChineseFlashCardService {
     @Inject
     public ChineseFlashCardService(@Nullable FirestoreService firestoreService, ApplicationConfig config) {
         this.firestoreService = firestoreService;
+        this.collectionName = config.getFirebase().getCollection();
 
         if (firestoreService == null || !firestoreService.isConnected()) {
             logger.warn("⚠️  ChineseFlashCardService initialized without Firestore connection.");
@@ -99,7 +100,7 @@ public class ChineseFlashCardService {
             Map<String, Object> docData = toFirestoreDoc(flashcard);
 
             // Save to Firestore
-            firestoreService.create(COLLECTION_NAME, String.valueOf(id), docData, Map.class);
+            firestoreService.create(collectionName, String.valueOf(id), docData, Map.class);
 
             logger.info("Successfully created Chinese flashcard with ID: {}", id);
 
@@ -142,7 +143,7 @@ public class ChineseFlashCardService {
         try {
             // Get paginated results from Firestore
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> docs = (List<Map<String, Object>>) (List<?>) firestoreService.getAll(COLLECTION_NAME, page, pageSize, Map.class);
+            List<Map<String, Object>> docs = (List<Map<String, Object>>) (List<?>) firestoreService.getAll(collectionName, page, pageSize, Map.class);
 
             // Convert to protobuf objects
             List<ChineseFlashCard> flashcards = new ArrayList<>();
@@ -151,7 +152,7 @@ public class ChineseFlashCardService {
             }
 
             // Get total count
-            long totalCount = firestoreService.count(COLLECTION_NAME);
+            long totalCount = firestoreService.count(collectionName);
 
             logger.info("Retrieved {} Chinese flashcards (total: {})", flashcards.size(), totalCount);
 
@@ -193,7 +194,7 @@ public class ChineseFlashCardService {
         try {
             // Get from Firestore
             @SuppressWarnings("unchecked")
-            Map<String, Object> doc = (Map<String, Object>) firestoreService.get(COLLECTION_NAME, String.valueOf(id), Map.class);
+            Map<String, Object> doc = (Map<String, Object>) firestoreService.get(collectionName, String.valueOf(id), Map.class);
 
             if (doc == null) {
                 logger.warn("Chinese flashcard not found: {}", id);
@@ -258,7 +259,7 @@ public class ChineseFlashCardService {
 
         try {
             // Check if flashcard exists
-            if (!firestoreService.exists(COLLECTION_NAME, String.valueOf(id))) {
+            if (!firestoreService.exists(collectionName, String.valueOf(id))) {
                 logger.warn("Cannot update non-existent Chinese flashcard: {}", id);
                 return UpdateChineseFlashCardResponse.newBuilder()
                     .setSuccess(false)
@@ -268,7 +269,7 @@ public class ChineseFlashCardService {
 
             // Get existing flashcard to preserve createdAt
             @SuppressWarnings("unchecked")
-            Map<String, Object> existingDoc = (Map<String, Object>) firestoreService.get(COLLECTION_NAME, String.valueOf(id), Map.class);
+            Map<String, Object> existingDoc = (Map<String, Object>) firestoreService.get(collectionName, String.valueOf(id), Map.class);
             long createdAt = existingDoc != null && existingDoc.containsKey("createdAt")
                 ? ((Number) existingDoc.get("createdAt")).longValue()
                 : System.currentTimeMillis();
@@ -288,7 +289,7 @@ public class ChineseFlashCardService {
             Map<String, Object> docData = toFirestoreDoc(flashcard);
 
             // Update in Firestore
-            firestoreService.update(COLLECTION_NAME, String.valueOf(id), docData, Map.class);
+            firestoreService.update(collectionName, String.valueOf(id), docData, Map.class);
 
             logger.info("Successfully updated Chinese flashcard: {}", id);
 
@@ -328,7 +329,7 @@ public class ChineseFlashCardService {
 
         try {
             // Check if flashcard exists
-            if (!firestoreService.exists(COLLECTION_NAME, String.valueOf(id))) {
+            if (!firestoreService.exists(collectionName, String.valueOf(id))) {
                 logger.warn("Cannot delete non-existent Chinese flashcard: {}", id);
                 return DeleteChineseFlashCardResponse.newBuilder()
                     .setSuccess(false)
@@ -337,7 +338,7 @@ public class ChineseFlashCardService {
             }
 
             // Delete from Firestore
-            firestoreService.delete(COLLECTION_NAME, String.valueOf(id));
+            firestoreService.delete(collectionName, String.valueOf(id));
 
             logger.info("Successfully deleted Chinese flashcard: {}", id);
 

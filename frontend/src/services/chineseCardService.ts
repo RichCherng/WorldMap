@@ -1,3 +1,17 @@
+/**
+ * @deprecated This file is deprecated and no longer used.
+ * Use the Data Layer approach instead: frontend/src/data/chineseCardData.ts
+ * 
+ * The Data Layer pattern provides:
+ * - Clean separation between UI and API logic
+ * - Type-safe gRPC-Web integration
+ * - Centralized protobuf mapping
+ * - Better testability
+ * 
+ * See: frontend/src/data/chineseCardData.ts for the new implementation
+ * See: frontend/src/services/chineseFlashcardGrpcService.ts for gRPC-Web service
+ */
+
 import axios from 'axios';
 import { ChineseCardData } from '@/components/FlashCard/Language/ChineseCard';
 import { mockChineseCardData, ChineseCardAPIResponse, CHINESE_CARDS_API_ENDPOINT } from '@/data/chineseCardData';

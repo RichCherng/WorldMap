@@ -1,22 +1,25 @@
 
 package com.worldmap.grpc;
 
+import com.linecorp.armeria.common.HttpMethod;
+import com.linecorp.armeria.server.Server;
+import com.linecorp.armeria.server.ServerBuilder;
+import com.linecorp.armeria.server.grpc.GrpcService;
+import com.linecorp.armeria.server.cors.CorsService;
 import com.worldmap.config.ApplicationConfig;
 import io.grpc.BindableService;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.protobuf.services.HealthStatusManager;
 import io.grpc.protobuf.services.ProtoReflectionService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 /**
- * Centralized gRPC server that hosts all gRPC services.
+ * Centralized gRPC server that hosts all gRPC services using Armeria.
+ * Armeria provides native gRPC-Web support, CORS, and HTTP/2.
  * Replaces Jetty server for API endpoints, providing a single entry point
  * for all gRPC services (Chinese FlashCard, French FlashCard, etc.)
  */
@@ -43,17 +46,23 @@ public class GrpcServer {
     }
 
     /**
-     * Builds the gRPC server with all registered services.
+     * Builds the gRPC server with all registered services using Armeria.
+     * Armeria natively supports gRPC, gRPC-Web, and Protobuf-JSON.
      * Enables gRPC Server Reflection for grpcui support.
      * Enables standard gRPC health checking protocol.
+     * Enables CORS for browser requests.
      */
     private Server buildServer() {
         int port = config.getServer().getPort();
-        ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
+        ServerBuilder serverBuilder = Server.builder();
+        serverBuilder.http(port);
+
+        // Build GrpcService with all registered services
+        com.linecorp.armeria.server.grpc.GrpcServiceBuilder grpcServiceBuilder = GrpcService.builder();
 
         // Register all gRPC services
         for (BindableService service : grpcServices) {
-            serverBuilder.addService(service);
+            grpcServiceBuilder.addService(service);
             System.out.println("  ✓ Registered gRPC service: " + service.getClass().getSimpleName());
 
             // Set health status for this service to SERVING
@@ -62,22 +71,37 @@ public class GrpcServer {
         }
 
         // Enable gRPC Health Checking (standard protocol)
-        serverBuilder.addService(healthStatusManager.getHealthService());
+        grpcServiceBuilder.addService(healthStatusManager.getHealthService());
         System.out.println("  ✓ Enabled gRPC Health Checking Service");
 
         // Enable gRPC Server Reflection (required for grpcui)
-        serverBuilder.addService(ProtoReflectionService.newInstance());
+        grpcServiceBuilder.addService(ProtoReflectionService.newInstance());
         System.out.println("  ✓ Enabled gRPC Server Reflection");
+
+        // Build the gRPC service (Armeria automatically supports gRPC-Web)
+        GrpcService grpcService = grpcServiceBuilder.build();
+
+        // Wrap with CORS support for browser requests
+        serverBuilder.service(grpcService,
+            CorsService.builderForAnyOrigin()
+                .allowRequestMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS)
+                .allowRequestHeaders("*")
+                .allowCredentials()
+                .exposeHeaders("grpc-status", "grpc-message", "grpc-status-details-bin")
+                .newDecorator());
+
+        System.out.println("  ✓ Enabled gRPC-Web with CORS support (via Armeria)");
 
         return serverBuilder.build();
     }
 
     /**
-     * Starts the gRPC server.
+     * Starts the gRPC server (Armeria).
      */
-    public void start() throws IOException {
+    public void start() {
         System.out.println("Starting gRPC server on port " + config.getServer().getPort() + "...");
-        server.start();
+        CompletableFuture<Void> future = server.start();
+        future.join();
 
         // Mark overall server health as SERVING
         healthStatusManager.setStatus("", HealthCheckResponse.ServingStatus.SERVING);
@@ -87,51 +111,57 @@ public class GrpcServer {
         // Add shutdown hook for graceful shutdown
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.err.println("*** Shutting down gRPC server (JVM shutdown hook)");
-            try {
-                GrpcServer.this.stop();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
+            GrpcServer.this.stop();
             System.err.println("*** gRPC server shut down");
         }));
     }
 
     /**
-     * Stops the gRPC server with a 30-second timeout.
+     * Stops the gRPC server gracefully (Armeria).
      */
-    public void stop() throws InterruptedException {
+    public void stop() {
         if (server != null) {
             System.out.println("Stopping gRPC server...");
 
             // Mark server as NOT_SERVING before shutdown
             healthStatusManager.enterTerminalState();
 
-            server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
+            CompletableFuture<Void> future = server.stop();
+            future.join();
             System.out.println("gRPC server stopped.");
         }
     }
 
     /**
-     * Awaits termination of the server.
+     * Awaits termination of the server (Armeria).
      */
-    public void awaitTermination() throws InterruptedException {
+    public void awaitTermination() {
         if (server != null) {
-            server.awaitTermination();
+            server.closeOnJvmShutdown();
+            try {
+                server.blockUntilShutdown();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Server interrupted during shutdown: " + e.getMessage());
+            }
         }
     }
 
     /**
-     * Checks if the server is running.
+     * Checks if the server is running (Armeria).
      */
     public boolean isRunning() {
-        return server != null && !server.isShutdown() && !server.isTerminated();
+        return server != null && !server.activePorts().isEmpty();
     }
 
     /**
-     * Gets the port the server is listening on.
+     * Gets the port the server is listening on (Armeria).
      */
     public int getPort() {
-        return server != null ? server.getPort() : -1;
+        if (server != null && !server.activePorts().isEmpty()) {
+            return server.activePorts().values().iterator().next().localAddress().getPort();
+        }
+        return -1;
     }
 
     /**
