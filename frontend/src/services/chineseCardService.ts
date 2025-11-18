@@ -92,8 +92,8 @@ export const addChineseCard = async (cardInput: AddChineseCardInput): Promise<Ch
     // Simulate API call with mock data
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Generate new ID (in real app, backend would generate this)
-    const newId = Date.now();
+    // Generate new ID (in real app, backend/Firestore would generate this)
+    const newId = `mock-${Date.now()}`;
 
     // Create the new card
     const newCard: ChineseCardData = {
@@ -143,7 +143,7 @@ export const addChineseCard = async (cardInput: AddChineseCardInput): Promise<Ch
  * @returns Promise that resolves when deletion is complete
  * @throws Error if the API request fails
  */
-export const deleteChineseCard = async (cardId: number): Promise<void> => {
+export const deleteChineseCard = async (cardId: string | number): Promise<void> => {
   try {
     // TODO: Replace with actual API call when backend is ready
     // const response = await axios.delete<{ success: boolean; message?: string; error?: string }>(

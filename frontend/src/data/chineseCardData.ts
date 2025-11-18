@@ -1,49 +1,52 @@
 import { ChineseCardData } from '@/components/FlashCard/Language/ChineseCard';
-import { getAllFlashcards, createFlashcard, updateFlashcard, deleteFlashcard } from '@/services/chineseFlashcardGrpcService';
+import {
+  createDocument,
+  getAllDocuments,
+  updateDocument,
+  deleteDocument,
+  subscribeToCollection,
+} from '@/services/firestoreService';
 
 /**
  * Data Layer for Chinese Flashcards
- * 
+ *
  * This layer handles all data operations for Chinese flashcards, providing a clean
- * interface between UI components and the gRPC-Web service. It abstracts away
- * protobuf complexity and provides type-safe CRUD operations.
- * 
+ * interface between UI components and the Firestore database. It abstracts away
+ * Firestore complexity and provides type-safe CRUD operations.
+ *
  * Architecture:
- * UI Components → Data Layer (this file) → gRPC Service → Backend
+ * UI Components → Data Layer (this file) → Firestore Service → Firebase/Firestore
  */
 
+// Firestore collection name for Chinese flashcards
+const COLLECTION_NAME = 'chinese_flash_cards';
+
 /**
- * Fetch all Chinese flashcards from the backend
- * 
+ * Fetch all Chinese flashcards from Firestore
+ *
  * @returns Promise<ChineseCardData[]> - Array of Chinese flashcards
- * @throws Error if the gRPC request fails
+ * @throws Error if the Firestore request fails
  */
 export async function fetchChineseCards(): Promise<ChineseCardData[]> {
   try {
-    // Fetch all cards with high page size (1000) to get everything in one request
-    const response = await getAllFlashcards(1, 1000);
-    
-    // Extract and map protobuf ChineseFlashCard objects to ChineseCardData
-    return response.getDataList().map((card) => ({
-      id: card.getId(),
-      chineseWord: card.getChineseWord(),
-      englishWord: card.getEnglishWord(),
-      pinyin: card.getPinyin(),
-      img: card.getImg() || undefined
-    }));
+    // Fetch all cards from Firestore (pagination can be added later if needed)
+    const response = await getAllDocuments<ChineseCardData>(COLLECTION_NAME, { pageSize: 1000 });
+
+    // Return the data array from the paginated response
+    return response.data;
   } catch (error) {
-    // Re-throw error - it's already been formatted by the gRPC service layer
+    // Re-throw error - it's already been formatted by the Firestore service layer
     console.error('Data layer: Failed to fetch Chinese cards:', error);
     throw error;
   }
 }
 
 /**
- * Add a new Chinese flashcard to the backend
- * 
+ * Add a new Chinese flashcard to Firestore
+ *
  * @param data - Flashcard data to create (chineseWord, englishWord, pinyin, optional img)
  * @returns Promise<ChineseCardData> - The created flashcard with generated ID
- * @throws Error if the gRPC request fails or validation errors occur
+ * @throws Error if the Firestore request fails or validation errors occur
  */
 export async function addChineseCard(data: {
   chineseWord: string;
@@ -52,41 +55,28 @@ export async function addChineseCard(data: {
   img?: string;
 }): Promise<ChineseCardData> {
   try {
-    // Call gRPC service to create the flashcard
-    const response = await createFlashcard(data);
-    
-    // Extract the created flashcard from the response
-    const card = response.getData();
-    
-    if (!card) {
-      throw new Error('No flashcard data returned from server');
-    }
-    
-    // Map protobuf ChineseFlashCard to ChineseCardData
-    return {
-      id: card.getId(),
-      chineseWord: card.getChineseWord(),
-      englishWord: card.getEnglishWord(),
-      pinyin: card.getPinyin(),
-      img: card.getImg() || undefined
-    };
+    // Call Firestore service to create the flashcard
+    // The service will automatically add id, createdAt, and updatedAt
+    const card = await createDocument<ChineseCardData>(COLLECTION_NAME, data);
+
+    return card;
   } catch (error) {
-    // Re-throw error - it's already been formatted by the gRPC service layer
+    // Re-throw error - it's already been formatted by the Firestore service layer
     console.error('Data layer: Failed to add Chinese card:', error);
     throw error;
   }
 }
 
 /**
- * Update an existing Chinese flashcard in the backend
- * 
+ * Update an existing Chinese flashcard in Firestore
+ *
  * @param id - ID of the flashcard to update
  * @param data - Updated flashcard data (chineseWord, englishWord, pinyin, optional img)
  * @returns Promise<ChineseCardData> - The updated flashcard
- * @throws Error if the gRPC request fails, card not found, or validation errors occur
+ * @throws Error if the Firestore request fails, card not found, or validation errors occur
  */
 export async function updateChineseCard(
-  id: number,
+  id: string,
   data: {
     chineseWord: string;
     englishWord: string;
@@ -95,144 +85,149 @@ export async function updateChineseCard(
   }
 ): Promise<ChineseCardData> {
   try {
-    // Call gRPC service to update the flashcard
-    const response = await updateFlashcard(id, data);
-    
-    // Extract the updated flashcard from the response
-    const card = response.getData();
-    
-    if (!card) {
-      throw new Error('No flashcard data returned from server');
-    }
-    
-    // Map protobuf ChineseFlashCard to ChineseCardData
-    return {
-      id: card.getId(),
-      chineseWord: card.getChineseWord(),
-      englishWord: card.getEnglishWord(),
-      pinyin: card.getPinyin(),
-      img: card.getImg() || undefined
-    };
+    // Call Firestore service to update the flashcard
+    // The service will automatically update the updatedAt timestamp
+    const card = await updateDocument<ChineseCardData>(COLLECTION_NAME, id, data);
+
+    return card;
   } catch (error) {
-    // Re-throw error - it's already been formatted by the gRPC service layer
+    // Re-throw error - it's already been formatted by the Firestore service layer
     console.error('Data layer: Failed to update Chinese card:', error);
     throw error;
   }
 }
 
 /**
- * Delete a Chinese flashcard from the backend
- * 
+ * Delete a Chinese flashcard from Firestore
+ *
  * @param id - ID of the flashcard to delete
  * @returns Promise<boolean> - True if deletion was successful
- * @throws Error if the gRPC request fails or card not found
+ * @throws Error if the Firestore request fails or card not found
  */
-export async function deleteChineseCard(id: number): Promise<boolean> {
+export async function deleteChineseCard(id: string): Promise<boolean> {
   try {
-    // Call gRPC service to delete the flashcard
-    const response = await deleteFlashcard(id);
-    
-    // Return success status
-    return response.getSuccess();
+    // Call Firestore service to delete the flashcard
+    const success = await deleteDocument(COLLECTION_NAME, id);
+
+    return success;
   } catch (error) {
-    // Re-throw error - it's already been formatted by the gRPC service layer
+    // Re-throw error - it's already been formatted by the Firestore service layer
     console.error('Data layer: Failed to delete Chinese card:', error);
     throw error;
   }
 }
 
 /**
+ * Subscribe to real-time updates for Chinese flashcards
+ *
+ * @param callback - Function called when cards change
+ * @returns Unsubscribe function to stop listening
+ *
+ * @example
+ * const unsubscribe = subscribeToChineseCards((cards) => {
+ *   console.log('Cards updated:', cards);
+ * });
+ * // Later: unsubscribe();
+ */
+export function subscribeToChineseCards(
+  callback: (cards: ChineseCardData[]) => void
+): () => void {
+  return subscribeToCollection<ChineseCardData>(COLLECTION_NAME, callback, { pageSize: 1000 });
+}
+
+/**
  * Mock data for Chinese flashcards.
  * Kept as reference and for fallback scenarios.
+ * Note: IDs changed to strings for Firestore compatibility
  */
 export const mockChineseCardData: ChineseCardData[] = [
   {
-    id: 1,
+    id: 'mock-1',
     chineseWord: '你好',
     englishWord: 'Hello',
     pinyin: 'Nǐ hǎo',
     img: 'https://i.pinimg.com/736x/82/42/75/824275fa74fdff9a946834a52e38ff6c.jpg'
   },
   {
-    id: 2,
+    id: 'mock-2',
     chineseWord: '谢谢',
     englishWord: 'Thank you',
     pinyin: 'Xièxiè'
   },
   {
-    id: 3,
+    id: 'mock-3',
     chineseWord: '再见',
     englishWord: 'Goodbye',
     pinyin: 'Zàijiàn'
   },
   {
-    id: 4,
+    id: 'mock-4',
     chineseWord: '请',
     englishWord: 'Please',
     pinyin: 'Qǐng'
   },
   {
-    id: 5,
+    id: 'mock-5',
     chineseWord: '我',
     englishWord: 'I, me',
     pinyin: 'Wǒ'
   },
   {
-    id: 6,
+    id: 'mock-6',
     chineseWord: '是',
     englishWord: 'Yes/to be',
     pinyin: 'Shì'
   },
   {
-    id: 7,
+    id: 'mock-7',
     chineseWord: '不',
     englishWord: 'No/not',
     pinyin: 'Bù'
   },
   {
-    id: 8,
+    id: 'mock-8',
     chineseWord: '水',
     englishWord: 'Water',
     pinyin: 'Shuǐ'
   },
   {
-    id: 9,
+    id: 'mock-9',
     chineseWord: '吃',
     englishWord: 'To eat',
     pinyin: 'Chī'
   },
   {
-    id: 10,
+    id: 'mock-10',
     chineseWord: '喝',
     englishWord: 'To drink',
     pinyin: 'Hē'
   },
   {
-    id: 11,
+    id: 'mock-11',
     chineseWord: '好',
     englishWord: 'Good',
     pinyin: 'Hǎo'
   },
   {
-    id: 12,
+    id: 'mock-12',
     chineseWord: '爱',
     englishWord: 'Love',
     pinyin: 'Ài'
   },
   {
-    id: 13,
+    id: 'mock-13',
     chineseWord: '家',
     englishWord: 'Home/family',
     pinyin: 'Jiā'
   },
   {
-    id: 14,
+    id: 'mock-14',
     chineseWord: '朋友',
     englishWord: 'Friend',
     pinyin: 'Péngyǒu'
   },
   {
-    id: 15,
+    id: 'mock-15',
     chineseWord: '学习',
     englishWord: 'To study',
     pinyin: 'Xuéxí'

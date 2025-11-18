@@ -4,11 +4,13 @@ import './ChineseCard.css';
 
 
 export interface ChineseCardData {
-    id: number;
+    id: string;  // Changed from number to string for Firestore compatibility
     chineseWord: string;
     englishWord: string;
     pinyin: string;
     img?: string;
+    createdAt?: number;  // Timestamp in milliseconds
+    updatedAt?: number;  // Timestamp in milliseconds
 }
 
 

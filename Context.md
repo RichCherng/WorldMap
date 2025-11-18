@@ -5,6 +5,11 @@
 - When given a task, check if that task exists. If the task doesn't exists, help user create and define that task.
 - Before executing, review the task with user. If the task need revision, ask user for help to define the task.
 - **When reviewing and revising the approach or task, always edit the task file with the new details** – ensure the task definition stays up-to-date with any changes in scope, requirements, or approach.
+- **Keep TASK.md and task files synchronized:**
+    - When updating a task file (e.g., `tasks/CHINESE_FLASHCARD_TASK.md`), also update the corresponding entry in `TASK.md`
+    - When marking a task as complete in a task file, update the status in `TASK.md`
+    - When creating a new task file, add a summary entry in `TASK.md`
+    - TASK.md provides high-level overview; task files provide detailed subtasks
 
 
 ### 🎯 Task Execution

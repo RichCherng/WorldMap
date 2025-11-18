@@ -31,7 +31,7 @@ export default function CardStack({
       setCards(cardsData.length ? cardsData : []);
     }, [cardsData]);
 
-    const sendToBack = (id: number) => {
+    const sendToBack = (id: string | number) => {
     setCards(prev => {
       const newCards = [...prev];
       const index = newCards.findIndex(card => card.id === id);
