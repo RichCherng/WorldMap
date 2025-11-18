@@ -638,6 +638,74 @@
     - **Current Integration:** Uses REST API service ([chineseCardService.ts](frontend/src/services/chineseCardService.ts)) with mock data
     - **Date:** November 13, 2025
 
+    - ❌ **Add Shuffle Deck Feature**
+    - **Description:** Implement shuffle functionality to randomize the order of flashcards in the deck
+    - **Branch:** `chinese-flash-card` (or create new branch)
+    - **Purpose:** Allow users to shuffle cards for better learning by preventing memorization of card order
+    - **Architecture:** Shuffle logic lives in data layer (`chineseCardData.ts`) to maintain separation of concerns
+    - **Subtasks:**
+        - ❌ **Add shuffle function to data layer**
+            - **File:** `frontend/src/data/chineseCardData.ts`
+            - **Implementation:**
+                - Create `shuffleChineseCards(cards: ChineseCardData[]): ChineseCardData[]` function
+                - Use Fisher-Yates (Knuth) shuffle algorithm for unbiased randomization
+                - Function should return a new shuffled array (immutable)
+                - Example implementation:
+                    ```typescript
+                    export function shuffleChineseCards(cards: ChineseCardData[]): ChineseCardData[] {
+                        const shuffled = [...cards];
+                        for (let i = shuffled.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                        }
+                        return shuffled;
+                    }
+                    ```
+        - ❌ **Update CardStack to accept shuffle prop**
+            - **File:** `frontend/src/components/FlashCard/CardStack.tsx`
+            - **Implementation:**
+                - Add optional `onShuffle?: () => void` callback prop
+                - Expose shuffle capability without implementing shuffle logic
+                - Component remains pure display logic
+        - ❌ **Implement shuffle in ChineseVocabCollection**
+            - **File:** `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx`
+            - **Implementation:**
+                - Import `shuffleChineseCards` from data layer
+                - Create `handleShuffle()` function that:
+                    - Calls `shuffleChineseCards(cards)`
+                    - Updates local state with shuffled cards
+                    - Notifies parent via `onCardsChange` callback
+        - ❌ **Add shuffle button to UI**
+            - **File:** `frontend/src/Pages/FlashCard/FlashCardPage.tsx` or create separate control component
+            - **Implementation:**
+                - Add shuffle button with icon (e.g., shuffle/random icon from Tabler Icons)
+                - Position button near the card stack (top-right or bottom controls)
+                - Style button to match existing UI design
+                - Add hover and click states for better UX
+        - ❌ **Connect shuffle button to data layer**
+            - Pass shuffle handler from ChineseVocabCollection to FlashCardPage via callback
+            - Call shuffle function when button is clicked
+            - Optional: Add shuffle animation/transition when cards reorder
+        - ❌ **Add visual feedback**
+            - Show brief animation or toast notification when shuffle occurs
+            - Optional: Disable shuffle button temporarily during shuffle animation
+            - Consider adding shuffle count or shuffle history for analytics
+    - **Requirements:**
+        - ❌ Shuffle logic implemented in data layer (not in UI components)
+        - ❌ Shuffle should randomize all cards in the current deck
+        - ❌ Shuffle should maintain card data integrity (no duplicates or lost cards)
+        - ❌ Shuffle function should be pure (no side effects)
+        - ❌ Button should be easily accessible and intuitive
+        - ❌ Shuffle should work with any number of cards (including edge cases like 0-2 cards)
+        - ❌ Animation should be smooth and not jarring
+    - **Benefits:**
+        - Better learning experience (prevents memorization of card order)
+        - More engaging user interaction
+        - Helps with spaced repetition learning
+        - Clean separation of concerns (data logic vs UI logic)
+        - Reusable shuffle function for other components
+    - **Date:** November 17, 2025
+
     - ❌ **Integrate Flash Card UI with gRPC-Web Service**
     - **Description:** Replace REST API calls with gRPC-Web service integration using a clean Data Layer architecture for separation of concerns
     - **Branch:** `flashcard-grpc-integration` (or continue in `chinese-flash-card`)
@@ -760,19 +828,23 @@
                 - Handle errors with user-friendly messages ✅
             
             - **Testing:**
-                - ❌ Test: Add a new flashcard via UI
-                - ❌ Test: Verify gRPC CreateChineseFlashCard request in Network tab
-                - ❌ Test: Verify new card appears in CardStack immediately
-                - ❌ Test: Error handling for validation errors (missing required fields)
+                - ✅ Test: Add a new flashcard via UI
+                - ✅ Test: Verify gRPC CreateChineseFlashCard request in Network tab
+                - ✅ Test: Verify new card appears in CardStack immediately
+                - ✅ Test: Error handling for validation errors (missing required fields)
+                - ✅ Added visible error banner UI for failed operations
+                - ✅ Error banner shows user-friendly error messages
+                - ✅ Error banner is dismissible (X button)
+                - ✅ Errors auto-clear on successful operations
 
-        - ❌ **Phase 3: Implement UPDATE operation (Edit card)**
+        - ✅ **Phase 3: Implement UPDATE operation (Edit card)** ✅ Step 1 Complete, ✅ Step 2 Complete
             - **Files to modify:**
-                1. `frontend/src/data/chineseCardData.ts` - Create data layer function
-                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer
+                1. `frontend/src/data/chineseCardData.ts` - Create data layer function ✅
+                2. `frontend/src/Pages/FlashCard/VocabCollections/ChineseVocabCollection.tsx` - Use data layer ✅
             
-            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)**
-                - Import gRPC service: `import { updateFlashcard } from '@/services/chineseFlashcardGrpcService'`
-                - Create `updateChineseCard()` async function:
+            - **Step 1: Create Data Layer Function (`chineseCardData.ts`)** ✅
+                - Import gRPC service: `import { updateFlashcard } from '@/services/chineseFlashcardGrpcService'` ✅
+                - Create `updateChineseCard()` async function: ✅
                     ```typescript
                     export async function updateChineseCard(
                         id: number,
@@ -784,30 +856,31 @@
                         }
                     ): Promise<ChineseCardData> {
                         const response = await updateFlashcard(id, data);
-                        const card = response.getFlashcard()!;
+                        const card = response.getData()!;
                         return {
                             id: card.getId(),
-                            chineseWord: card.getChineseword(),
-                            englishWord: card.getEnglishword(),
+                            chineseWord: card.getChineseWord(),
+                            englishWord: card.getEnglishWord(),
                             pinyin: card.getPinyin(),
                             img: card.getImg() || undefined
                         };
                     }
                     ```
-                - Handle not found and validation errors
+                - Handle not found and validation errors ✅
             
-            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)**
-                - Import `updateChineseCard` from `@/data/chineseCardData`
-                - Add `handleUpdateVocab` function to call `updateChineseCard()`
-                - Add edit functionality to VocabList (inline edit or modal)
-                - Update local cards state with updated card
-                - Handle errors with user-friendly messages
+            - **Step 2: Update UI Component (`ChineseVocabCollection.tsx`)** ✅
+                - Import `updateChineseCard` from `@/data/chineseCardData` ✅
+                - Add `handleEditVocab` function to call `updateChineseCard()` ✅
+                - VocabList already has edit functionality built-in (inline edit dialog) ✅
+                - Pass `onItemEdit={handleEditVocab}` to VocabList component ✅
+                - Update local cards state with updated card ✅
+                - Handle errors with user-friendly messages ✅
             
             - **Testing:**
-                - Test: Edit an existing flashcard via UI
-                - Test: Verify gRPC UpdateChineseFlashCard request in Network tab
-                - Test: Verify changes reflect in CardStack immediately
-                - Test: Error handling for not found and validation errors
+                - ✅ Test: Edit an existing flashcard via UI
+                - ✅ Test: Verify gRPC UpdateChineseFlashCard request in Network tab
+                - ✅ Test: Verify changes reflect in CardStack immediately
+                - ✅ Test: Error handling for not found and validation errors
 
         - ❌ **Phase 4: Implement DELETE operation (Remove card)**
             - **Files to modify:**
