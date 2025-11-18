@@ -121,6 +121,27 @@ export async function updateChineseCard(
 }
 
 /**
+ * Delete a Chinese flashcard from the backend
+ * 
+ * @param id - ID of the flashcard to delete
+ * @returns Promise<boolean> - True if deletion was successful
+ * @throws Error if the gRPC request fails or card not found
+ */
+export async function deleteChineseCard(id: number): Promise<boolean> {
+  try {
+    // Call gRPC service to delete the flashcard
+    const response = await deleteFlashcard(id);
+    
+    // Return success status
+    return response.getSuccess();
+  } catch (error) {
+    // Re-throw error - it's already been formatted by the gRPC service layer
+    console.error('Data layer: Failed to delete Chinese card:', error);
+    throw error;
+  }
+}
+
+/**
  * Mock data for Chinese flashcards.
  * Kept as reference and for fallback scenarios.
  */

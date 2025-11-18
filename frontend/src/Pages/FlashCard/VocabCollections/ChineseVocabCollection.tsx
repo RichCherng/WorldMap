@@ -24,8 +24,7 @@ import VocabList from "./VocabList";
 import { ChineseCardData } from "@/components/FlashCard/Language/ChineseCard";
 import { useState, useEffect } from "react";
 import { VocabCollections } from "./VocabCollection";
-import { fetchChineseCards, addChineseCard, updateChineseCard } from "@/data/chineseCardData";
-// TODO: Import deleteChineseCard when Phase 4 is implemented
+import { fetchChineseCards, addChineseCard, updateChineseCard, deleteChineseCard } from "@/data/chineseCardData";
 
 
 interface ChineseVocabCollectionProps {
@@ -144,31 +143,39 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
     };
 
     const handleDeleteVocab = async (item: any, index: number) => {
-        // TODO: Implement in Phase 4 using deleteChineseCard from data layer
-        console.warn('Delete functionality not yet implemented - will be added in Phase 4');
-        
-        /*
-        // Phase 4 implementation:
-        const cardId = items[index]?.id;
-        if (!cardId) return;
-
         try {
-            // Call the API to delete the card
-            await deleteChineseCard(cardId);
-
-            // Update local cards state
-            const updatedCards = cards.filter(card => card.id !== cardId);
-            setCards(updatedCards);
-
-            // Notify parent component if callback provided
-            if (onCardsChange) {
-                onCardsChange(updatedCards);
+            // Clear any previous errors
+            setError(null);
+            
+            // Get the card ID from the items array
+            const cardId = items[index]?.id;
+            if (!cardId) {
+                console.error('No card ID found for index:', index);
+                setError('Unable to delete: Card ID not found');
+                return;
             }
-        } catch (error) {
+
+            // Call the data layer to delete the card via gRPC
+            const success = await deleteChineseCard(cardId);
+
+            if (success) {
+                // Update local cards state by removing the deleted card
+                const updatedCards = cards.filter(card => card.id !== cardId);
+                setCards(updatedCards);
+
+                // Notify parent component if callback provided
+                if (onCardsChange) {
+                    onCardsChange(updatedCards);
+                }
+
+                console.log('Successfully deleted card with ID:', cardId);
+            } else {
+                setError('Failed to delete vocabulary: Server returned unsuccessful status');
+            }
+        } catch (error: any) {
             console.error('Failed to delete vocab:', error);
-            // You might want to show an error message to the user here
+            setError(error.message || 'Failed to delete vocabulary');
         }
-        */
     };
 
   return (
