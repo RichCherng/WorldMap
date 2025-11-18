@@ -24,8 +24,8 @@ import VocabList from "./VocabList";
 import { ChineseCardData } from "@/components/FlashCard/Language/ChineseCard";
 import { useState, useEffect } from "react";
 import { VocabCollections } from "./VocabCollection";
-import { fetchChineseCards } from "@/data/chineseCardData";
-// TODO: Import addChineseCard and deleteChineseCard when Phase 2 and Phase 4 are implemented
+import { fetchChineseCards, addChineseCard } from "@/data/chineseCardData";
+// TODO: Import deleteChineseCard when Phase 4 is implemented
 
 
 interface ChineseVocabCollectionProps {
@@ -78,26 +78,29 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
     }));
 
     const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string }) => {
-        // TODO: Implement in Phase 2 using addChineseCard from data layer
-        console.warn('Add functionality not yet implemented - will be added in Phase 2');
-        
-        /*
-        // Phase 2 implementation:
-        const newCard = await addChineseCard({
-            chineseWord: vocab.native,
-            pinyin: vocab.pronunciation,
-            englishWord: vocab.translation
-        });
+        try {
+            // Call the data layer to add the card via gRPC
+            const newCard = await addChineseCard({
+                chineseWord: vocab.native,
+                pinyin: vocab.pronunciation,
+                englishWord: vocab.translation
+            });
 
-        // Update local cards state
-        const updatedCards = [...cards, newCard];
-        setCards(updatedCards);
+            // Update local cards state with the new card
+            const updatedCards = [...cards, newCard];
+            setCards(updatedCards);
 
-        // Notify parent component if callback provided
-        if (onCardsChange) {
-            onCardsChange(updatedCards);
+            // Notify parent component if callback provided
+            if (onCardsChange) {
+                onCardsChange(updatedCards);
+            }
+
+            console.log('Successfully added card:', newCard);
+        } catch (error: any) {
+            console.error('Failed to add vocab:', error);
+            setError(error.message || 'Failed to add vocabulary');
+            // TODO: Consider showing error to user in UI (e.g., toast notification)
         }
-        */
     };
 
     const handleDeleteVocab = async (item: any, index: number) => {

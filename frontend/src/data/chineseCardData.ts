@@ -39,6 +39,45 @@ export async function fetchChineseCards(): Promise<ChineseCardData[]> {
 }
 
 /**
+ * Add a new Chinese flashcard to the backend
+ * 
+ * @param data - Flashcard data to create (chineseWord, englishWord, pinyin, optional img)
+ * @returns Promise<ChineseCardData> - The created flashcard with generated ID
+ * @throws Error if the gRPC request fails or validation errors occur
+ */
+export async function addChineseCard(data: {
+  chineseWord: string;
+  englishWord: string;
+  pinyin: string;
+  img?: string;
+}): Promise<ChineseCardData> {
+  try {
+    // Call gRPC service to create the flashcard
+    const response = await createFlashcard(data);
+    
+    // Extract the created flashcard from the response
+    const card = response.getData();
+    
+    if (!card) {
+      throw new Error('No flashcard data returned from server');
+    }
+    
+    // Map protobuf ChineseFlashCard to ChineseCardData
+    return {
+      id: card.getId(),
+      chineseWord: card.getChineseWord(),
+      englishWord: card.getEnglishWord(),
+      pinyin: card.getPinyin(),
+      img: card.getImg() || undefined
+    };
+  } catch (error) {
+    // Re-throw error - it's already been formatted by the gRPC service layer
+    console.error('Data layer: Failed to add Chinese card:', error);
+    throw error;
+  }
+}
+
+/**
  * Mock data for Chinese flashcards.
  * Kept as reference and for fallback scenarios.
  */

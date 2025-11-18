@@ -26,6 +26,11 @@ export default function CardStack({
       cardsData.length? cardsData: []
     );
 
+    // Update local cards state when cardsData prop changes
+    useEffect(() => {
+      setCards(cardsData.length ? cardsData : []);
+    }, [cardsData]);
+
     const sendToBack = (id: number) => {
     setCards(prev => {
       const newCards = [...prev];
