@@ -352,9 +352,17 @@ The application has been migrated from a REST/Jetty architecture to a modern gRP
 
 The frontend uses a clean **Data Layer** architecture for all API interactions:
 
+**Current Architecture (Chinese Flashcards):**
+```
+UI Components → Data Layer → Firestore (Direct)
+```
+
+**Legacy gRPC Architecture (for reference):**
 ```
 UI Components → Data Layer → gRPC-Web Service → Backend (gRPC Server)
 ```
+
+**Note:** Chinese flashcard feature currently uses **Direct Firestore communication** from the frontend, bypassing the gRPC backend for CRUD operations. The proto definitions are maintained for documentation and potential future backend integration.
 
 **Architecture Benefits:**
 - **Single Responsibility**: Data layer handles API calls, UI handles display

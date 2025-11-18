@@ -75,33 +75,41 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         id: word.id,
         native: word.chineseWord,
         pronunciation: word.pinyin,
-        translation: word.englishWord
+        translation: word.englishWord,
+        exampleUsage: word.exampleUsage
     }));
 
-    const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string }) => {
+    const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string; exampleUsage?: string }) => {
         try {
+            console.log('🆕 handleAddVocab called with:', vocab);
+
             // Clear any previous errors
             setError(null);
-            
-            // Call the data layer to add the card via gRPC
+
+            // Call the data layer to add the card via Firestore
             const newCard = await addChineseCard({
                 chineseWord: vocab.native,
                 pinyin: vocab.pronunciation,
-                englishWord: vocab.translation
+                englishWord: vocab.translation,
+                exampleUsage: vocab.exampleUsage
             });
+
+            console.log('📦 New card received from addChineseCard:', newCard);
 
             // Update local cards state with the new card
             const updatedCards = [...cards, newCard];
             setCards(updatedCards);
+
+            console.log('💾 Updated local cards state:', updatedCards);
 
             // Notify parent component if callback provided
             if (onCardsChange) {
                 onCardsChange(updatedCards);
             }
 
-            console.log('Successfully added card:', newCard);
+            console.log('✅ Successfully added card:', newCard);
         } catch (error: any) {
-            console.error('Failed to add vocab:', error);
+            console.error('❌ Failed to add vocab:', error);
             setError(error.message || 'Failed to add vocabulary');
         }
     };
@@ -110,7 +118,7 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         try {
             // Clear any previous errors
             setError(null);
-            
+
             // Get the card ID from the items array
             const cardId = items[index]?.id;
             if (!cardId) {
@@ -119,15 +127,20 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
                 return;
             }
 
-            // Call the data layer to update the card via gRPC
+            console.log('📝 Editing vocab item:', { item, index, cardId });
+
+            // Call the data layer to update the card via Firestore
             const updatedCard = await updateChineseCard(cardId, {
                 chineseWord: item.native,
                 pinyin: item.pronunciation,
-                englishWord: item.translation
+                englishWord: item.translation,
+                exampleUsage: item.exampleUsage
             });
 
+            console.log('📦 Received updated card from data layer:', updatedCard);
+
             // Update local cards state with the updated card
-            const updatedCards = cards.map(card => 
+            const updatedCards = cards.map(card =>
                 card.id === cardId ? updatedCard : card
             );
             setCards(updatedCards);

@@ -38,6 +38,7 @@ export const worldmap = $root.worldmap = (() => {
              * @property {string|null} [img] ChineseFlashCard img
              * @property {number|Long|null} [createdAt] ChineseFlashCard createdAt
              * @property {number|Long|null} [updatedAt] ChineseFlashCard updatedAt
+             * @property {string|null} [exampleUsage] ChineseFlashCard exampleUsage
              */
 
             /**
@@ -112,6 +113,14 @@ export const worldmap = $root.worldmap = (() => {
             ChineseFlashCard.prototype.updatedAt = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
             /**
+             * ChineseFlashCard exampleUsage.
+             * @member {string} exampleUsage
+             * @memberof worldmap.flashcard.ChineseFlashCard
+             * @instance
+             */
+            ChineseFlashCard.prototype.exampleUsage = "";
+
+            /**
              * Creates a new ChineseFlashCard instance using the specified properties.
              * @function create
              * @memberof worldmap.flashcard.ChineseFlashCard
@@ -149,6 +158,8 @@ export const worldmap = $root.worldmap = (() => {
                     writer.uint32(/* id 6, wireType 0 =*/48).int64(message.createdAt);
                 if (message.updatedAt != null && Object.hasOwnProperty.call(message, "updatedAt"))
                     writer.uint32(/* id 7, wireType 0 =*/56).int64(message.updatedAt);
+                if (message.exampleUsage != null && Object.hasOwnProperty.call(message, "exampleUsage"))
+                    writer.uint32(/* id 8, wireType 2 =*/66).string(message.exampleUsage);
                 return writer;
             };
 
@@ -213,6 +224,10 @@ export const worldmap = $root.worldmap = (() => {
                             message.updatedAt = reader.int64();
                             break;
                         }
+                    case 8: {
+                            message.exampleUsage = reader.string();
+                            break;
+                        }
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -269,6 +284,9 @@ export const worldmap = $root.worldmap = (() => {
                 if (message.updatedAt != null && message.hasOwnProperty("updatedAt"))
                     if (!$util.isInteger(message.updatedAt) && !(message.updatedAt && $util.isInteger(message.updatedAt.low) && $util.isInteger(message.updatedAt.high)))
                         return "updatedAt: integer|Long expected";
+                if (message.exampleUsage != null && message.hasOwnProperty("exampleUsage"))
+                    if (!$util.isString(message.exampleUsage))
+                        return "exampleUsage: string expected";
                 return null;
             };
 
@@ -319,6 +337,8 @@ export const worldmap = $root.worldmap = (() => {
                         message.updatedAt = object.updatedAt;
                     else if (typeof object.updatedAt === "object")
                         message.updatedAt = new $util.LongBits(object.updatedAt.low >>> 0, object.updatedAt.high >>> 0).toNumber();
+                if (object.exampleUsage != null)
+                    message.exampleUsage = String(object.exampleUsage);
                 return message;
             };
 
@@ -355,6 +375,7 @@ export const worldmap = $root.worldmap = (() => {
                         object.updatedAt = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
                         object.updatedAt = options.longs === String ? "0" : 0;
+                    object.exampleUsage = "";
                 }
                 if (message.id != null && message.hasOwnProperty("id"))
                     if (typeof message.id === "number")
@@ -379,6 +400,8 @@ export const worldmap = $root.worldmap = (() => {
                         object.updatedAt = options.longs === String ? String(message.updatedAt) : message.updatedAt;
                     else
                         object.updatedAt = options.longs === String ? $util.Long.prototype.toString.call(message.updatedAt) : options.longs === Number ? new $util.LongBits(message.updatedAt.low >>> 0, message.updatedAt.high >>> 0).toNumber() : message.updatedAt;
+                if (message.exampleUsage != null && message.hasOwnProperty("exampleUsage"))
+                    object.exampleUsage = message.exampleUsage;
                 return object;
             };
 

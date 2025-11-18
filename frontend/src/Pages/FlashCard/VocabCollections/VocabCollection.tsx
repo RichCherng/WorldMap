@@ -11,7 +11,7 @@ interface VocabCollectionsProps {
     children?: React.ReactNode;
     description?: string;
     title?: string;
-    onAddVocab?: (vocab: { native: string; pronunciation: string; translation: string }) => Promise<void>;
+    onAddVocab?: (vocab: { native: string; pronunciation: string; translation: string; exampleUsage?: string }) => Promise<void>;
 }
 
 export function VocabCollections({

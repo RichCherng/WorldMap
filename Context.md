@@ -1,5 +1,6 @@
 ### 🔄 Project Awareness & Context
 - At the start of the conversation, always read `README.md` for context and project architecture.
+- **For detailed architecture context, refer to `tech_doc/` directory** – technical documentation provides in-depth information about feature architecture, data flow, and implementation details.
 - **Check `TASK.md` or task files in `tasks/` directory** before starting a new task. If the task isn't listed, add it with a brief description and today's date.
 - Don't assume and only code with what defined in the Task.md
 - When given a task, check if that task exists. If the task doesn't exists, help user create and define that task.

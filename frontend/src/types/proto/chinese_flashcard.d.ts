@@ -29,6 +29,9 @@ export namespace worldmap {
 
             /** ChineseFlashCard updatedAt */
             updatedAt?: (number|Long|null);
+
+            /** ChineseFlashCard exampleUsage */
+            exampleUsage?: (string|null);
         }
 
         /** Represents a ChineseFlashCard. */
@@ -60,6 +63,9 @@ export namespace worldmap {
 
             /** ChineseFlashCard updatedAt. */
             public updatedAt: (number|Long);
+
+            /** ChineseFlashCard exampleUsage. */
+            public exampleUsage: string;
 
             /**
              * Creates a new ChineseFlashCard instance using the specified properties.

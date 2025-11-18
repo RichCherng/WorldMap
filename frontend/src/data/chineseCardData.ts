@@ -6,6 +6,7 @@ import {
   deleteDocument,
   subscribeToCollection,
 } from '@/services/firestoreService';
+import { deleteField } from 'firebase/firestore';
 
 /**
  * Data Layer for Chinese Flashcards
@@ -53,16 +54,38 @@ export async function addChineseCard(data: {
   englishWord: string;
   pinyin: string;
   img?: string;
+  exampleUsage?: string;
 }): Promise<ChineseCardData> {
   try {
+    console.log('➕ Adding new Chinese card with data:', data);
+
+    // Remove undefined fields to prevent Firestore errors
+    const cleanData: any = {
+      chineseWord: data.chineseWord,
+      englishWord: data.englishWord,
+      pinyin: data.pinyin,
+    };
+
+    if (data.img) {
+      cleanData.img = data.img;
+    }
+
+    if (data.exampleUsage) {
+      cleanData.exampleUsage = data.exampleUsage;
+    }
+
+    console.log('🧹 Cleaned data for Firestore:', cleanData);
+
     // Call Firestore service to create the flashcard
     // The service will automatically add id, createdAt, and updatedAt
-    const card = await createDocument<ChineseCardData>(COLLECTION_NAME, data);
+    const card = await createDocument<ChineseCardData>(COLLECTION_NAME, cleanData);
+
+    console.log('✅ Created card received from Firestore:', card);
 
     return card;
   } catch (error) {
     // Re-throw error - it's already been formatted by the Firestore service layer
-    console.error('Data layer: Failed to add Chinese card:', error);
+    console.error('❌ Data layer: Failed to add Chinese card:', error);
     throw error;
   }
 }
@@ -82,12 +105,37 @@ export async function updateChineseCard(
     englishWord: string;
     pinyin: string;
     img?: string;
+    exampleUsage?: string;
   }
 ): Promise<ChineseCardData> {
   try {
+    // Build update data with required fields
+    const cleanData: any = {
+      chineseWord: data.chineseWord,
+      englishWord: data.englishWord,
+      pinyin: data.pinyin,
+    };
+
+    // Handle optional img field
+    if (data.img) {
+      cleanData.img = data.img;
+    }
+
+    // Handle exampleUsage field - use deleteField() if empty/undefined
+    if (data.exampleUsage) {
+      cleanData.exampleUsage = data.exampleUsage;
+    } else {
+      // Explicitly delete the field from Firestore if it's empty/undefined
+      cleanData.exampleUsage = deleteField();
+    }
+
+    console.log('🔄 Updating card with data:', { id, cleanData, hasDeleteField: cleanData.exampleUsage === deleteField() });
+
     // Call Firestore service to update the flashcard
     // The service will automatically update the updatedAt timestamp
-    const card = await updateDocument<ChineseCardData>(COLLECTION_NAME, id, data);
+    const card = await updateDocument<ChineseCardData>(COLLECTION_NAME, id, cleanData);
+
+    console.log('✅ Updated card received from Firestore:', card);
 
     return card;
   } catch (error) {

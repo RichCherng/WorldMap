@@ -4,12 +4,14 @@ import './VocabList.css';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@radix-ui/react-label';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 export interface vocabEntry {
   native: string;
   pronunciation: string;
   translation: string;
+  exampleUsage?: string;
 }
 
 interface AnimatedItemProps {
@@ -185,6 +187,7 @@ const EditVocabDialog: React.FC<EditVocabDialogProps> = ({ item, index, onEdit, 
   const [nativeText, setNativeText] = useState(item.native);
   const [pronunciationText, setPronunciationText] = useState(item.pronunciation);
   const [translationText, setTranslationText] = useState(item.translation);
+  const [exampleUsageText, setExampleUsageText] = useState(item.exampleUsage || '');
   const [isOpen, setIsOpen] = useState(false);
 
   // Reset form when dialog opens
@@ -193,6 +196,7 @@ const EditVocabDialog: React.FC<EditVocabDialogProps> = ({ item, index, onEdit, 
       setNativeText(item.native);
       setPronunciationText(item.pronunciation);
       setTranslationText(item.translation);
+      setExampleUsageText(item.exampleUsage || '');
     }
   }, [isOpen, item]);
 
@@ -200,7 +204,8 @@ const EditVocabDialog: React.FC<EditVocabDialogProps> = ({ item, index, onEdit, 
     const updatedItem: vocabEntry = {
       native: nativeText,
       pronunciation: pronunciationText,
-      translation: translationText
+      translation: translationText,
+      exampleUsage: exampleUsageText.trim() || undefined
     };
     onEdit(updatedItem, index);
     setIsOpen(false);
@@ -246,11 +251,21 @@ const EditVocabDialog: React.FC<EditVocabDialogProps> = ({ item, index, onEdit, 
           </div>
           <div className="grid gap-3">
             <Label htmlFor="translation-text">Translation</Label>
-            <Input 
-              id="translation-text" 
+            <Input
+              id="translation-text"
               value={translationText}
               onChange={(e) => setTranslationText(e.target.value)}
               placeholder="e.g., American"
+            />
+          </div>
+          <div className="grid gap-3">
+            <Label htmlFor="example-usage-text">Example Usage (Optional)</Label>
+            <Textarea
+              id="example-usage-text"
+              value={exampleUsageText}
+              onChange={(e) => setExampleUsageText(e.target.value)}
+              placeholder="e.g., 我是美国人 (I am American)"
+              rows={3}
             />
           </div>
         </div>

@@ -5,6 +5,7 @@ import FlashCard from '@/components/FlashCard/FlashCard';
 import { CardData } from '@/components/FlashCard/Card';
 import ChineseCard, { ChineseCardData } from '@/components/FlashCard/Language/ChineseCard';
 import { ChineseVocabCollection } from './VocabCollections/ChineseVocabCollection';
+import GoogleTranslateWidget from '@/components/GoogleTranslate';
 
 const FlashCardPage: React.FC = () => {
   useEffect(() => {
@@ -49,7 +50,6 @@ const FlashCardPage: React.FC = () => {
                   <ChineseCardStack words={cards} />
                 )}
               </div>
-
             </div>
             <div id="flashcard-stack-section">
               <h2 id="flashcard-section-title">Card Stack 2</h2>
@@ -65,7 +65,7 @@ const FlashCardPage: React.FC = () => {
             {/* Add extra content to ensure scrolling is needed */}
             <div id="flashcard-extra-content">
               <h2 id="flashcard-section-title">More Content</h2>
-              <p id="flashcard-section-description">This section demonstrates scrolling functionality</p>
+              <p id="flashcard-section-description">This section demonstrates scr···olling functionality</p>
               <div style={{ height: '400px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '1rem', padding: '2rem', margin: '2rem 0' }}>
                 <h3>Scrollable Content Area</h3>
                 <p>This area is here to ensure the page has enough content to require scrolling.</p>
