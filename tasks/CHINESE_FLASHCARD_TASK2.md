@@ -185,6 +185,42 @@
         - [frontend/src/Pages/FlashCard/FlashCardPage.tsx](frontend/src/Pages/FlashCard/FlashCardPage.tsx)
     - **Date:** November 17, 2025
 
+- ❌ **Add Search Filter Feature**
+    - **Description:** Implement client-side search/filter functionality to allow users to quickly find specific vocabulary cards
+    - **Branch:** `chinese-flash-card`
+    - **Purpose:** Enable users to search and filter vocabulary by Chinese characters, pinyin, or English meaning
+    - **Architecture:** Client-side filtering only (no backend queries) - filter already loaded vocabulary cards in memory
+    - **Subtasks:**
+        - ❌ Add search input field to vocabulary list interface
+        - ❌ Implement client-side real-time search filtering logic
+        - ❌ Support search across multiple fields (Chinese, pinyin, English)
+        - ❌ Add case-insensitive search functionality
+        - ❌ Display filtered results dynamically as user types
+        - ❌ Show count of filtered results (e.g., "Showing 5 of 20 cards")
+        - ❌ Add clear/reset button for search input
+        - ❌ Maintain search state during session (using local component state)
+        - ❌ Handle empty search results with user-friendly message
+        - ❌ Optimize search performance with debouncing for large vocabulary lists
+    - **Requirements:**
+        - ❌ Search should be case-insensitive
+        - ❌ Search should filter across Chinese characters, pinyin, and English meaning
+        - ❌ Search should update results in real-time (debounced for performance)
+        - ❌ Search input should be clearly visible and accessible
+        - ❌ Clear button should be visible when search has text
+        - ❌ Show "No results found" message when filter returns empty
+        - ❌ Preserve original card order when search is cleared
+        - ❌ Filter only affects display - does not modify underlying data
+        - ❌ No backend/API calls needed - pure client-side filtering
+    - **Implementation Notes:**
+        - Filter logic uses JavaScript `.filter()` method on in-memory card array
+        - Use `useMemo` for performance optimization with large lists
+        - Optional: Add debounce (e.g., 300ms) to prevent excessive re-renders on fast typing
+        - Search state stored in local component state (not persisted to database)
+    - **Files to modify:**
+        - [frontend/src/Pages/FlashCard/VocabCollections/VocabList.tsx](frontend/src/Pages/FlashCard/VocabCollections/VocabList.tsx) - Add search UI component and filtering logic
+        - TBD: CSS file for search input styling (if needed)
+    - **Date:** November 18, 2025
+
 ---
 
 ## Technical Considerations
