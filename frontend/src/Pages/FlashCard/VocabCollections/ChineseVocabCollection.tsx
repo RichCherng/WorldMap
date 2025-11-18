@@ -50,6 +50,8 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
 
         fetchChineseCards()
             .then(data => {
+                console.log('✅ Fetched Chinese cards from Firestore:', data);
+                console.log('📊 Number of cards:', data.length);
                 setCards(data);
                 setError(null);
                 if (onCardsChange) {
@@ -57,7 +59,7 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
                 }
             })
             .catch(err => {
-                console.error('Failed to fetch Chinese cards:', err);
+                console.error('❌ Failed to fetch Chinese cards:', err);
                 setError(err.message || 'Failed to load Chinese cards');
             })
             .finally(() => {

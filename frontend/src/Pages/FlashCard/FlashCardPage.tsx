@@ -34,13 +34,17 @@ const FlashCardPage: React.FC = () => {
   return (
     <div id="flashcard-scrollable-container">
       <ChineseVocabCollection>
-        {(cards, loading) => (
+        {(cards, loading) => {
+          console.log('📍 FlashCardPage render:', { loading, cardsCount: cards.length, cards });
+          return (
           <div id="flashcard-content">
             <h1 id="flashcard-page-title">Interactive Flash Cards</h1>
             <div id="flashcard-stack-section">
               <h2 id="flashcard-section-title">Study Dev</h2>
 
               <div id="flashcard-card-container">
+                {loading && <p>Loading cards...</p>}
+                {!loading && cards.length === 0 && <p>No cards found. Add some vocabulary!</p>}
                 {!loading && cards.length > 0 && (
                   <ChineseCardStack words={cards} />
                 )}
@@ -75,7 +79,7 @@ const FlashCardPage: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        )}}
       </ChineseVocabCollection>
     </div>
   );

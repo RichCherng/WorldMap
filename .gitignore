@@ -75,3 +75,7 @@ src/main/resources/firebase-service-account.json
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+### Frontend environment files ###
+frontend/.env.development
+frontend/.env.production

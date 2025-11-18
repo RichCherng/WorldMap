@@ -8,7 +8,7 @@ export interface CardDimensions {
 }
 
 export interface CardData {
-    id: number;
+    id: string | number;  // Support both string (Firestore) and number (legacy) IDs
     front: ReactNode
     back: ReactNode;
 }

@@ -33,14 +33,25 @@
 **Description:** Overhaul Java backend setup with modern architecture, dependency injection (Google Guice), service patterns, and scalable structure.  
 **Details:** See [tasks/BACKEND_SETUP_TASK.md](tasks/BACKEND_SETUP_TASK.md)
 
-### Cloud Functions Migration
-**Status:** ❌ Not Started  
-**Description:** Migrate Java gRPC backend to serverless Google Cloud Functions for improved scalability, reduced costs, and simplified deployment.  
-**Feature Branch:** `cloud-functions`  
-**Architecture:** Frontend → Cloud Functions (HTTP/HTTPS) → Firestore  
-**Benefits:** Zero server management, auto-scaling, pay-per-use pricing (~$0.40/million requests, 2M free/month)  
-**Applies To:** All flashcard languages (Chinese, French, future languages)  
-**Details:** See [tasks/CLOUD_FUNCTIONS_MIGRATION_TASK.md](tasks/CLOUD_FUNCTIONS_MIGRATION_TASK.md)
+### Firebase Direct Integration
+**Status:** 🔄 In Progress
+**Description:** Migrate flashcard features to communicate directly with Firebase/Firestore from the frontend, eliminating the backend server.
+**Feature Branch:** `Migration_Firebase`
+**Architecture:** Frontend → Firebase SDK → Firestore
+**Benefits:** No backend to maintain, real-time updates, offline support, lowest cost (~$0-15/month), simplified development
+**Progress:** Chinese Flashcard Service ✅ Complete | Security Rules ✅ Complete
+**Applies To:** All flashcard languages (Chinese, French, future languages)
+**Details:** See [tasks/FIREBASE_DIRECT_INTEGRATION_TASK.md](tasks/FIREBASE_DIRECT_INTEGRATION_TASK.md)
+
+### ChatGPT Flashcard Generation
+**Status:** ❌ Not Started
+**Description:** Integrate OpenAI ChatGPT API to auto-generate complete Chinese flashcard data from partial user inputs using Firebase Cloud Functions.
+**Feature Branch:** `ChatGPT_Integration`
+**Architecture:** Frontend → Cloud Function → OpenAI API → Firestore
+**Benefits:** Enhanced UX, auto-complete missing fields, learning aid, validation, secure API key management
+**Cost:** ~$1-15/month (includes OpenAI + Cloud Functions)
+**Dependencies:** Firebase Cloud Functions, OpenAI API account
+**Details:** See [tasks/CHATGPT_FLASHCARD_GENERATION_TASK.md](tasks/CHATGPT_FLASHCARD_GENERATION_TASK.md)
 
 ---
 
