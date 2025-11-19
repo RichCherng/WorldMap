@@ -8,6 +8,7 @@ interface VocabCollectionListProps {
   onSelectWord: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onAddNew: () => void;
 }
 
 const VocabCollectionList: React.FC<VocabCollectionListProps> = ({
@@ -15,7 +16,8 @@ const VocabCollectionList: React.FC<VocabCollectionListProps> = ({
   selectedId,
   onSelectWord,
   onEdit,
-  onDelete
+  onDelete,
+  onAddNew
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -44,8 +46,7 @@ const VocabCollectionList: React.FC<VocabCollectionListProps> = ({
   };
 
   const handleAddNew = () => {
-    console.log('Add new vocabulary');
-    // TODO: Implement add new vocabulary functionality
+    onAddNew();
   };
 
   return (

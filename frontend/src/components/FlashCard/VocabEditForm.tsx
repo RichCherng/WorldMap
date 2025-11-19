@@ -50,7 +50,9 @@ const VocabEditForm: React.FC<VocabEditFormProps> = ({ word, onSave, onCancel })
   return (
     <div className="vocab-edit-form-container">
       <form className="vocab-edit-form" onSubmit={handleSubmit}>
-        <h2 className="vocab-edit-form-title">Chinese Word</h2>
+        <h2 className="vocab-edit-form-title">
+          {word.id ? 'Edit Vocabulary' : 'Add New Vocabulary'}
+        </h2>
 
         <div className="vocab-form-group">
           <input

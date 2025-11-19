@@ -3,7 +3,7 @@ import { ChineseCardData } from './Language/ChineseCard';
 import VocabCardPreview from './VocabCardPreview';
 import VocabCollectionList from './VocabCollectionList';
 import VocabEditForm from './VocabEditForm';
-import { updateChineseCard, deleteChineseCard } from '@/data/chineseCardData';
+import { updateChineseCard, deleteChineseCard, addChineseCard } from '@/data/chineseCardData';
 import './VocabularyListView.css';
 
 interface VocabularyListViewProps {
@@ -14,26 +14,42 @@ interface VocabularyListViewProps {
 const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsChange }) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sort words in reverse chronological order (newest first)
+  const sortedWords = [...words].sort((a, b) => {
+    const timeA = a.createdAt || 0;
+    const timeB = b.createdAt || 0;
+    return timeB - timeA; // Descending order (newest first)
+  });
+
   // Auto-select first item when words are loaded
   useEffect(() => {
-    if (words.length > 0 && !selectedId) {
-      setSelectedId(words[0].id);
+    if (sortedWords.length > 0 && !selectedId) {
+      setSelectedId(sortedWords[0].id);
     }
-  }, [words, selectedId]);
+  }, [sortedWords.length, selectedId]);
 
-  const selectedCard = words.find(word => word.id === selectedId) || null;
+  const selectedCard = sortedWords.find(word => word.id === selectedId) || null;
 
   const handleSelectWord = (id: string) => {
     setSelectedId(id);
     setIsEditing(false); // Exit edit mode when selecting a new word
+    setIsCreating(false); // Exit create mode when selecting a word
   };
 
   const handleEdit = (id: string) => {
     setSelectedId(id);
     setIsEditing(true);
+    setIsCreating(false);
+  };
+
+  const handleAddNew = () => {
+    setIsCreating(true);
+    setIsEditing(false);
+    setSelectedId(null);
   };
 
   const handleSave = async (updatedWord: ChineseCardData) => {
@@ -102,6 +118,50 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
 
   const handleCancel = () => {
     setIsEditing(false);
+    setIsCreating(false);
+  };
+
+  const handleCreate = async (newWord: ChineseCardData) => {
+    console.log('🆕 handleCreate called with:', newWord);
+
+    try {
+      setIsSaving(true);
+      setError(null);
+
+      // Build create payload
+      const createPayload: any = {
+        chineseWord: newWord.chineseWord,
+        pinyin: newWord.pinyin,
+        englishWord: newWord.englishWord,
+      };
+
+      // Only include exampleUsage if it has actual content
+      if (newWord.exampleUsage && newWord.exampleUsage.trim()) {
+        createPayload.exampleUsage = newWord.exampleUsage;
+      }
+
+      console.log('📤 Calling addChineseCard with payload:', createPayload);
+
+      // Create new card in backend
+      const created = await addChineseCard(createPayload);
+
+      console.log('✅ Backend create successful:', created);
+
+      // Add to local state
+      if (onWordsChange) {
+        const updatedWords = [...words, created];
+        onWordsChange(updatedWords);
+      }
+
+      // Select the newly created card and exit create mode
+      setSelectedId(created.id);
+      setIsCreating(false);
+    } catch (err: any) {
+      console.error('❌ Error creating vocabulary:', err);
+      setError(err.message || 'Failed to create vocabulary');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -147,7 +207,7 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
     }
   };
 
-  if (words.length === 0) {
+  if (sortedWords.length === 0) {
     return (
       <div className="vocabulary-list-view">
         <div className="vocabulary-list-empty">
@@ -156,6 +216,15 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
       </div>
     );
   }
+
+  // Create a blank card for new vocabulary
+  const blankCard: ChineseCardData = {
+    id: '',
+    chineseWord: '',
+    englishWord: '',
+    pinyin: '',
+    exampleUsage: ''
+  };
 
   return (
     <div className="vocabulary-list-view">
@@ -195,7 +264,13 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
       <div className="vocabulary-grid">
         {/* Left Panel - Card Preview or Edit Form */}
         <div className="vocabulary-preview-panel">
-          {isEditing && selectedCard ? (
+          {isCreating ? (
+            <VocabEditForm
+              word={blankCard}
+              onSave={handleCreate}
+              onCancel={handleCancel}
+            />
+          ) : isEditing && selectedCard ? (
             <VocabEditForm
               word={selectedCard}
               onSave={handleSave}
@@ -209,11 +284,12 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
         {/* Right Panel - Collection List */}
         <div className="vocabulary-list-panel">
           <VocabCollectionList
-            words={words}
+            words={sortedWords}
             selectedId={selectedId}
             onSelectWord={handleSelectWord}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onAddNew={handleAddNew}
           />
         </div>
       </div>
