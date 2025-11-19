@@ -1,4 +1,4 @@
-# Flash Card Feature - Technical Documentation
+ b# Flash Card Feature - Technical Documentation
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -26,7 +26,7 @@ The Flash Card feature is a language learning application that provides interact
 - Multi-language support (Chinese implemented, French planned)
 - Firebase Firestore integration for data persistence
 - gRPC-Web for efficient client-server communication
-- Responsive UI with drag-and-drop functionality
+- Responsive UI with drag-and-drop functionality (Frontend communicates with backend via REST/HTTP or directly with Firebase SDK)
 
 ### Current Status
 - **Chinese Flash Cards**: ✅ Backend API complete, Frontend UI complete, Integration pending
@@ -44,57 +44,15 @@ The Flash Card feature is a language learning application that provides interact
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
 │  │ FlashCard UI │  │ Card Stack   │  │ Vocab Mgmt   │      │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
-│         │                 │                  │               │
 │         └─────────────────┴──────────────────┘               │
 │                          │                                   │
 │              ┌───────────▼───────────┐                       │
-│              │  gRPC-Web Service     │                       │
-│              │  (chineseFlashcard    │                       │
-│              │   GrpcService.ts)     │                       │
+│              │   Firebase Service    │                       │
+│              │ (flashcardService.ts) │                       │
 │              └───────────┬───────────┘                       │
 └──────────────────────────┼───────────────────────────────────┘
-                           │ HTTP/1.1 (gRPC-Web)
-                           │ Protocol Buffers
-                           │
+                           │ Firebase SDK (Web)
 ┌──────────────────────────▼───────────────────────────────────┐
-│                   Backend (Java + gRPC)                       │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │             GrpcServer (Armeria)                     │    │
-│  │             Port: 8080                               │    │
-│  │  - Server Reflection Enabled                         │    │
-│  │  - Health Checking Enabled                           │    │
-│  │  - CORS Configured                                   │    │
-│  └────────────────────┬────────────────────────────────┘    │
-│                       │                                      │
-│         ┌─────────────┴─────────────┐                       │
-│         │                           │                       │
-│    ┌────▼──────────┐       ┌───────▼────────┐              │
-│    │ Chinese       │       │ French          │              │
-│    │ FlashCard     │       │ FlashCard       │              │
-│    │ GrpcService   │       │ GrpcService     │              │
-│    │               │       │ (planned)       │              │
-│    └────┬──────────┘       └────────────────┘              │
-│         │                                                   │
-│    ┌────▼──────────┐                                       │
-│    │ Chinese       │                                       │
-│    │ FlashCard     │                                       │
-│    │ Service       │                                       │
-│    │ (Business     │                                       │
-│    │  Logic)       │                                       │
-│    └────┬──────────┘                                       │
-│         │                                                   │
-│    ┌────▼──────────┐                                       │
-│    │ Firestore     │                                       │
-│    │ Service       │                                       │
-│    │ (Generic DB   │                                       │
-│    │  Layer)       │                                       │
-│    └────┬──────────┘                                       │
-└─────────┼─────────────────────────────────────────────────┘
-          │
-          │ Firebase Admin SDK
-          │
-┌─────────▼─────────────────────────────────────────────────┐
 │              Firebase Firestore (Cloud)                    │
 │                                                             │
 │  Collections:                                               │
@@ -133,16 +91,14 @@ The Flash Card feature is a language learning application that provides interact
 
 ### Backend
 - **Language**: Java 21
-- **Framework**: gRPC with Armeria (native gRPC-Web support)
+- **Framework**: Spring Boot (or similar web framework for REST endpoints)
 - **Database**: Firebase Firestore
 - **Dependency Injection**: Google Guice
 - **Build Tool**: Gradle
-- **Protocol**: gRPC (HTTP/2) + gRPC-Web (HTTP/1.1)
-- **Serialization**: Protocol Buffers (proto3)
+- **Serialization**: Protocol Buffers (proto3) for internal data model representation
 
 ### Frontend
 - **Framework**: React with TypeScript
-- **gRPC Client**: grpc-web (official Google library)
 - **Animations**: Framer Motion
 - **Build Tool**: Vite
 - **State Management**: React Hooks (useState, useEffect)
@@ -423,7 +379,7 @@ export const createFlashcard = (data: {
 - ✅ Drag to reorder
 - ✅ Add/Delete vocabulary
 - ✅ Responsive design
-- ❌ Integration with gRPC service (pending)
+- ❌ Integration with Firebase service (pending)
 - ❌ Update functionality (pending)
 - ❌ Pagination controls (pending)
 
@@ -434,6 +390,8 @@ export const createFlashcard = (data: {
 ### Chinese FlashCard Protobuf Definition
 
 **File**: [proto/chinese_card.proto](../proto/chinese_card.proto)
+
+**Note**: This Protobuf definition serves as the canonical data model for a `ChineseFlashCard`. It is used for documentation and to generate TypeScript types. It is **not** used for network communication, as the frontend communicates directly with Firestore.
 
 ```protobuf
 syntax = "proto3";
@@ -452,47 +410,6 @@ message ChineseFlashCard {
   string img = 5;                  // Optional image URL
   int64 createdAt = 6;             // Unix timestamp (milliseconds)
   int64 updatedAt = 7;             // Unix timestamp (milliseconds)
-}
-
-// Request/Response messages for each RPC method
-message CreateChineseFlashCardRequest {
-  string chineseWord = 1;
-  string englishWord = 2;
-  string pinyin = 3;
-  string img = 4;
-}
-
-message CreateChineseFlashCardResponse {
-  bool success = 1;
-  ChineseFlashCard flashcard = 2;
-  string message = 3;
-  string error = 4;
-}
-
-message GetChineseFlashCardsRequest {
-  int32 page = 1;
-  int32 pageSize = 2;
-}
-
-message GetChineseFlashCardsResponse {
-  bool success = 1;
-  repeated ChineseFlashCard flashcards = 2;
-  int32 totalCount = 3;
-  int32 page = 4;
-  int32 pageSize = 5;
-  string message = 6;
-  string error = 7;
-}
-
-// ... (GetById, Update, Delete messages follow similar pattern)
-
-// gRPC Service Definition
-service ChineseFlashCardService {
-  rpc CreateChineseFlashCard(CreateChineseFlashCardRequest) returns (CreateChineseFlashCardResponse);
-  rpc GetChineseFlashCards(GetChineseFlashCardsRequest) returns (GetChineseFlashCardsResponse);
-  rpc GetChineseFlashCard(GetChineseFlashCardRequest) returns (GetChineseFlashCardResponse);
-  rpc UpdateChineseFlashCard(UpdateChineseFlashCardRequest) returns (UpdateChineseFlashCardResponse);
-  rpc DeleteChineseFlashCard(DeleteChineseFlashCardRequest) returns (DeleteChineseFlashCardResponse);
 }
 ```
 

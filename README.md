@@ -1,13 +1,13 @@
 # WorldMap - Chinese Flashcard Learning App
 
-A React web application for learning Chinese vocabulary with interactive flashcards, powered by Firebase/Firestore.
+A React web application for learning Chinese vocabulary with interactive flashcards, powered by a direct connection to Firebase/Firestore.
 
 ## 🏗️ Architecture
 
 - **Frontend**: React 18 with TypeScript
 - **Database**: Firebase/Firestore for data persistence
 - **Build System**: Vite for fast development and optimized production builds
-- **Development**: Vite dev server with hot module replacement
+- **Data Fetching**: Direct communication with Firestore using the Firebase Web SDK.
 
 ## 📁 Project Structure
 
@@ -23,12 +23,10 @@ WorldMap/
 │       ├── Pages/                        # Page components
 │       │   └── FlashCard/                # Flashcard feature
 │       │       ├── VocabCollections/     # Vocabulary collections
-│       │       └── components/           # Flashcard UI components
+│       │       └── components/           # Reusable flashcard UI components
 │       ├── components/                   # Shared components
-│       ├── data/                         # Data layer (API calls)
-│       ├── services/                     # Firebase services
+│       ├── services/                     # Firebase services & data logic
 │       └── types/                        # TypeScript type definitions
-└── docs/                                 # Documentation
 ```
 
 ## 🚀 Getting Started
@@ -58,7 +56,7 @@ Start the development server:
 npm run dev
 ```
 
-- Application runs on **http://localhost:5173**
+- Application runs on **http://localhost:3000**
 - Hot module replacement for instant updates
 - Open your browser and visit the URL shown in the terminal
 

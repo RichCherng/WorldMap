@@ -1,8 +1,8 @@
 # Flashcard Feature Architecture
 
-**Last Updated**: November 17, 2025  
-**Status**: Production Ready  
-**Architecture**: gRPC + Data Layer Pattern
+**Last Updated**: November 19, 2025
+**Status**: Production Ready
+**Architecture**: Serverless (Frontend + Firestore)
 
 ---
 
@@ -11,31 +11,35 @@
 1. [Overview](#overview)
 2. [Architecture Diagram](#architecture-diagram)
 3. [Technology Stack](#technology-stack)
-4. [Backend Architecture](#backend-architecture)
-5. [Frontend Architecture](#frontend-architecture)
-6. [Data Flow](#data-flow)
-7. [API Reference](#api-reference)
-8. [Error Handling](#error-handling)
-9. [Testing Strategy](#testing-strategy)
-10. [Development Workflow](#development-workflow)
-11. [Deployment Guide](#deployment-guide)
-12. [Future Enhancements](#future-enhancements)
+4. [Frontend Architecture](#frontend-architecture)
+5. [Data Flow](#data-flow)
+6. [Data Model](#data-model)
+7. [Error Handling](#error-handling)
+8. [Testing Strategy](#testing-strategy)
+9. [Development Workflow](#development-workflow)
+10. [Future Enhancements](#future-enhancements)
 
 ---
 
 ## Overview
 
-The Flashcard feature is a full-stack Chinese language learning application that allows users to create, manage, and study vocabulary flashcards. The feature uses a modern gRPC-based architecture with Protocol Buffers for type-safe communication between the frontend and backend.
+The Flashcard feature is a multi-language vocabulary learning application that allows users to create, manage, and study flashcards across different languages. While the initial implementation focuses on Chinese language learning, the architecture is designed with **language-agnostic components** that can be reused for other languages (Spanish, French, Japanese, etc.).
+
+The feature uses a serverless architecture where the React frontend communicates directly with Firebase Firestore via a clean Data Layer pattern.
 
 **Key Features**:
 - ✅ Create, Read, Update, Delete (CRUD) flashcards
 - ✅ Interactive card flipping animations
-- ✅ Pinyin pronunciation display
+- ✅ Language-specific features (e.g., Pinyin for Chinese)
 - ✅ Optional image support
 - ✅ Real-time data persistence with Firestore
-- ✅ Mock data fallback for development
-- ✅ Type-safe API contracts with Protocol Buffers
 - ✅ Clean Data Layer pattern for separation of concerns
+- ✅ **Reusable component architecture** for multi-language support
+
+**Design Philosophy**:
+- **Generic Core Components**: UI components like `CardStack` and card flipping logic are language-independent
+- **Language-Specific Implementations**: Language-specific components (e.g., `ChineseCard`) extend the core functionality
+- **Scalable Data Model**: Protobuf definitions can be extended for additional languages while maintaining type safety
 
 ---
 
@@ -63,97 +67,39 @@ The Flashcard feature is a full-stack Chinese language learning application that
 │  │ - deleteChineseCard(id): Promise<boolean>                    │  │
 │  │                                                              │  │
 │  │ Responsibilities:                                            │  │
-│  │ - Maps Protobuf ↔ TypeScript types                          │  │
 │  │ - Provides clean CRUD interface                             │  │
-│  │ - Handles business logic                                    │  │
+│  │ - Handles business logic (default values, validation)       │  │
+│  │ - Maps Firestore documents ↔ Application types              │  │
 │  └──────────────┬───────────────────────────────────────────────┘  │
-│                 │ Calls gRPC-Web service                            │
-│                 ↓                                                   │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ gRPC-Web Service Layer (chineseFlashcardGrpcService.ts)      │  │
-│  │ - getAllFlashcards(page, pageSize)                           │  │
-│  │ - getFlashcardById(id)                                       │  │
-│  │ - createFlashcard(data)                                      │  │
-│  │ - updateFlashcard(id, data)                                  │  │
-│  │ - deleteFlashcard(id)                                        │  │
-│  │                                                              │  │
-│  │ Responsibilities:                                            │  │
-│  │ - Creates gRPC-Web requests                                 │  │
-│  │ - Handles gRPC error codes                                  │  │
-│  │ - Returns Protobuf responses                                │  │
-│  └──────────────┬───────────────────────────────────────────────┘  │
-│                 │                                                   │
-└─────────────────┼───────────────────────────────────────────────────┘
-                  │ gRPC-Web (HTTP/1.1)
-                  │ Content-Type: application/grpc-web-text
-                  ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│                      BACKEND (Java + gRPC)                          │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ GrpcServer (Armeria)                                         │  │
-│  │ - Port: 8080                                                 │  │
-│  │ - Native gRPC-Web support                                    │  │
-│  │ - CORS enabled for browser requests                          │  │
-│  │ - Server Reflection enabled (for grpcui)                     │  │
-│  └──────────────┬───────────────────────────────────────────────┘  │
-│                 │ Routes to service                                 │
-│                 ↓                                                   │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ ChineseFlashCardGrpcService                                  │  │
-│  │ - Extends ChineseFlashCardServiceImplBase                    │  │
-│  │ - Handles gRPC requests                                      │  │
-│  │ - Delegates to business logic layer                          │  │
-│  │ - Returns Protobuf responses                                 │  │
-│  │                                                              │  │
-│  │ RPC Methods:                                                 │  │
-│  │ - CreateChineseFlashCard                                     │  │
-│  │ - GetChineseFlashCards (with pagination)                     │  │
-│  │ - GetChineseFlashCard                                        │  │
-│  │ - UpdateChineseFlashCard                                     │  │
-│  │ - DeleteChineseFlashCard                                     │  │
-│  └──────────────┬───────────────────────────────────────────────┘  │
-│                 │ Calls service layer                               │
-│                 ↓                                                   │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ ChineseFlashCardService                                      │  │
-│  │ - Business logic and validation                              │  │
-│  │ - Protobuf ↔ Firestore mapping                              │  │
-│  │ - Error handling                                             │  │
-│  │ - Mock data fallback                                         │  │
-│  └──────────────┬───────────────────────────────────────────────┘  │
-│                 │ Uses generic service                              │
+│                 │ Calls Generic Service                             │
 │                 ↓                                                   │
 │  ┌──────────────────────────────────────────────────────────────┐  │
 │  │ FirestoreService (Generic)                                   │  │
-│  │ - create(collection, docId, data, type)                      │  │
-│  │ - get(collection, docId, type)                               │  │
-│  │ - getAll(collection, page, pageSize, type)                   │  │
-│  │ - update(collection, docId, data, type)                      │  │
-│  │ - delete(collection, docId)                                  │  │
-│  │ - count(collection)                                          │  │
-│  │ - exists(collection, docId)                                  │  │
+│  │ - createDocument(collection, data)                           │  │
+│  │ - getAllDocuments(collection)                                │  │
+│  │ - updateDocument(collection, id, data)                       │  │
+│  │ - deleteDocument(collection, id)                             │  │
+│  │                                                              │  │
+│  │ Responsibilities:                                            │  │
+│  │ - Wraps Firebase SDK                                         │  │
+│  │ - Handles error formatting                                   │  │
+│  │ - Manages timestamps                                         │  │
 │  └──────────────┬───────────────────────────────────────────────┘  │
 │                 │                                                   │
 └─────────────────┼───────────────────────────────────────────────────┘
-                  │ Firestore SDK
+                  │ Firebase SDK (HTTPS / WebSockets)
                   ↓
 ┌─────────────────────────────────────────────────────────────────────┐
-│                      DATABASE (Firestore)                           │
+│                 CLOUD INFRASTRUCTURE (Firebase)                     │
 ├─────────────────────────────────────────────────────────────────────┤
-│  Collection: chinese_flashcards                                     │
 │                                                                     │
-│  Document Structure:                                                │
-│  {                                                                  │
-│    id: number,                                                      │
-│    chineseWord: string,                                             │
-│    englishWord: string,                                             │
-│    pinyin: string,                                                  │
-│    img: string (optional),                                          │
-│    createdAt: timestamp,                                            │
-│    updatedAt: timestamp                                             │
-│  }                                                                  │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │ Cloud Firestore (NoSQL Database)                             │  │
+│  │ - Collection: chinese_flash_cards                            │  │
+│  │ - Real-time updates                                          │  │
+│  │ - Automatic scaling                                          │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -161,120 +107,18 @@ The Flashcard feature is a full-stack Chinese language learning application that
 
 ## Technology Stack
 
-### Backend
-- **Language**: Java 21
-- **RPC Framework**: gRPC (io.grpc:grpc-netty-shaded:1.68.1)
-- **Web Framework**: Armeria 1.30.0 (native gRPC-Web support)
-- **Dependency Injection**: Google Guice 7.0.0
-- **Database**: Firebase Firestore
-- **Serialization**: Protocol Buffers (proto3)
-- **Build Tool**: Gradle 9.0
-- **Testing**: JUnit 5, Mockito
-
 ### Frontend
 - **Language**: TypeScript
 - **Framework**: React 18
-- **RPC Client**: grpc-web (official Google implementation)
+- **Build Tool**: Vite
 - **State Management**: React Hooks (useState, useEffect)
 - **Animation**: Framer Motion
-- **Build Tool**: Vite
-- **Testing**: Jest, React Testing Library (planned)
+- **Styling**: CSS Modules / Tailwind
 
-### Protocol Buffers
-- **Syntax**: proto3
-- **Java Generation**: protoc-gen-grpc-java plugin
-- **TypeScript Generation**: protoc-gen-grpc-web plugin
-- **Location**: `proto/chinese_card.proto`
-
----
-
-## Backend Architecture
-
-### 1. GrpcServer (Entry Point)
-
-**File**: `src/main/java/com/worldmap/grpc/GrpcServer.java`
-
-**Responsibilities**:
-- Initialize and start gRPC server on port 8080
-- Register all gRPC services via Guice Multibinder
-- Enable Server Reflection for grpcui
-- Enable Health Checking protocol
-- Handle graceful shutdown
-
-**Key Features**:
-- Uses Armeria for native gRPC-Web support (no proxy needed)
-- CORS configured for browser requests
-- Single server instance for all services
-- Dynamic service registration via dependency injection
-
-### 2. ChineseFlashCardGrpcService (gRPC Layer)
-
-**File**: `src/main/java/com/worldmap/grpc/ChineseFlashCardGrpcService.java`
-
-**Responsibilities**:
-- Implement gRPC service interface from protobuf
-- Handle incoming RPC requests
-- Delegate to business logic layer
-- Send responses via StreamObserver
-- Convert exceptions to gRPC errors
-
-**Pattern**:
-```java
-@Override
-public void createChineseFlashCard(
-    CreateChineseFlashCardRequest request,
-    StreamObserver<CreateChineseFlashCardResponse> responseObserver
-) {
-    try {
-        CreateChineseFlashCardResponse response = service.create(request);
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
-    } catch (Exception e) {
-        responseObserver.onError(Status.INTERNAL
-            .withDescription(e.getMessage())
-            .asRuntimeException());
-    }
-}
-```
-
-### 3. ChineseFlashCardService (Business Logic Layer)
-
-**File**: `src/main/java/com/worldmap/service/ChineseFlashCardService.java`
-
-**Responsibilities**:
-- Validate request data (required fields)
-- Convert Protobuf ↔ Firestore documents
-- Generate unique IDs and timestamps
-- Call FirestoreService for database operations
-- Build Protobuf response objects
-- Handle errors with meaningful messages
-- Provide mock data fallback
-
-**Key Methods**:
-- `create(CreateChineseFlashCardRequest)`: Validate, generate ID, save to Firestore
-- `getAll(GetChineseFlashCardsRequest)`: Fetch with pagination, return list + count
-- `getById(GetChineseFlashCardRequest)`: Fetch single card, handle not found
-- `update(UpdateChineseFlashCardRequest)`: Validate, update timestamps, save
-- `delete(DeleteChineseFlashCardRequest)`: Delete by ID, return success status
-
-**Validation Rules**:
-- `chineseWord`: Required, non-empty
-- `englishWord`: Required, non-empty
-- `pinyin`: Required, non-empty
-- `img`: Optional
-
-### 4. FirestoreService (Data Access Layer)
-
-**File**: `src/main/java/com/worldmap/service/FirestoreService.java`
-
-**Responsibilities**:
-- Generic Firestore CRUD operations
-- Handle Firestore connection and errors
-- Support pagination and filtering
-- Type-safe document conversion
-- Null-safe when Firebase not configured
-
-**Collection**: `chinese_flashcards`
+### Backend / Database (Serverless)
+- **Platform**: Firebase
+- **Database**: Cloud Firestore (NoSQL)
+- **SDK**: Firebase JS SDK v9 (Modular)
 
 ---
 
@@ -282,116 +126,69 @@ public void createChineseFlashCard(
 
 ### 1. Data Layer Pattern
 
-The frontend uses a **Data Layer** pattern to separate API logic from UI logic:
+The application uses a **Data Layer** pattern to separate database logic from UI logic. This ensures that components remain pure and focused on presentation, while data operations are encapsulated in dedicated modules.
 
-**Benefits**:
-- ✅ Single Responsibility: Data layer handles API, UI handles display
-- ✅ Type Safety: Components work with TypeScript types, not protobuf objects
-- ✅ Testability: Easy to mock data layer functions
-- ✅ Centralized Mapping: Protobuf ↔ TypeScript conversion in one place
-- ✅ Reusability: Multiple components can use the same data functions
+### 2. Data Layer (`src/data/chineseCardData.ts`)
 
-### 2. Data Layer (chineseCardData.ts)
+This module is the single source of truth for Chinese Flashcard operations.
 
-**File**: `frontend/src/data/chineseCardData.ts`
-
-**Exported Functions**:
-
-```typescript
-// Fetch all Chinese flashcards
-export async function fetchChineseCards(): Promise<ChineseCardData[]>
-
-// Add a new Chinese flashcard
-export async function addChineseCard(data: {
-  chineseWord: string;
-  englishWord: string;
-  pinyin: string;
-  img?: string;
-}): Promise<ChineseCardData>
-
-// Update an existing Chinese flashcard
-export async function updateChineseCard(
-  id: number,
-  data: {
-    chineseWord: string;
-    englishWord: string;
-    pinyin: string;
-    img?: string;
-  }
-): Promise<ChineseCardData>
-
-// Delete a Chinese flashcard
-export async function deleteChineseCard(id: number): Promise<boolean>
-```
+**Key Functions**:
+- `fetchChineseCards()`: Retrieves all cards.
+- `addChineseCard(data)`: Creates a new card with default fields (e.g., `isSelected: true`).
+- `updateChineseCard(id, data)`: Updates specific fields; handles special logic like deleting optional fields.
+- `deleteChineseCard(id)`: Removes a card.
 
 **TypeScript Interface**:
 ```typescript
 export interface ChineseCardData {
-  id: number;
+  id: string;
   chineseWord: string;
   englishWord: string;
   pinyin: string;
   img?: string;
+  exampleUsage?: string;
+  isSelected?: boolean;
+  createdAt?: number;
+  updatedAt?: number;
 }
 ```
 
-**Protobuf Mapping Example**:
-```typescript
-// Protobuf → TypeScript
-return response.getDataList().map((card) => ({
-  id: card.getId(),
-  chineseWord: card.getChineseWord(),
-  englishWord: card.getEnglishWord(),
-  pinyin: card.getPinyin(),
-  img: card.getImg() || undefined
-}));
-```
+### 3. Firestore Service (`src/services/firestoreService.ts`)
 
-### 3. gRPC-Web Service Layer
+A generic wrapper around the Firebase SDK that provides consistent error handling and typing for all collections in the application.
 
-**File**: `frontend/src/services/chineseFlashcardGrpcService.ts`
+**Features**:
+- **Type Safety**: Uses generics (`<T>`) to ensure return types match expected interfaces.
+- **Timestamp Management**: Automatically adds `createdAt` and `updatedAt` timestamps.
+- **Error Handling**: Catches SDK errors and formats them for the UI.
 
-**Responsibilities**:
-- Create gRPC-Web client instance
-- Build Protobuf request objects
-- Make gRPC-Web calls
-- Handle gRPC status codes
-- Return Protobuf response objects
+### 4. Component Reusability for Multi-Language Support
 
-**Client Configuration**:
-```typescript
-const client = new ChineseFlashCardServiceClient(
-  GRPC_SERVER_URL,  // http://localhost:8080
-  null,
-  null
-);
-```
+The architecture is designed to maximize code reuse across different language implementations:
 
-**Error Handling**:
-Uses `withErrorHandling()` wrapper from `grpcService.ts` to convert gRPC errors to user-friendly messages based on StatusCode.
+**Reusable Components** (Language-Agnostic):
+- `CardStack.tsx`: Manages card display, drag interactions, and stacking logic
+- `FlashCardPage.tsx`: Page layout and navigation
+- Generic animation utilities (Framer Motion configurations)
+- `FirestoreService`: Generic database operations
 
-### 4. UI Components
+**Language-Specific Components**:
+- `ChineseCard.tsx`: Displays Chinese-specific fields (pinyin, Chinese characters)
+- `ChineseVocabCollection.tsx`: Form validation for Chinese vocabulary
+- `chineseCardData.ts`: Data layer with Chinese-specific business logic
 
-**ChineseVocabCollection.tsx**:
-- Manages flashcard CRUD operations
-- Calls data layer functions
-- Displays error messages with error banner
-- Notifies parent component of state changes
+**Extension Pattern for New Languages**:
+To add a new language (e.g., Spanish):
+1. Define a new Protobuf message (e.g., `SpanishFlashCard`) in `proto/spanish_card.proto`
+2. Create a language-specific card component (e.g., `SpanishCard.tsx`)
+3. Create a data layer module (e.g., `spanishCardData.ts`) using the same pattern as `chineseCardData.ts`
+4. Reuse `CardStack`, `FlashCardPage`, and `FirestoreService` without modification
+5. Add a new Firestore collection (e.g., `spanish_flash_cards`)
 
-**FlashCardPage.tsx**:
-- Main page component
-- Renders CardStack with flashcards
-- Integrates vocabulary management
-
-**CardStack.tsx**:
-- Displays stack of flashcards
-- Handles drag interactions
-- Random rotation for natural appearance
-
-**ChineseCard.tsx**:
-- Individual card display
-- Flip animation on double-click
-- Shows Chinese word (front) and English + Pinyin (back)
+This pattern ensures:
+- **Consistency**: All languages use the same core UI/UX
+- **Maintainability**: Bug fixes to core components benefit all languages
+- **Scalability**: Adding new languages requires minimal code duplication
 
 ---
 
@@ -399,581 +196,120 @@ Uses `withErrorHandling()` wrapper from `grpcService.ts` to convert gRPC errors 
 
 ### CREATE Flow (Add New Flashcard)
 
-```
-1. User fills form in ChineseVocabCollection
-   ↓
-2. handleAddVocab() calls addChineseCard(data)
-   ↓
-3. Data Layer (chineseCardData.ts):
-   - Calls createFlashcard(data) from gRPC service
-   - Maps Protobuf response → ChineseCardData
-   ↓
-4. gRPC-Web Service:
-   - Creates CreateChineseFlashCardRequest
-   - Sets fields: chineseWord, englishWord, pinyin, img
-   - Makes gRPC-Web call to backend
-   ↓
-5. Backend (ChineseFlashCardGrpcService):
-   - Receives request
-   - Calls service.create(request)
-   ↓
-6. Business Logic (ChineseFlashCardService):
-   - Validates required fields
-   - Generates unique ID (System.currentTimeMillis())
-   - Sets createdAt and updatedAt timestamps
-   - Converts to Firestore document Map
-   ↓
-7. Data Access (FirestoreService):
-   - Creates document in "chinese_flashcards" collection
-   - Returns saved document
-   ↓
-8. Response flows back up:
-   - Service builds CreateChineseFlashCardResponse
-   - gRPC service sends response
-   - Frontend receives Protobuf response
-   - Data layer maps to ChineseCardData
-   - UI updates local state and displays new card
-```
+1. **UI**: User submits form in `ChineseVocabCollection`.
+2. **Data Layer**: `addChineseCard(data)` is called.
+   - Cleans data (removes undefined).
+   - Sets defaults (e.g., `isSelected = true`).
+3. **Service**: `createDocument('chinese_flash_cards', cleanData)` is called.
+   - Adds timestamps.
+   - Generates unique ID.
+   - Writes to Firestore.
+4. **Update**: Returns the created object; UI updates local state.
 
 ### READ Flow (Fetch All Flashcards)
 
-```
-1. ChineseVocabCollection useEffect() on mount
-   ↓
-2. Calls fetchChineseCards()
-   ↓
-3. Data Layer:
-   - Calls getAllFlashcards(1, 1000)
-   - Maps Protobuf list → ChineseCardData[]
-   ↓
-4. gRPC-Web Service:
-   - Creates GetChineseFlashCardsRequest
-   - Sets page=1, pageSize=1000
-   ↓
-5. Backend processes request:
-   - Service.getAll() fetches from Firestore
-   - Returns list of flashcards + totalCount
-   ↓
-6. Response returns:
-   - UI receives ChineseCardData[]
-   - Updates state
-   - Displays cards in CardStack
-```
+1. **UI**: Component mounts and calls `fetchChineseCards()`.
+2. **Data Layer**: Calls `getAllDocuments('chinese_flash_cards')`.
+3. **Service**: Queries Firestore collection.
+4. **Update**: Returns array of `ChineseCardData`; UI renders `CardStack`.
 
 ### UPDATE Flow (Edit Flashcard)
 
-```
-1. User edits card in VocabList
-   ↓
-2. handleEditVocab(item, index) called
-   ↓
-3. Data Layer:
-   - Gets card ID from items array
-   - Calls updateChineseCard(id, data)
-   ↓
-4. Backend:
-   - Validates fields
-   - Updates updatedAt timestamp
-   - Saves to Firestore
-   ↓
-5. Response returns:
-   - UI receives updated ChineseCardData
-   - Replaces old card in local state
-   - CardStack re-renders with updated card
-```
-
-### DELETE Flow (Remove Flashcard)
-
-```
-1. User clicks delete on VocabList item
-   ↓
-2. handleDeleteVocab(item, index) called
-   ↓
-3. Data Layer:
-   - Gets card ID from items array
-   - Calls deleteChineseCard(id)
-   ↓
-4. Backend:
-   - Deletes document from Firestore
-   - Returns success=true
-   ↓
-5. Response returns:
-   - UI receives success boolean
-   - Filters out deleted card from local state
-   - CardStack re-renders without deleted card
-```
+1. **UI**: User edits a card.
+2. **Data Layer**: `updateChineseCard(id, changes)` is called.
+   - Checks for fields that need deletion (e.g., empty `exampleUsage`).
+   - Uses `deleteField()` for field removal.
+3. **Service**: `updateDocument(...)` writes changes to Firestore.
+   - Updates `updatedAt`.
+4. **Update**: UI reflects changes immediately.
 
 ---
 
-## API Reference
+## Data Model
 
-### Protobuf Definition
+The data model is defined by the Protocol Buffer file `proto/chinese_card.proto`, which serves as the single source of truth for the schema.
 
-**File**: `proto/chinese_card.proto`
+**Source of Truth**: `proto/chinese_card.proto`
 
 ```protobuf
-syntax = "proto3";
-
-package worldmap.flashcard;
-
-// Chinese flashcard message
 message ChineseFlashCard {
-  int64 id = 1;
-  string chinese_word = 2;
-  string english_word = 3;
-  string pinyin = 4;
-  string img = 5;
-  int64 created_at = 6;
-  int64 updated_at = 7;
-}
-
-// Service definition
-service ChineseFlashCardService {
-  rpc CreateChineseFlashCard(CreateChineseFlashCardRequest) 
-      returns (CreateChineseFlashCardResponse);
-  rpc GetChineseFlashCards(GetChineseFlashCardsRequest) 
-      returns (GetChineseFlashCardsResponse);
-  rpc GetChineseFlashCard(GetChineseFlashCardRequest) 
-      returns (GetChineseFlashCardResponse);
-  rpc UpdateChineseFlashCard(UpdateChineseFlashCardRequest) 
-      returns (UpdateChineseFlashCardResponse);
-  rpc DeleteChineseFlashCard(DeleteChineseFlashCardRequest) 
-      returns (DeleteChineseFlashCardResponse);
+  int64 id = 1;                    // Unique identifier
+  string chinese_word = 2;         // Chinese characters
+  string english_word = 3;         // English translation
+  string pinyin = 4;               // Romanized pronunciation
+  string img = 5;                  // Optional image URL
+  int64 created_at = 6;            // Unix timestamp
+  int64 updated_at = 7;            // Unix timestamp
+  string example_usage = 8;        // Optional example sentence
 }
 ```
 
-### gRPC Methods
+**Firestore Mapping**:
+The application maps these Protobuf fields to Firestore document fields (camelCase):
 
-#### 1. CreateChineseFlashCard
+| Protobuf Field | Firestore Field | Type | Notes |
+|---|---|---|---|
+| `id` | `id` | string | Auto-generated by Firestore |
+| `chinese_word` | `chineseWord` | string | |
+| `english_word` | `englishWord` | string | |
+| `pinyin` | `pinyin` | string | |
+| `img` | `img` | string | Optional |
+| `example_usage` | `exampleUsage` | string | Optional |
+| `created_at` | `createdAt` | number | Timestamp |
+| `updated_at` | `updatedAt` | number | Timestamp |
+| - | `isSelected` | boolean | UI-specific state (not in Proto) |
 
-**Request**:
-```protobuf
-message CreateChineseFlashCardRequest {
-  string chinese_word = 1;  // Required
-  string english_word = 2;  // Required
-  string pinyin = 3;        // Required
-  string img = 4;           // Optional
-}
-```
-
-**Response**:
-```protobuf
-message CreateChineseFlashCardResponse {
-  bool success = 1;
-  ChineseFlashCard data = 2;
-  string message = 3;
-  string error = 4;
-}
-```
-
-**Errors**:
-- `INVALID_ARGUMENT`: Missing required fields
-- `INTERNAL`: Database error
-
-#### 2. GetChineseFlashCards
-
-**Request**:
-```protobuf
-message GetChineseFlashCardsRequest {
-  int32 page = 1;      // Default: 1
-  int32 page_size = 2; // Default: 50
-}
-```
-
-**Response**:
-```protobuf
-message GetChineseFlashCardsResponse {
-  bool success = 1;
-  repeated ChineseFlashCard data = 2;
-  int64 total_count = 3;
-  string message = 4;
-  string error = 5;
-}
-```
-
-#### 3. GetChineseFlashCard
-
-**Request**:
-```protobuf
-message GetChineseFlashCardRequest {
-  int64 id = 1;  // Required
-}
-```
-
-**Response**:
-```protobuf
-message GetChineseFlashCardResponse {
-  bool success = 1;
-  ChineseFlashCard data = 2;
-  string message = 3;
-  string error = 4;
-}
-```
-
-**Errors**:
-- `NOT_FOUND`: Flashcard ID does not exist
-
-#### 4. UpdateChineseFlashCard
-
-**Request**:
-```protobuf
-message UpdateChineseFlashCardRequest {
-  int64 id = 1;             // Required
-  string chinese_word = 2;  // Required
-  string english_word = 3;  // Required
-  string pinyin = 4;        // Required
-  string img = 5;           // Optional
-}
-```
-
-**Response**:
-```protobuf
-message UpdateChineseFlashCardResponse {
-  bool success = 1;
-  ChineseFlashCard data = 2;
-  string message = 3;
-  string error = 4;
-}
-```
-
-**Errors**:
-- `NOT_FOUND`: Flashcard ID does not exist
-- `INVALID_ARGUMENT`: Missing required fields
-
-#### 5. DeleteChineseFlashCard
-
-**Request**:
-```protobuf
-message DeleteChineseFlashCardRequest {
-  int64 id = 1;  // Required
-}
-```
-
-**Response**:
-```protobuf
-message DeleteChineseFlashCardResponse {
-  bool success = 1;
-  string message = 2;
-  string error = 3;
-}
-```
-
-**Errors**:
-- `NOT_FOUND`: Flashcard ID does not exist
+**Collection**: `chinese_flash_cards`
 
 ---
 
 ## Error Handling
 
-### Backend Error Strategy
+Errors are handled at the Service layer and propagated to the UI.
 
-**Validation Errors** (INVALID_ARGUMENT):
-```java
-if (chineseWord == null || chineseWord.isEmpty()) {
-    return CreateChineseFlashCardResponse.newBuilder()
-        .setSuccess(false)
-        .setError("Chinese word is required")
-        .build();
-}
-```
-
-**Not Found Errors** (NOT_FOUND):
-```java
-if (!exists) {
-    return GetChineseFlashCardResponse.newBuilder()
-        .setSuccess(false)
-        .setError("Flashcard with ID " + id + " not found")
-        .build();
-}
-```
-
-**Database Errors** (INTERNAL):
-```java
-try {
-    // Firestore operation
-} catch (Exception e) {
-    return Response.newBuilder()
-        .setSuccess(false)
-        .setError("Database error: " + e.getMessage())
-        .build();
-}
-```
-
-### Frontend Error Strategy
-
-**gRPC Status Code Mapping** (`grpcService.ts`):
-```typescript
-function handleGrpcError(error: RpcError): string {
-  switch (error.code) {
-    case StatusCode.NOT_FOUND:
-      return 'Resource not found';
-    case StatusCode.INVALID_ARGUMENT:
-      return 'Invalid request: ' + error.message;
-    case StatusCode.UNAVAILABLE:
-      return 'Service unavailable. Please try again later.';
-    case StatusCode.INTERNAL:
-      return 'Internal server error';
-    default:
-      return error.message || 'Unknown error occurred';
-  }
-}
-```
-
-**UI Error Display**:
-- Error banner component with dismiss button
-- User-friendly error messages (not raw gRPC errors)
-- Auto-clear errors on successful operations
-- Console logging for debugging
+**Strategy**:
+1. **Firestore SDK**: Throws network or permission errors.
+2. **Service Layer**: Catches errors, logs them to console, and re-throws or formats them.
+3. **UI Layer**: Components wrap async calls in `try/catch` blocks and display user-friendly error messages (e.g., using an error banner).
 
 ---
 
 ## Testing Strategy
 
-### Backend Testing
-
-**Unit Tests** (JUnit 5 + Mockito):
-- ✅ ChineseFlashCardServiceTest (21 tests, >80% coverage)
-- Mock FirestoreService for isolated testing
-- Test all CRUD operations
-- Test validation logic
-- Test error scenarios
-- Test Protobuf conversions
-
-**Test Example**:
-```java
-@Test
-void testCreate_Success() {
-    // Arrange
-    CreateChineseFlashCardRequest request = ...;
-    when(firestoreService.create(...)).thenReturn(mockDoc);
-    
-    // Act
-    CreateChineseFlashCardResponse response = service.create(request);
-    
-    // Assert
-    assertTrue(response.getSuccess());
-    assertNotNull(response.getData());
-    verify(firestoreService).create(...);
-}
-```
-
-**Integration Testing** (Future):
-- Firebase Emulator for Firestore testing
-- End-to-end gRPC testing with grpcurl
-- Performance testing with grpcurl --concurrency
-
-### Frontend Testing
-
-**Unit Tests** (Jest + React Testing Library - Planned):
-- Data layer function testing (mock gRPC service)
-- Component rendering tests
-- User interaction tests (add, edit, delete)
-- Error state tests
-- Loading state tests
-
-**E2E Testing** (Cypress - Future):
-- Full CRUD workflow
-- Error handling scenarios
-- Network failure scenarios
+### Unit Tests (Planned)
+- **Components**: To be implemented. Will test rendering and user interactions.
+- **Data Layer**: To be implemented. Will mock `firestoreService` to test business logic.
 
 ---
 
 ## Development Workflow
 
-### Backend Development
-
-1. **Start Backend Server**:
+1. **Install Dependencies**:
    ```bash
-   gradle run
+   npm install
    ```
-   - Server starts on port 8080
-   - Logs show registered services
-   - Firestore connection status displayed
 
-2. **Test with grpcui**:
+2. **Start Development Server**:
    ```bash
-   grpcui -plaintext localhost:8080
+   npm run dev
    ```
-   - Opens web UI at http://localhost:8081
-   - Auto-discovers all services via Server Reflection
-   - Test RPC methods with interactive forms
+   - Starts Vite server on `localhost:5173` (or similar).
 
-3. **Run Unit Tests**:
-   ```bash
-   gradle test
-   ```
-   - View results: `open build/reports/tests/test/index.html`
-
-### Frontend Development
-
-1. **Start Frontend Dev Server**:
-   ```bash
-   cd frontend
-   npm start
-   ```
-   - Dev server on port 3000 (or configured port)
-   - Hot reload enabled
-   - Connects to gRPC server at localhost:8080
-
-2. **Environment Configuration**:
-   
-   `.env.development`:
-   ```bash
-   REACT_APP_GRPC_URL=http://localhost:8080
-   ```
-
-3. **Test in Browser**:
-   - Navigate to http://localhost:3000/flashcard
-   - Open Network tab to inspect gRPC-Web requests
-   - Look for `Content-Type: application/grpc-web-text`
-
-### Protobuf Updates
-
-When updating `.proto` files:
-
-1. **Regenerate Backend Classes**:
-   ```bash
-   gradle generateProto
-   ```
-
-2. **Regenerate Frontend Types**:
-   ```bash
-   cd frontend
-   npm run generate:grpc-web
-   ```
-
-3. **Rebuild and Test**:
-   ```bash
-   gradle clean build
-   npm start
-   ```
-
----
-
-## Deployment Guide
-
-### Backend Deployment
-
-1. **Build Production JAR**:
-   ```bash
-   gradle clean build
-   ```
-
-2. **Run JAR**:
-   ```bash
-   java -jar build/libs/WorldMap-0.0.1-SNAPSHOT.jar
-   ```
-
-3. **Environment Variables**:
-   ```bash
-   export FIREBASE_CREDENTIALS_PATH=/path/to/credentials.json
-   export SERVER_PORT=8080
-   ```
-
-4. **Docker Deployment** (Future):
-   ```dockerfile
-   FROM eclipse-temurin:21-jre
-   COPY build/libs/*.jar app.jar
-   EXPOSE 8080
-   ENTRYPOINT ["java", "-jar", "app.jar"]
-   ```
-
-### Frontend Deployment
-
-**Option 1: Vercel**
-```bash
-cd frontend
-vercel
-```
-
-**Option 2: Netlify**
-```bash
-npm run build
-netlify deploy --prod --dir=build
-```
-
-**Option 3: Static Hosting (S3, CloudFront)**
-```bash
-npm run build
-aws s3 sync build/ s3://your-bucket/
-```
-
-**Environment Variables for Production**:
-```bash
-REACT_APP_GRPC_URL=https://api.yourapp.com
-```
+3. **Environment Setup**:
+   - Ensure `.env` contains valid Firebase configuration keys.
 
 ---
 
 ## Future Enhancements
 
-### Planned Features
+### Multi-Language Expansion
+- **Spanish Flashcards**: Implement using the same component architecture pattern
+- **Japanese Flashcards**: Add support for Kanji, Hiragana, Katakana fields
+- **French/German/Other Languages**: Leverage reusable components for rapid implementation
+- **Language Switcher**: UI to toggle between different language flashcard collections
 
-1. **Shuffle Deck** (Task defined in FLASHCARD_TASK.md)
-   - Fisher-Yates shuffle algorithm
-   - Shuffle button in UI
-   - Animation on shuffle
-
-2. **French Flashcards**
-   - Follow same pattern as Chinese flashcards
-   - New protobuf definition
-   - Reuse FirestoreService and GrpcServer
-
-3. **Study Mode**
-   - Track card mastery level
-   - Spaced repetition algorithm
-   - Progress tracking
-
-4. **Image Upload**
-   - Cloud Storage integration
-   - Image optimization
-   - CDN delivery
-
-5. **Audio Pronunciation**
-   - Text-to-Speech API
-   - Audio playback on card flip
-   - Record custom pronunciation
-
-6. **React Query Migration**
-   - Automatic caching
-   - Background refetching
-   - Optimistic updates
-   - See: `REACTQUERY_TASK.md`
-
-### Performance Optimizations
-
-- **Backend**:
-  - Implement caching layer (Redis)
-  - Connection pooling for Firestore
-  - Batch operations for bulk updates
-  - gRPC streaming for large datasets
-
-- **Frontend**:
-  - Virtual scrolling for large card lists
-  - Image lazy loading
-  - Code splitting by route
-  - Service Worker for offline support
-
-### Security Enhancements
-
-- Firebase Authentication
-- Row-level security rules
-- Rate limiting
-- Input sanitization
-- HTTPS enforcement
-
----
-
-## References
-
-- **Technical Documentation**: `tech_doc/FLASHCARD_FEATURE.md`
-- **Task Tracking**: `tasks/FLASHCARD_TASK.md`
-- **React Query Migration**: `tasks/REACTQUERY_TASK.md`, `tech_doc/REACT_QUERY.md`
-- **Dependency Injection**: `docs/GUICE_DEPENDENCY_INJECTION.md`
-- **Protocol Buffers**: `proto/chinese_card.proto`
-
----
-
-**Document Version**: 1.0  
-**Last Updated**: November 17, 2025  
-**Authors**: WorldMap Development Team
+### Feature Enhancements
+- **Authentication**: Integrate Firebase Auth to support per-user flashcard collections
+- **Spaced Repetition**: Implement an algorithm (like SM-2) to schedule card reviews based on user performance
+- **Audio Pronunciation**: Add text-to-speech or audio file support for pronunciation practice
+- **Progress Tracking**: Analytics dashboard showing learning progress per language

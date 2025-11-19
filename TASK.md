@@ -62,6 +62,17 @@
 **Benefits:** Improved UX for large vocabulary lists, instant search feedback, no backend changes needed
 **Details:** See [tasks/SEARCH_FILTER_FEATURE_TASK.md](tasks/SEARCH_FILTER_FEATURE_TASK.md)
 
+### Frontend Redesign
+**Status:** ❌ Not Started
+**Description:** Complete frontend redesign with modern light theme, pill-style navigation, enhanced flashcard UI, and smooth animations.
+**Feature Branch:** `frontend-redesign`
+**Theme:** Light theme with purple-cyan gradient accents
+**Scope:** All pages (Navigation, Home, Flashcard, About, Contact, World Map, Stack)
+**Key Features:** Pill navigation, enhanced flashcard study view, vocabulary selection with star button, design system with CSS variables
+**Benefits:** Modern premium aesthetic, improved UX, consistent design language, smooth animations
+**Design Assets:** 7 mockup images, complete design specification document
+**Details:** See [tasks/FRONTEND_REDESIGN_TASK.md](tasks/FRONTEND_REDESIGN_TASK.md)
+
 ---
 
 ## Task Management Guidelines
