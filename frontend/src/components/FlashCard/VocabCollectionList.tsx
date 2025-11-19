@@ -7,13 +7,15 @@ interface VocabCollectionListProps {
   selectedId: string | null;
   onSelectWord: (id: string) => void;
   onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const VocabCollectionList: React.FC<VocabCollectionListProps> = ({
   words,
   selectedId,
   onSelectWord,
-  onEdit
+  onEdit,
+  onDelete
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -34,8 +36,11 @@ const VocabCollectionList: React.FC<VocabCollectionListProps> = ({
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    console.log('Delete word:', id);
-    // TODO: Implement delete functionality
+
+    // Confirm before deleting
+    if (window.confirm('Are you sure you want to delete this vocabulary item?')) {
+      onDelete(id);
+    }
   };
 
   const handleAddNew = () => {

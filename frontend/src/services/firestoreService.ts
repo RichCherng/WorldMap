@@ -228,6 +228,14 @@ export async function updateDocument<T extends FirestoreDocument>(
       updatedAt: serverTimestamp(),
     };
 
+    console.log('🔍 updateDocument - about to call updateDoc with:', {
+      collectionName,
+      id,
+      updateData,
+      dataKeys: Object.keys(updateData),
+      dataValues: Object.values(updateData).map(v => typeof v === 'object' ? `[object ${v?.constructor?.name}]` : typeof v)
+    });
+
     await updateDoc(docRef, updateData);
 
     // Fetch updated document

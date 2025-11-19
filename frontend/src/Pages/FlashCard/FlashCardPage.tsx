@@ -40,7 +40,7 @@ const FlashCardPage: React.FC = () => {
   return (
     <div id="flashcard-scrollable-container">
       <ChineseVocabCollection>
-        {(cards, loading) => {
+        {(cards, loading, updateCards) => {
           console.log('📍 FlashCardPage render:', { loading, cardsCount: cards.length, cards });
           return (
             <div id="flashcard-content">
@@ -63,7 +63,7 @@ const FlashCardPage: React.FC = () => {
 
                 {!loading && mode === 'vocabulary' && (
                   <div id="flashcard-vocabulary-section">
-                    <VocabularyListView words={cards} />
+                    <VocabularyListView words={cards} onWordsChange={updateCards} />
                   </div>
                 )}
               </div>

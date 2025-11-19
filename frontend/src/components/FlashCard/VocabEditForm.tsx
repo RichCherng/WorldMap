@@ -36,11 +36,14 @@ const VocabEditForm: React.FC<VocabEditFormProps> = ({ word, onSave, onCancel })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('📝 Form submitted');
+    console.log('Current formData:', formData);
     const updatedWord: ChineseCardData = {
       ...word,
       ...formData,
       updatedAt: Date.now()
     };
+    console.log('Calling onSave with:', updatedWord);
     onSave(updatedWord);
   };
 

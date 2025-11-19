@@ -30,7 +30,7 @@ import { fetchChineseCards, addChineseCard, updateChineseCard, deleteChineseCard
 interface ChineseVocabCollectionProps {
     onCardsChange?: (cards: ChineseCardData[]) => void;
     onLoadingChange?: (loading: boolean) => void;
-    children?: (cards: ChineseCardData[], loading: boolean) => React.ReactNode;
+    children?: (cards: ChineseCardData[], loading: boolean, updateCards: (cards: ChineseCardData[]) => void) => React.ReactNode;
 }
 
 export function ChineseVocabCollection({ onCardsChange, onLoadingChange, children }: ChineseVocabCollectionProps) {
@@ -195,6 +195,14 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         }
     };
 
+    // Function to update cards from child components
+    const updateCards = (updatedCards: ChineseCardData[]) => {
+        setCards(updatedCards);
+        if (onCardsChange) {
+            onCardsChange(updatedCards);
+        }
+    };
+
     return (
         <>
             <VocabCollections
@@ -243,7 +251,7 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
                     enableArrowNavigation={true}
                     displayScrollbar={false} />
             </VocabCollections>
-            {children && children(cards, loading)}
+            {children && children(cards, loading, updateCards)}
         </>
     )
 }
