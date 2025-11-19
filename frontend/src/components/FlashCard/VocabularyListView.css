@@ -1,0 +1,80 @@
+/* Vocabulary List View Container */
+.vocabulary-list-view {
+  width: 100%;
+  height: calc(100vh - 120px);
+  padding: var(--space-6);
+  background-color: var(--bg-primary);
+  overflow: hidden;
+}
+
+/* Grid Layout */
+.vocabulary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  max-width: 1400px;
+  height: 100%;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+/* Preview Panel (Left) */
+.vocabulary-preview-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* List Panel (Right) */
+.vocabulary-list-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Empty State */
+.vocabulary-list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: var(--text-secondary);
+  font-size: var(--text-lg);
+  text-align: center;
+  padding: var(--space-8);
+}
+
+/* Tablet Layout */
+@media (max-width: 1024px) {
+  .vocabulary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+}
+
+/* Mobile Layout - Stack Vertically */
+@media (max-width: 768px) {
+  .vocabulary-list-view {
+    padding: var(--space-4);
+    height: auto;
+    min-height: calc(100vh - 120px);
+  }
+
+  .vocabulary-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    height: auto;
+  }
+
+  .vocabulary-preview-panel {
+    width: 100%;
+    height: auto;
+  }
+
+  .vocabulary-list-panel {
+    height: 500px;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './FlashCardPage.css';
 import CircularGallery from '@/components/CircularGallery';
 import FlashCard from '@/components/FlashCard/FlashCard';
@@ -7,8 +7,12 @@ import ChineseCard, { ChineseCardData } from '@/components/FlashCard/Language/Ch
 import { ChineseVocabCollection } from './VocabCollections/ChineseVocabCollection';
 import GoogleTranslateWidget from '@/components/GoogleTranslate';
 import StudyMode from '@/components/FlashCard/StudyMode';
+import VocabularyListView from '@/components/FlashCard/VocabularyListView';
+import ModeToggle, { FlashCardMode } from '@/components/FlashCard/ModeToggle';
 
 const FlashCardPage: React.FC = () => {
+  const [mode, setMode] = useState<FlashCardMode>('study');
+
   useEffect(() => {
     // Add class to body to enable scrolling when FlashCard is mounted
     document.body.classList.add('flashcard-page-active');
@@ -40,11 +44,28 @@ const FlashCardPage: React.FC = () => {
           console.log('📍 FlashCardPage render:', { loading, cardsCount: cards.length, cards });
           return (
             <div id="flashcard-content">
-              <div id="flashcard-study-section">
-                <div id="flashcard-card-container">
-                  {loading && <p>Loading cards...</p>}
-                  {!loading && <StudyMode words={cards} />}
-                </div>
+              {/* Mode Toggle */}
+              <ModeToggle currentMode={mode} onModeChange={setMode} />
+
+              {/* Content Area */}
+              <div id="flashcard-mode-content">
+                {loading && (
+                  <div id="flashcard-loading-state">
+                    <p>Loading cards...</p>
+                  </div>
+                )}
+
+                {!loading && mode === 'study' && (
+                  <div id="flashcard-study-section">
+                    <StudyMode words={cards} />
+                  </div>
+                )}
+
+                {!loading && mode === 'vocabulary' && (
+                  <div id="flashcard-vocabulary-section">
+                    <VocabularyListView words={cards} />
+                  </div>
+                )}
               </div>
               <div id="flashcard-stack-section">
                 <h2 id="flashcard-section-title">Card Stack 2</h2>

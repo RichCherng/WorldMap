@@ -1,0 +1,66 @@
+/* Mode Toggle Container */
+.mode-toggle-container {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  background-color: var(--bg-primary);
+}
+
+.mode-toggle-buttons {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* Mode Toggle Button */
+.mode-toggle-button {
+  padding: var(--space-3) var(--space-8);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Inactive State */
+.mode-toggle-button:not(.active) {
+  border-color: var(--bg-tertiary);
+}
+
+.mode-toggle-button:not(.active):hover {
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Active State */
+.mode-toggle-button.active {
+  background: var(--accent-gradient);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.mode-toggle-button.active:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .mode-toggle-buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .mode-toggle-button {
+    width: 100%;
+  }
+}

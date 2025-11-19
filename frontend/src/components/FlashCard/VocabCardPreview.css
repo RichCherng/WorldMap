@@ -1,0 +1,197 @@
+/* Vocab Card Preview Container */
+.vocab-card-preview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-4);
+}
+
+/* Card with Gradient Border */
+.vocab-card-preview {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: 100%;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Gradient Border Effect */
+.vocab-card-preview::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: var(--radius-xl);
+  background: var(--accent-gradient);
+  z-index: -1;
+}
+
+/* Card Content */
+.vocab-card-preview-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+}
+
+/* Preview Image */
+.vocab-preview-image {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--space-3);
+}
+
+/* Chinese Characters */
+.vocab-preview-chinese {
+  font-size: 3.5rem;
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  font-family: 'Google Sans', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'Roboto', 'Arial', sans-serif;
+  line-height: 1.2;
+}
+
+/* Pinyin */
+.vocab-preview-pinyin {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+  font-style: normal;
+  font-family: var(--font-primary);
+}
+
+/* English Translation */
+.vocab-preview-english {
+  font-size: var(--text-lg);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  font-family: var(--font-primary);
+}
+
+/* Example Usage */
+.vocab-preview-example {
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  border-left: 3px solid var(--accent-primary);
+  max-width: 90%;
+}
+
+.vocab-preview-example-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-align: left;
+  margin: 0;
+  line-height: var(--leading-normal);
+  font-family: var(--font-primary);
+}
+
+/* Action Buttons */
+.vocab-card-preview-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.vocab-action-button {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+/* Know It Button */
+.vocab-know-it {
+  background: linear-gradient(135deg, hsl(280, 100%, 65%) 0%, hsl(280, 100%, 75%) 100%);
+}
+
+.vocab-know-it:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Study Again Button */
+.vocab-study-again {
+  background: var(--accent-gradient);
+}
+
+.vocab-study-again:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Empty State */
+.vocab-card-preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: var(--text-lg);
+  text-align: center;
+  padding: var(--space-8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .vocab-card-preview {
+    max-width: 100%;
+    min-height: 400px;
+  }
+
+  .vocab-preview-chinese {
+    font-size: 4rem;
+  }
+
+  .vocab-preview-pinyin {
+    font-size: var(--text-lg);
+  }
+
+  .vocab-preview-english {
+    font-size: var(--text-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .vocab-card-preview-container {
+    padding: var(--space-4);
+  }
+
+  .vocab-card-preview {
+    min-height: 350px;
+  }
+
+  .vocab-preview-chinese {
+    font-size: 3rem;
+  }
+
+  .vocab-card-preview-actions {
+    flex-direction: column;
+  }
+}

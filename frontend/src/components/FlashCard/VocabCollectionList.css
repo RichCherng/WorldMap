@@ -1,0 +1,183 @@
+/* Vocab Collection Container */
+.vocab-collection-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Header */
+.vocab-collection-header {
+  margin-bottom: var(--space-3);
+  flex-shrink: 0;
+}
+
+.vocab-collection-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+/* Scrollable List */
+.vocab-collection-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+/* Custom Scrollbar */
+.vocab-collection-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.vocab-collection-list::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+}
+
+.vocab-collection-list::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: var(--radius-full);
+}
+
+.vocab-collection-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-secondary);
+}
+
+/* List Item - Pill Style */
+.vocab-list-item {
+  position: relative;
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  padding: var(--space-3) var(--space-5);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-in-out);
+  text-align: left;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+}
+
+/* List Item Gradient Border (for selected) */
+.vocab-list-item.selected::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
+  z-index: -1;
+}
+
+.vocab-list-item.selected {
+  border-color: transparent;
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+/* Hover Effect */
+.vocab-list-item:hover:not(.selected) {
+  border-color: var(--accent-primary);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.vocab-list-item:hover.selected {
+  transform: scale(1.02);
+}
+
+/* List Item Content */
+.vocab-list-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vocab-list-chinese {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  font-family: 'Google Sans', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'Roboto', 'Arial', sans-serif;
+}
+
+.vocab-list-details {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-primary);
+}
+
+/* Empty State */
+.vocab-collection-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+  text-align: center;
+  padding: var(--space-6);
+}
+
+/* Stats Display */
+.vocab-stats {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--bg-tertiary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.vocab-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+  font-family: var(--font-primary);
+}
+
+.vocab-stat-label {
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+}
+
+.vocab-stat-value {
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .vocab-collection-container {
+    border-radius: var(--radius-xl);
+  }
+
+  .vocab-collection-title {
+    font-size: var(--text-xl);
+  }
+
+  .vocab-list-item {
+    padding: var(--space-3) var(--space-5);
+  }
+
+  .vocab-list-chinese {
+    font-size: var(--text-base);
+  }
+
+  .vocab-list-details {
+    font-size: var(--text-xs);
+  }
+}
