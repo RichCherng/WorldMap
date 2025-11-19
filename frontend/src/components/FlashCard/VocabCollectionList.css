@@ -9,21 +9,45 @@
   padding: var(--space-5);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  gap: var(--space-4);
 }
 
-/* Header */
-.vocab-collection-header {
-  margin-bottom: var(--space-3);
+/* Search Bar */
+.vocab-search-container {
+  position: relative;
   flex-shrink: 0;
 }
 
-.vocab-collection-title {
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
+.vocab-search-icon {
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.vocab-search-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-10);
+  font-family: var(--font-primary);
+  font-size: var(--text-sm);
   color: var(--text-primary);
-  margin: 0;
-  text-align: center;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  outline: none;
+  transition: all var(--duration-fast) var(--ease-in-out);
+}
+
+.vocab-search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.vocab-search-input:focus {
+  border-color: var(--accent-primary);
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
 }
 
 /* Scrollable List */
@@ -57,52 +81,48 @@
   background: var(--accent-secondary);
 }
 
-/* List Item - Pill Style */
+/* List Item */
 .vocab-list-item {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   background-color: var(--bg-secondary);
-  border: 2px solid var(--bg-tertiary);
-  border-radius: var(--radius-full);
-  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-in-out);
-  text-align: left;
   width: 100%;
-  box-shadow: var(--shadow-sm);
 }
 
-/* List Item Gradient Border (for selected) */
-.vocab-list-item.selected::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: var(--radius-full);
-  background: var(--accent-gradient);
-  z-index: -1;
-}
-
+/* Selected State - Light Purple Background */
 .vocab-list-item.selected {
-  border-color: transparent;
-  background-color: var(--bg-secondary);
-  box-shadow: var(--shadow-md);
+  background-color: hsl(280, 100%, 95%);
+  border-color: hsl(280, 100%, 85%);
 }
 
 /* Hover Effect */
 .vocab-list-item:hover:not(.selected) {
+  background-color: var(--bg-tertiary);
   border-color: var(--accent-primary);
-  transform: translateX(4px);
-  box-shadow: var(--shadow-md);
-}
-
-.vocab-list-item:hover.selected {
-  transform: scale(1.02);
 }
 
 /* List Item Content */
 .vocab-list-item-content {
   display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+}
+
+.vocab-list-text {
+  display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 80px;
 }
 
 .vocab-list-chinese {
@@ -110,12 +130,53 @@
   font-weight: var(--font-semibold);
   color: var(--text-primary);
   font-family: 'Google Sans', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'Roboto', 'Arial', sans-serif;
+  line-height: 1.2;
 }
 
-.vocab-list-details {
+.vocab-list-pinyin {
   font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-family: var(--font-primary);
+}
+
+.vocab-list-english {
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   font-family: var(--font-primary);
+  flex: 1;
+}
+
+/* Action Buttons */
+.vocab-list-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.vocab-action-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: transparent;
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--duration-fast) var(--ease-in-out);
+  padding: 0;
+}
+
+.vocab-action-icon-button:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  transform: scale(1.05);
+}
+
+.vocab-action-icon-button:active {
+  transform: scale(0.95);
 }
 
 /* Empty State */
@@ -130,9 +191,34 @@
   padding: var(--space-6);
 }
 
+/* Add New Button */
+.vocab-add-new-button {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: white;
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.vocab-add-new-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.vocab-add-new-button:active {
+  transform: translateY(0);
+}
+
 /* Stats Display */
 .vocab-stats {
-  margin-top: var(--space-4);
   padding-top: var(--space-4);
   border-top: 1px solid var(--bg-tertiary);
   display: flex;
