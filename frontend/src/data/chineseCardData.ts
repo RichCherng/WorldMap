@@ -64,6 +64,7 @@ export async function addChineseCard(data: {
       chineseWord: data.chineseWord,
       englishWord: data.englishWord,
       pinyin: data.pinyin,
+      isSelected: true,  // Default new cards to selected
     };
 
     if (data.img) {
@@ -101,32 +102,48 @@ export async function addChineseCard(data: {
 export async function updateChineseCard(
   id: string,
   data: {
-    chineseWord: string;
-    englishWord: string;
-    pinyin: string;
+    chineseWord?: string;
+    englishWord?: string;
+    pinyin?: string;
     img?: string;
     exampleUsage?: string;
+    isSelected?: boolean;
   }
 ): Promise<ChineseCardData> {
   try {
-    // Build update data with required fields
-    const cleanData: any = {
-      chineseWord: data.chineseWord,
-      englishWord: data.englishWord,
-      pinyin: data.pinyin,
-    };
+    // Build update data - only include fields that are provided
+    const cleanData: any = {};
+
+    if (data.chineseWord !== undefined) {
+      cleanData.chineseWord = data.chineseWord;
+    }
+
+    if (data.englishWord !== undefined) {
+      cleanData.englishWord = data.englishWord;
+    }
+
+    if (data.pinyin !== undefined) {
+      cleanData.pinyin = data.pinyin;
+    }
 
     // Handle optional img field
-    if (data.img) {
+    if (data.img !== undefined) {
       cleanData.img = data.img;
     }
 
-    // Handle exampleUsage field - use deleteField() if empty/undefined
-    if (data.exampleUsage) {
-      cleanData.exampleUsage = data.exampleUsage;
-    } else {
-      // Explicitly delete the field from Firestore if it's empty/undefined
-      cleanData.exampleUsage = deleteField();
+    // Handle exampleUsage field - use deleteField() if explicitly empty string
+    if (data.exampleUsage !== undefined) {
+      if (data.exampleUsage) {
+        cleanData.exampleUsage = data.exampleUsage;
+      } else {
+        // Explicitly delete the field from Firestore if it's empty
+        cleanData.exampleUsage = deleteField();
+      }
+    }
+
+    // Handle isSelected field
+    if (data.isSelected !== undefined) {
+      cleanData.isSelected = data.isSelected;
     }
 
     console.log('🔄 Updating card with data:', { id, cleanData, hasDeleteField: cleanData.exampleUsage === deleteField() });

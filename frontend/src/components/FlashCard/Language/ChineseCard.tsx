@@ -12,6 +12,7 @@ export interface ChineseCardData {
     createdAt?: number;  // Timestamp in milliseconds
     updatedAt?: number;  // Timestamp in milliseconds
     exampleUsage?: string;  // Optional example sentence showing word usage in context
+    isSelected?: boolean;  // Track if card is included in flashcard stack (default: true)
 }
 
 
@@ -55,13 +56,6 @@ export default function ChineseCard(data: ChineseCardData): CardData {
         back: back
     };
 }
-
-
-
-
-
-
-
 
 
 const LaunguageCard: React.FC = () => {
