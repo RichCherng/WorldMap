@@ -1,0 +1,85 @@
+/* Pill Navigation Styles */
+
+.pill-nav {
+    width: 100%;
+    background: var(--bg-primary);
+    padding: var(--space-4) 0;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+}
+
+.pill-nav-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-2);
+    /* 8px between pills */
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+}
+
+/* Nav Pill Base Styles */
+.nav-pill {
+    display: inline-block;
+    padding: var(--space-3) var(--space-6);
+    /* 12px vertical, 24px horizontal */
+    border-radius: var(--radius-full);
+    /* Pill shape */
+    font-size: var(--text-sm);
+    /* 14px */
+    font-weight: var(--font-semibold);
+    /* 600 */
+    font-family: var(--font-primary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--duration-normal) var(--ease-in-out);
+    position: relative;
+}
+
+/* Inactive Pill State */
+.nav-pill.inactive {
+    background: var(--bg-tertiary);
+    /* Light gray */
+    color: var(--text-primary);
+}
+
+.nav-pill.inactive:hover {
+    background: hsl(0, 0%, 92%);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Active Pill State */
+.nav-pill.active {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.nav-pill.active:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+/* Mobile Responsive */
+@media (max-width: 639px) {
+    .pill-nav-container {
+        gap: var(--space-2);
+        padding: 0 var(--space-3);
+    }
+
+    .nav-pill {
+        padding: var(--space-2) var(--space-4);
+        /* Smaller on mobile */
+        font-size: var(--text-xs);
+        /* 12px on mobile */
+    }
+}
+
+/* Tablet */
+@media (min-width: 640px) and (max-width: 1024px) {
+    .pill-nav-container {
+        gap: var(--space-2);
+    }
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import Navigation from './components/Navigation';
+import { PillNavigation } from './components/Navigation/PillNavigation';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
@@ -19,8 +19,8 @@ const App: React.FC = () => {
         <p>A full-stack application with Spring Boot and React</p>
       </div> */}
 
-      <Navigation />
-      
+      <PillNavigation />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
