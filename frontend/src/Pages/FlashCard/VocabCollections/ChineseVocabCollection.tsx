@@ -6,14 +6,14 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGr
 import { Label } from "@/components/ui/label"
 import { IconCheck, IconInfoCircle, IconPlus, IconAlertCircle, IconX } from "@tabler/icons-react"
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
 } from "@/components/ui/sheet"
 // import { Tooltip, TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { SearchIcon } from "lucide-react";
@@ -77,7 +77,8 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         pronunciation: word.pinyin,
         translation: word.englishWord,
         exampleUsage: word.exampleUsage,
-        createdAt: word.createdAt
+        createdAt: word.createdAt,
+        favorite: word.favorite || false
     }));
 
     const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string; exampleUsage?: string }) => {
@@ -162,7 +163,7 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         try {
             // Clear any previous errors
             setError(null);
-            
+
             // Get the card ID directly from the item
             const cardId = item.id;
             if (!cardId) {
@@ -194,55 +195,55 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         }
     };
 
-  return (
-    <>
-      <VocabCollections
-          title="Chinese Vocabulary"
-          description="Manage your Chinese vocabulary here. Click save when you&apos;re done."
-          onAddVocab={handleAddVocab}
-          >
-          {error && (
-            <div style={{
-              backgroundColor: '#fee2e2',
-              border: '1px solid #fca5a5',
-              borderRadius: '0.5rem',
-              padding: '1rem',
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <IconAlertCircle size={20} color="#dc2626" />
-                <div>
-                  <strong style={{ color: '#dc2626' }}>Error</strong>
-                  <p style={{ margin: 0, color: '#991b1b', fontSize: '0.875rem' }}>{error}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setError(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '0.25rem'
-                }}
-                aria-label="Dismiss error"
-              >
-                <IconX size={20} color="#dc2626" />
-              </button>
-            </div>
-          )}
-          <VocabList
-              items={items}
-              onItemSelect={(item, index) => console.log(item, index)}
-              onItemEdit={handleEditVocab}
-              onItemDelete={handleDeleteVocab}
-              showGradients={false}
-              enableArrowNavigation={true}
-              displayScrollbar={false}/>
-      </VocabCollections>
-      {children && children(cards, loading)}
-    </>
-  )
+    return (
+        <>
+            <VocabCollections
+                title="Chinese Vocabulary"
+                description="Manage your Chinese vocabulary here. Click save when you&apos;re done."
+                onAddVocab={handleAddVocab}
+            >
+                {error && (
+                    <div style={{
+                        backgroundColor: '#fee2e2',
+                        border: '1px solid #fca5a5',
+                        borderRadius: '0.5rem',
+                        padding: '1rem',
+                        marginBottom: '1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <IconAlertCircle size={20} color="#dc2626" />
+                            <div>
+                                <strong style={{ color: '#dc2626' }}>Error</strong>
+                                <p style={{ margin: 0, color: '#991b1b', fontSize: '0.875rem' }}>{error}</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setError(null)}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: '0.25rem'
+                            }}
+                            aria-label="Dismiss error"
+                        >
+                            <IconX size={20} color="#dc2626" />
+                        </button>
+                    </div>
+                )}
+                <VocabList
+                    items={items}
+                    onItemSelect={(item, index) => console.log(item, index)}
+                    onItemEdit={handleEditVocab}
+                    onItemDelete={handleDeleteVocab}
+                    showGradients={false}
+                    enableArrowNavigation={true}
+                    displayScrollbar={false} />
+            </VocabCollections>
+            {children && children(cards, loading)}
+        </>
+    )
 }

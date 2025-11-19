@@ -9,6 +9,7 @@ export interface ChineseCardData {
     englishWord: string;
     pinyin: string;
     img?: string;
+    favorite?: boolean;
     createdAt?: number;  // Timestamp in milliseconds
     updatedAt?: number;  // Timestamp in milliseconds
     exampleUsage?: string;  // Optional example sentence showing word usage in context

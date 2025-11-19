@@ -6,6 +6,7 @@ import { CardData } from '@/components/FlashCard/Card';
 import ChineseCard, { ChineseCardData } from '@/components/FlashCard/Language/ChineseCard';
 import { ChineseVocabCollection } from './VocabCollections/ChineseVocabCollection';
 import GoogleTranslateWidget from '@/components/GoogleTranslate';
+import StudyMode from '@/components/FlashCard/StudyMode';
 
 const FlashCardPage: React.FC = () => {
   useEffect(() => {
@@ -38,48 +39,43 @@ const FlashCardPage: React.FC = () => {
         {(cards, loading) => {
           console.log('📍 FlashCardPage render:', { loading, cardsCount: cards.length, cards });
           return (
-          <div id="flashcard-content">
-            <h1 id="flashcard-page-title">Interactive Flash Cards</h1>
-            <div id="flashcard-stack-section">
-              <h2 id="flashcard-section-title">Study Dev</h2>
+            <div id="flashcard-content">
+              <div id="flashcard-study-section">
+                <div id="flashcard-card-container">
+                  {loading && <p>Loading cards...</p>}
+                  {!loading && <StudyMode words={cards} />}
+                </div>
+              </div>
+              <div id="flashcard-stack-section">
+                <h2 id="flashcard-section-title">Card Stack 2</h2>
+                <p id="flashcard-section-description">Drag the cards around to interact with them</p>
+                <SampleCardStack />
+              </div>
+              <div id="flashcard-gallery-section">
+                <h2 id="flashcard-section-title">Card Gallery</h2>
+                <p id="flashcard-section-description">Scroll through the circular gallery</p>
+                <CardGallery />
+              </div>
 
-              <div id="flashcard-card-container">
-                {loading && <p>Loading cards...</p>}
-                {!loading && cards.length === 0 && <p>No cards found. Add some vocabulary!</p>}
-                {!loading && cards.length > 0 && (
-                  <ChineseCardStack words={cards} />
-                )}
+              {/* Add extra content to ensure scrolling is needed */}
+              <div id="flashcard-extra-content">
+                <h2 id="flashcard-section-title">More Content</h2>
+                <p id="flashcard-section-description">This section demonstrates scr···olling functionality</p>
+                <div style={{ height: '400px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '1rem', padding: '2rem', margin: '2rem 0' }}>
+                  <h3>Scrollable Content Area</h3>
+                  <p>This area is here to ensure the page has enough content to require scrolling.</p>
+                  <p>You should be able to scroll up and down to see all the content on this page.</p>
+                  <p>The page includes:</p>
+                  <ul>
+                    <li>Interactive Card Stack</li>
+                    <li>Circular Gallery</li>
+                    <li>This additional content section</li>
+                  </ul>
+                </div>
               </div>
             </div>
-            <div id="flashcard-stack-section">
-              <h2 id="flashcard-section-title">Card Stack 2</h2>
-              <p id="flashcard-section-description">Drag the cards around to interact with them</p>
-              <SampleCardStack />
-            </div>
-            <div id="flashcard-gallery-section">
-              <h2 id="flashcard-section-title">Card Gallery</h2>
-              <p id="flashcard-section-description">Scroll through the circular gallery</p>
-              <CardGallery />
-            </div>
-
-            {/* Add extra content to ensure scrolling is needed */}
-            <div id="flashcard-extra-content">
-              <h2 id="flashcard-section-title">More Content</h2>
-              <p id="flashcard-section-description">This section demonstrates scr···olling functionality</p>
-              <div style={{ height: '400px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '1rem', padding: '2rem', margin: '2rem 0' }}>
-                <h3>Scrollable Content Area</h3>
-                <p>This area is here to ensure the page has enough content to require scrolling.</p>
-                <p>You should be able to scroll up and down to see all the content on this page.</p>
-                <p>The page includes:</p>
-                <ul>
-                  <li>Interactive Card Stack</li>
-                  <li>Circular Gallery</li>
-                  <li>This additional content section</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}}
+          )
+        }}
       </ChineseVocabCollection>
     </div>
   );
@@ -89,7 +85,7 @@ const FlashCardPage: React.FC = () => {
 const CardGallery = () => {
   return (
     <div id="flashcard-gallery-wrapper">
-      <CircularGallery bend={3} textColor="#ffffff" borderRadius={0.05} scrollEase={0.02}/>
+      <CircularGallery bend={3} textColor="#ffffff" borderRadius={0.05} scrollEase={0.02} />
     </div>
   );
 };
@@ -101,12 +97,12 @@ const ChineseCardStack: React.FC<{ words: ChineseCardData[] }> = ({ words }) => 
   return (
     <div id="flashcard-stack-wrapper">
       {
-        <FlashCard 
+        <FlashCard
           randomRotation={true}
           sensitivity={180}
           sendToBackOnClick={false}
           cardDimensions={{ width: 250, height: 250 }}
-          cardsData={cards}/>
+          cardsData={cards} />
       }
     </div>
   );
@@ -115,23 +111,23 @@ const ChineseCardStack: React.FC<{ words: ChineseCardData[] }> = ({ words }) => 
 
 const SampleCardStack: React.FC = () => {
   const images = [
-          { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format'},
-          { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format'},
-          { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format'},
-          { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format'}
-        ]
+    { id: 1, img: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format' },
+    { id: 2, img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format' },
+    { id: 3, img: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format' },
+    { id: 4, img: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format', img2: 'https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format' }
+  ]
 
-  const cards = images.map(c => ({ id: c.id, front: <img src={c.img} alt={`card-${c.id}`} className="card-image" />, back: <img src={c.img2} alt={`card-${c.id}-flipped`} className="card-image" />}))
+  const cards = images.map(c => ({ id: c.id, front: <img src={c.img} alt={`card-${c.id}`} className="card-image" />, back: <img src={c.img2} alt={`card-${c.id}-flipped`} className="card-image" /> }))
 
   return (
     <div id="flashcard-stack-wrapper">
       {
-        <FlashCard 
+        <FlashCard
           randomRotation={true}
           sensitivity={180}
           sendToBackOnClick={false}
           cardDimensions={{ width: 200, height: 200 }}
-          cardsData={cards}/>
+          cardsData={cards} />
       }
     </div>
   );

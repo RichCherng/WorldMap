@@ -1,0 +1,280 @@
+/* Study Mode Container */
+.study-mode-container {
+  width: 100%;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  background-color: var(--bg-tertiary);
+}
+
+/* Title */
+.study-mode-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-12);
+  text-align: center;
+}
+
+/* Content Area (Card + Arrows) */
+.study-mode-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  margin-bottom: var(--space-8);
+  position: relative;
+}
+
+/* Navigation Arrows */
+.study-mode-nav-arrow {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-4);
+  border-radius: var(--radius-full);
+  transition: all var(--duration-fast) var(--ease-in-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
+.study-mode-nav-arrow:hover:not(:disabled) {
+  color: var(--text-primary);
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.1);
+}
+
+.study-mode-nav-arrow:disabled {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+/* Card Container */
+.study-mode-card {
+  width: 350px;
+  height: 450px;
+  perspective: 1500px;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Card Inner - this is what rotates */
+.study-mode-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow var(--duration-normal) var(--ease-in-out);
+  box-shadow: var(--shadow-2xl);
+  border-radius: var(--radius-2xl);
+}
+
+/* Flipped state - full 180-degree rotation */
+.study-mode-card.flipped .study-mode-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Active flip animation - add subtle scale */
+.study-mode-card-inner:active {
+  transform: scale(0.98);
+}
+
+/* Hover effect - slight lift */
+.study-mode-card:hover .study-mode-card-inner {
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Face - shared styles for front and back */
+.study-mode-card-face {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  border-radius: var(--radius-2xl);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background-color: var(--bg-secondary);
+}
+
+/* Front Side - Chinese */
+.study-mode-card-front {
+  gap: var(--space-6);
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+
+.study-mode-card-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--space-4);
+}
+
+.study-mode-chinese {
+  font-size: var(--text-5xl);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  font-family: 'Google Sans', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'Roboto', 'Arial', sans-serif;
+}
+
+/* Back Side - English + Pinyin */
+.study-mode-card-back {
+  gap: var(--space-4);
+  justify-content: flex-start;
+  padding-top: var(--space-12);
+  transform: rotateY(180deg);
+}
+
+.study-mode-pinyin {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+  font-family: var(--font-primary);
+}
+
+.study-mode-english {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  font-family: var(--font-primary);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  line-height: var(--leading-tight);
+}
+
+/* Example Usage */
+.study-mode-example {
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  border-left: 3px solid var(--accent-primary);
+  max-width: 90%;
+}
+
+.study-mode-example-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-align: left;
+  margin: 0;
+  line-height: var(--leading-normal);
+  word-wrap: break-word;
+  font-family: var(--font-primary);
+}
+
+/* Progress Section */
+.study-mode-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 500px;
+}
+
+.study-mode-progress-text {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin: 0;
+  font-family: var(--font-primary);
+}
+
+.study-mode-progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+
+.study-mode-progress-bar {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--ease-in-out);
+}
+
+/* Empty State */
+.study-mode-empty {
+  padding: var(--space-12);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--text-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .study-mode-card {
+    width: 300px;
+    height: 400px;
+  }
+
+  .study-mode-chinese {
+    font-size: var(--text-4xl);
+  }
+
+  .study-mode-english {
+    font-size: var(--text-lg);
+  }
+
+  .study-mode-content {
+    gap: var(--space-4);
+  }
+
+  .study-mode-nav-arrow {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .study-mode-card {
+    width: 260px;
+    height: 350px;
+  }
+
+  .study-mode-chinese {
+    font-size: var(--text-3xl);
+  }
+
+  .study-mode-english {
+    font-size: var(--text-base);
+  }
+
+  .study-mode-pinyin {
+    font-size: var(--text-base);
+  }
+
+  .study-mode-title {
+    font-size: var(--text-2xl);
+  }
+
+  .study-mode-content {
+    gap: var(--space-2);
+  }
+}
