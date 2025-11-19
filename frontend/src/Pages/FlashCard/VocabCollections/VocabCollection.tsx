@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Children, isValidElement, cloneElement } from "react";
 import Folder from "@/components/Folder";
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from "@/components/ui/input-group";
@@ -79,7 +79,12 @@ export function VocabCollections({
                 </SheetDescription>
             </SheetHeader>
             <SearchBar searchText={searchText} setSearchText={setSearchText} />
-            {children}
+            {Children.map(children, (child) => {
+                if (isValidElement(child)) {
+                    return cloneElement(child as React.ReactElement<any>, { searchQuery: searchText });
+                }
+                return child;
+            })}
             <SheetFooter className="flex-col space-y-1 compact-footer">
                 <AddVocabInput
                     nativeText={nativeText}

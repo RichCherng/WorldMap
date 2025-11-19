@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, UIEvent } from 'react';
+import React, { useRef, useState, useEffect, UIEvent, useMemo } from 'react';
 import './VocabList.css';
 import AnimatedItem from './components/AnimatedItem';
 import EditVocabDialog from './components/EditVocabDialog';
@@ -26,6 +26,7 @@ interface VocabListProps {
   itemClassName?: string;
   displayScrollbar?: boolean;
   initialSelectedIndex?: number;
+  searchQuery?: string;
 }
 
 const VocabList: React.FC<VocabListProps> = ({
@@ -38,7 +39,8 @@ const VocabList: React.FC<VocabListProps> = ({
   className = '',
   itemClassName = '',
   displayScrollbar = true,
-  initialSelectedIndex = -1
+  initialSelectedIndex = -1,
+  searchQuery = ""
 }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(initialSelectedIndex);
@@ -46,6 +48,15 @@ const VocabList: React.FC<VocabListProps> = ({
   const [topGradientOpacity, setTopGradientOpacity] = useState<number>(0);
   const [bottomGradientOpacity, setBottomGradientOpacity] = useState<number>(1);
   const [sortOption, setSortOption] = useState<SortOption>('newest');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleDeleteItem = (item: vocabEntry, index: number) => {
     if (onItemDelete) {
@@ -67,9 +78,21 @@ const VocabList: React.FC<VocabListProps> = ({
     setBottomGradientOpacity(scrollHeight <= clientHeight ? 0 : Math.min(bottomDistance / 50, 1));
   };
 
+  // Filtering Logic
+  const filteredItems = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) return items;
+
+    const query = debouncedSearchQuery.toLowerCase();
+    return items.filter(item =>
+      item.native.toLowerCase().includes(query) ||
+      item.pronunciation.toLowerCase().includes(query) ||
+      item.translation.toLowerCase().includes(query)
+    );
+  }, [items, debouncedSearchQuery]);
+
   // Sorting Logic
   const getSortedItems = () => {
-    const itemsCopy = [...items];
+    const itemsCopy = [...filteredItems];
     switch (sortOption) {
       case 'newest':
         // Sort by createdAt descending (newest first)
