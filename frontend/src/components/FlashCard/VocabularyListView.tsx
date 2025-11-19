@@ -38,9 +38,25 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
 
   const handleSave = async (updatedWord: ChineseCardData) => {
     console.log('🔵 handleSave called with:', updatedWord);
+
+    // Store original words for rollback if needed
+    const originalWords = words;
+
     try {
       setIsSaving(true);
       setError(null);
+
+      // OPTIMISTIC UPDATE: Update UI immediately
+      console.log('⚡ Applying optimistic update');
+      if (onWordsChange) {
+        const optimisticWords = words.map(w =>
+          w.id === updatedWord.id ? updatedWord : w
+        );
+        onWordsChange(optimisticWords);
+      }
+
+      // Exit edit mode immediately for better UX
+      setIsEditing(false);
 
       // Build update payload - only include exampleUsage if it has a value
       const updatePayload: any = {
@@ -56,21 +72,28 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
       }
 
       console.log('📤 Calling updateChineseCard with id:', updatedWord.id, 'payload:', updatePayload);
+
+      // Update backend in background
       const updated = await updateChineseCard(String(updatedWord.id), updatePayload);
 
-      console.log('✅ updateChineseCard returned:', updated);
+      console.log('✅ Backend update successful:', updated);
 
-      // Update local state and notify parent
+      // Update with server response to ensure consistency
       if (onWordsChange) {
-        const updatedWords = words.map(w => w.id === updated.id ? updated : w);
-        console.log('📝 Updating parent component with new words');
-        onWordsChange(updatedWords);
+        const serverWords = words.map(w => w.id === updated.id ? updated : w);
+        onWordsChange(serverWords);
       }
-
-      console.log('✨ Setting isEditing to false');
-      setIsEditing(false);
     } catch (err: any) {
       console.error('❌ Error saving vocabulary:', err);
+
+      // ROLLBACK: Revert to original state on error
+      console.log('🔄 Rolling back optimistic update');
+      if (onWordsChange) {
+        onWordsChange(originalWords);
+      }
+
+      // Re-enter edit mode so user can fix the issue
+      setIsEditing(true);
       setError(err.message || 'Failed to save changes');
     } finally {
       setIsSaving(false);
@@ -82,26 +105,45 @@ const VocabularyListView: React.FC<VocabularyListViewProps> = ({ words, onWordsC
   };
 
   const handleDelete = async (id: string) => {
+    // Store original words for rollback if needed
+    const originalWords = words;
+    const originalSelectedId = selectedId;
+    const originalIsEditing = isEditing;
+
     try {
       setError(null);
 
-      // Delete from Firestore (ensure id is string)
-      await deleteChineseCard(String(id));
-
-      // Update local state and notify parent
+      // OPTIMISTIC UPDATE: Remove from UI immediately
+      console.log('⚡ Applying optimistic delete');
       if (onWordsChange) {
-        const updatedWords = words.filter(w => w.id !== id);
-        onWordsChange(updatedWords);
+        const optimisticWords = words.filter(w => w.id !== id);
+        onWordsChange(optimisticWords);
       }
 
-      // If we deleted the selected card, clear selection or select another
+      // If we deleted the selected card, clear selection or select another immediately
       if (selectedId === id) {
-        setSelectedId(words.length > 1 ? words[0].id : null);
+        const remainingWords = words.filter(w => w.id !== id);
+        setSelectedId(remainingWords.length > 0 ? remainingWords[0].id : null);
         setIsEditing(false);
       }
+
+      // Delete from Firestore in background (ensure id is string)
+      console.log('📤 Deleting from backend:', id);
+      await deleteChineseCard(String(id));
+
+      console.log('✅ Backend delete successful');
     } catch (err: any) {
+      console.error('❌ Error deleting vocabulary:', err);
+
+      // ROLLBACK: Revert to original state on error
+      console.log('🔄 Rolling back optimistic delete');
+      if (onWordsChange) {
+        onWordsChange(originalWords);
+      }
+      setSelectedId(originalSelectedId);
+      setIsEditing(originalIsEditing);
+
       setError(err.message || 'Failed to delete vocabulary');
-      console.error('Error deleting vocabulary:', err);
     }
   };
 
