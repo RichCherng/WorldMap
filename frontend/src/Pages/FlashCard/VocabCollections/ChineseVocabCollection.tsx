@@ -76,7 +76,8 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
         native: word.chineseWord,
         pronunciation: word.pinyin,
         translation: word.englishWord,
-        exampleUsage: word.exampleUsage
+        exampleUsage: word.exampleUsage,
+        createdAt: word.createdAt
     }));
 
     const handleAddVocab = async (vocab: { native: string; pronunciation: string; translation: string; exampleUsage?: string }) => {
@@ -119,10 +120,10 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
             // Clear any previous errors
             setError(null);
 
-            // Get the card ID from the items array
-            const cardId = items[index]?.id;
+            // Get the card ID directly from the item
+            const cardId = item.id;
             if (!cardId) {
-                console.error('No card ID found for index:', index);
+                console.error('No card ID found for item:', item);
                 setError('Unable to update: Card ID not found');
                 return;
             }
@@ -162,10 +163,10 @@ export function ChineseVocabCollection({ onCardsChange, onLoadingChange, childre
             // Clear any previous errors
             setError(null);
             
-            // Get the card ID from the items array
-            const cardId = items[index]?.id;
+            // Get the card ID directly from the item
+            const cardId = item.id;
             if (!cardId) {
-                console.error('No card ID found for index:', index);
+                console.error('No card ID found for item:', item);
                 setError('Unable to delete: Card ID not found');
                 return;
             }

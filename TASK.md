@@ -53,6 +53,15 @@
 **Dependencies:** Firebase Cloud Functions, OpenAI API account
 **Details:** See [tasks/CHATGPT_FLASHCARD_GENERATION_TASK.md](tasks/CHATGPT_FLASHCARD_GENERATION_TASK.md)
 
+### Search Filter Feature
+**Status:** ❌ Not Started
+**Description:** Client-side search/filter functionality for vocabulary list to help users quickly find specific cards by Chinese, pinyin, or English.
+**Feature Branch:** `search-filter-feature`
+**Scope:** VocabList component only (does not affect flashcard study mode)
+**Architecture:** Pure client-side filtering with debounced input and memoized results
+**Benefits:** Improved UX for large vocabulary lists, instant search feedback, no backend changes needed
+**Details:** See [tasks/SEARCH_FILTER_FEATURE_TASK.md](tasks/SEARCH_FILTER_FEATURE_TASK.md)
+
 ---
 
 ## Task Management Guidelines
