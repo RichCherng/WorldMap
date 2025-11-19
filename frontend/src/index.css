@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Design System */
+@import './styles/design-system.css';
+@import './styles/animations.css';
+
+
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
@@ -51,6 +56,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -118,7 +124,7 @@ code {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 20px 0;
 }
 
@@ -179,7 +185,7 @@ code {
 
 .country-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .country-card h4 {
