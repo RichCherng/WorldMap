@@ -6,6 +6,7 @@ import About from './components/About';
 import Contact from './components/Contact';
 import WorldMap from './components/WorldMap';
 import FlashCard from './Pages/FlashCard/FlashCardPage';
+import PlaygroundPage from '@/Pages/Playground/PlaygroundPage';
 import Stack from './components/Stack';
 
 const App: React.FC = () => {
@@ -28,6 +29,7 @@ const App: React.FC = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/worldmap" element={<WorldMap />} />
         <Route path="/flash-card" element={<FlashCard />} />
+        <Route path="/playground" element={<PlaygroundPage />} />
         <Route path="/stack" element={<Stack />} />
       </Routes>
     </div>
