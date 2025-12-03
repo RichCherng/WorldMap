@@ -6,7 +6,8 @@ import About from './components/About';
 import Contact from './components/Contact';
 import WorldMap from './components/WorldMap';
 import FlashCard from './Pages/FlashCard/FlashCardPage';
-import PlaygroundPage from '@/Pages/Playground/PlaygroundPage';
+import PlaygroundPage, { PlaygroundRedirect } from '@/Pages/Playground/PlaygroundPage';
+import { prototypes } from '@/Pages/Playground/prototypes';
 import Stack from './components/Stack';
 
 const App: React.FC = () => {
@@ -29,7 +30,16 @@ const App: React.FC = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/worldmap" element={<WorldMap />} />
         <Route path="/flash-card" element={<FlashCard />} />
-        <Route path="/playground" element={<PlaygroundPage />} />
+        <Route path="/playground" element={<PlaygroundPage />}>
+          <Route index element={<PlaygroundRedirect />} />
+          {prototypes.map((prototype) => (
+            <Route
+              key={prototype.id}
+              path={prototype.id}
+              element={<prototype.component />}
+            />
+          ))}
+        </Route>
         <Route path="/stack" element={<Stack />} />
       </Routes>
     </div>
