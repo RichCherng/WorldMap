@@ -1,3 +1,8 @@
+# Build settings
+build:
+  buildCommand: npm run build
+  outputDirectory: build
+
 # Settings for Cloud Run
 runConfig:
   minInstances: 2
