@@ -4,6 +4,7 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "@craco/craco": "^7.1.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-select": "^2.2.6",
@@ -37,7 +38,6 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "@craco/craco": "^7.1.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
@@ -54,8 +54,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "generate:proto": "pbjs -t static-module -w es6 -o src/types/proto/chinese_flashcard.js ../proto/chinese_card.proto && pbts -o src/types/proto/chinese_flashcard.d.ts src/types/proto/chinese_flashcard.js",
-    "generate:grpc-web": "protoc -I=../proto chinese_card.proto --js_out=import_style=commonjs:./src/types/grpc-web --grpc-web_out=import_style=typescript,mode=grpcwebtext:./src/types/grpc-web"
+    "generate:proto": "pbjs -t static-module -w es6 -o src/types/proto/chinese_flashcard.js ../proto/chinese_card.proto && pbts -o src/types/proto/chinese_flashcard.d.ts src/types/proto/chinese_flashcard.js"
   },
   "eslintConfig": {
     "extends": [
@@ -74,6 +73,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://localhost:8080"
+  }
 }
