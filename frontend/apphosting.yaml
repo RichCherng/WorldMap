@@ -1,5 +1,5 @@
 # Build settings
-build:
+scripts:
   buildCommand: npm run build
   outputDirectory: build
 
