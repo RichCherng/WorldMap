@@ -72,6 +72,51 @@ Preview the production build:
 npm run preview
 ```
 
+## 🚢 Deployment to Firebase
+
+### Prerequisites
+- Firebase CLI installed: `npm install -g firebase-tools`
+- Firebase project created at https://console.firebase.google.com
+
+### Deploy Steps
+
+1. **Build the React app**:
+```bash
+cd frontend
+npm run build
+```
+
+2. **Login to Firebase** (first time only):
+```bash
+firebase login
+```
+
+3. **Deploy to Firebase Hosting**:
+```bash
+cd ..
+firebase deploy --only hosting
+```
+
+### Clean Build & Deploy
+
+Full rebuild and deploy:
+```bash
+cd frontend
+rm -rf node_modules build
+npm install
+npm run build
+cd ..
+firebase deploy --only hosting
+```
+
+### Test Locally Before Deploy
+
+Preview production build with Firebase:
+```bash
+firebase serve
+```
+Visit http://localhost:5000 to test
+
 ## ✨ Features
 
 ### Chinese Flashcard Learning
