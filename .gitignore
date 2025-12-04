@@ -79,3 +79,6 @@ Thumbs.db
 ### Frontend environment files ###
 frontend/.env.development
 frontend/.env.production
+
+### Firebase ###
+.firebase/
