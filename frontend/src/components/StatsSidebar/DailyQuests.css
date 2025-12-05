@@ -1,0 +1,38 @@
+/* Daily Quests */
+.daily-quests {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.quests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.quests-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.view-all-btn {
+  background: none;
+  border: none;
+  color: #06b6d4;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.view-all-btn:hover {
+  color: #0891b2;
+}
+
+.quests-list {
+  display: flex;
+  flex-direction: column;
+}

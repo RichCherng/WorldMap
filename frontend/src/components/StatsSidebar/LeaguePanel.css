@@ -1,0 +1,82 @@
+/* League Panel */
+.league-panel {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.league-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  margin-top: 0;
+}
+
+.rank-display {
+  margin-bottom: 16px;
+}
+
+.rank-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.badge-icon {
+  font-size: 32px;
+}
+
+.rank-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.rank-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.rank-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.rank-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #dcfce7;
+  border-radius: 8px;
+  color: #16a34a;
+  font-size: 14px;
+}
+
+.check-icon {
+  font-weight: 700;
+}
+
+.view-league-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: #06b6d4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.view-league-btn:hover {
+  background: #0891b2;
+}
