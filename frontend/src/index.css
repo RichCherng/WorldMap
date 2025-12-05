@@ -28,6 +28,7 @@
   --input: 214.3 31.8% 91.4%;
   --ring: 222.2 84% 4.9%;
   --radius: 0.5rem;
+  --accent-purple: #a855f7;
 }
 
 .dark {
@@ -200,3 +201,15 @@ code {
 }
 
 /* Pixel Art Ocean Styles moved to Animations folder */
+
+/* App Layout Styles */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: 60px;
+  flex: 1;
+  width: calc(100% - 60px);
+}

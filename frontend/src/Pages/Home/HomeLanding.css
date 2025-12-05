@@ -1,0 +1,46 @@
+.home-layout {
+  width: 100%;
+  height: 100vh;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  height: calc(100vh - 60px);
+}
+
+.center-content {
+  overflow-y: auto;
+  background: #f9fafb;
+  padding: 24px;
+}
+
+.right-sidebar {
+  overflow-y: auto;
+  background: #fafafa;
+  padding: 20px 16px;
+  border-left: 1px solid #e5e5e5;
+}
+
+.placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.placeholder h2 {
+  margin-bottom: 16px;
+  font-size: 24px;
+  color: #333;
+}
+
+.placeholder h3 {
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #333;
+}
+
+.placeholder p {
+  margin: 8px 0;
+  line-height: 1.6;
+}
