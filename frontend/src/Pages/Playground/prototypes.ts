@@ -25,5 +25,5 @@ export const prototypes: PrototypeConfig[] = [
     title: 'Interactive Demo',
     component: lazy(() => import('./prototypes/InteractiveDemo')),
     description: 'Test interactive components and state',
-  },
+},
 ];
