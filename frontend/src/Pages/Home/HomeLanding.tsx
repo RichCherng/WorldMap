@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatsHeader } from '@/components/StatsHeader';
+import { StatsSidebar } from '@/components/StatsSidebar/StatsSidebar';
 import './HomeLanding.css';
 
 const HomeLanding: React.FC = () => {
@@ -17,13 +18,7 @@ const HomeLanding: React.FC = () => {
           </div>
         </main>
         <aside className="right-sidebar">
-          <div className="placeholder">
-            <h3>📊 Daily Stats</h3>
-            <p>Coming soon in Phase 3!</p>
-            <p style={{ color: '#999', fontSize: '14px' }}>
-              Daily quests, league rankings, and friend activity will appear here.
-            </p>
-          </div>
+          <StatsSidebar />
         </aside>
       </div>
     </div>

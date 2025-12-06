@@ -1,0 +1,6 @@
+/* Stats Sidebar Container */
+.stats-sidebar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
